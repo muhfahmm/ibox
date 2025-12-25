@@ -238,7 +238,6 @@
 
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -249,7 +248,7 @@
 
             <div class="sidebar-menu">
                 <div class="menu-section">
-                    <h3 class="section-title">Menu Utama</h3>
+                    <h3 class="section-title">Panel Produk</h3>
                     <ul>
                         <li class="active">
                             <a href="index.php">
@@ -382,7 +381,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="other/settings/">
+                            <a href="other/settings/settings.php">
                                 <i class="fas fa-cog"></i>
                                 <span>Pengaturan</span>
                             </a>
