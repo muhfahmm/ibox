@@ -1,3 +1,14 @@
+<?php
+session_start();
+
+// Jika belum login, redirect ke login
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: ../../auth/login.php?error=not_logged_in');
+    exit();
+}
+
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -8,7 +19,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Reset & Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -34,7 +44,6 @@
             display: flex;
             flex-direction: column;
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
-            z-index: 100;
         }
 
         .sidebar-header {
@@ -61,7 +70,6 @@
         .sidebar-menu {
             flex: 1;
             padding: 20px 0;
-            overflow-y: auto;
         }
 
         .menu-section {
@@ -93,7 +101,6 @@
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: all 0.3s ease;
-            position: relative;
         }
 
         .sidebar-menu ul li a:hover {
@@ -167,6 +174,7 @@
             color: rgba(255, 255, 255, 0.6);
             font-size: 18px;
             transition: color 0.3s;
+            text-decoration: none;
         }
 
         .logout-btn:hover {
@@ -208,6 +216,41 @@
             color: #4a6cf7;
             margin-bottom: 30px;
             opacity: 0.9;
+        }
+
+        .login-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .login-info h3 {
+            color: #4a6cf7;
+            margin-bottom: 10px;
+        }
+
+        .login-info p {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .btn-logout {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
         }
 
         /* Responsive Styles */
@@ -257,27 +300,27 @@
                             </a>
                         </li>
                         <li class="active">
-                            <a href="../categories/kategori.php">
+                            <a href="../../products-panel/categories/kategori.php">
                                 <i class="fas fa-tags"></i>
                                 <span>Kategori</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../ipad/ipad.php">
+                            <a href="../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
                                 <span class="badge">8</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../iphone/iphone.php">
+                            <a href="../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
                                 <span class="badge">24</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../mac/mac.php">
+                            <a href="../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
                                 <span class="badge">12</span>
@@ -285,14 +328,14 @@
                         </li>
 
                         <li>
-                            <a href="../music/music.php">
+                            <a href="../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
                                 <span class="badge">10</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../watch/watch.php">
+                            <a href="../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
                                 <span class="badge">15</span>
@@ -300,14 +343,14 @@
                         </li>
 
                         <li>
-                            <a href="../aksesoris/aksesoris.php">
+                            <a href="../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
                                 <span class="badge">15</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../airtag/airtag.php">
+                            <a href="../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
                                 <span class="badge">15</span>
@@ -392,12 +435,12 @@
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin+iBox&background=4a6cf7&color=fff" alt="Admin">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_username); ?>&background=4a6cf7&color=fff" alt="Admin">
                     <div class="user-info">
-                        <h4>Admin iBox</h4>
-                        <p>admin@ibox.co.id</p>
+                        <h4><?php echo htmlspecialchars($admin_username); ?></h4>
+                        <p>Admin iBox</p>
                     </div>
-                    <a href="auth/logout.php" class="logout-btn">
+                    <a href="../../auth/logout.php" class="logout-btn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
@@ -410,11 +453,34 @@
                 <div class="welcome-icon">
                     <i class="fas fa-user-shield"></i>
                 </div>
-                <h1>Selamat datang admin</h1>
+                <h1>Selamat datang, <?php echo htmlspecialchars($admin_username); ?>!</h1>
                 <p>Anda telah berhasil login ke panel administrasi iBox. Gunakan menu di sebelah kiri untuk mengelola sistem.</p>
+
+                <div class="login-info">
+                    <h3>Informasi Login:</h3>
+                    <p><strong>Username:</strong> <?php echo htmlspecialchars($admin_username); ?></p>
+                    <p><strong>Waktu Login:</strong> <?php echo date('d/m/Y H:i:s'); ?></p>
+                    <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+                </div>
+
+                <a href="../../auth/logout.php" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
             </div>
         </main>
     </div>
+
+    <script>
+        // Session timeout warning (30 minutes)
+        setTimeout(function() {
+            alert('Session akan segera berakhir. Silakan login kembali.');
+        }, 25 * 60 * 1000);
+
+        // Auto logout after 30 minutes
+        setTimeout(function() {
+            window.location.href = 'auth/logout.php';
+        }, 30 * 60 * 1000);
+    </script>
 </body>
 
 </html>
