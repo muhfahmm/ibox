@@ -1,0 +1,444 @@
+/* ========== STYLING KHUSUS HALAMAN PRODUK ========== */
+
+/* Filter Section */
+.filter-section {
+    background-color: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    padding: 10px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    font-weight: 500;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.filter-tab:hover {
+    background-color: #e9ecef;
+}
+
+.filter-tab.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.tab-count {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 10px;
+}
+
+.filter-controls {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+.filter-btn, .export-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--transition);
+}
+
+.filter-btn {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-light);
+}
+
+.filter-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.export-btn {
+    background-color: #28a745;
+    color: white;
+    border: 1px solid #28a745;
+}
+
+.export-btn:hover {
+    background-color: #218838;
+}
+
+/* Table Styles untuk Produk */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-table thead {
+    background-color: #f8f9fa;
+}
+
+.product-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+.product-table th:first-child {
+    width: 50px;
+}
+
+.product-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+.product-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+.product-table-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+
+.product-table-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-table-info h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.product-table-info p {
+    font-size: 13px;
+    color: var(--secondary-color);
+}
+
+.category-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.iphone-tag {
+    background-color: rgba(74, 108, 247, 0.1);
+    color: var(--primary-color);
+}
+
+.mac-tag {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: var(--secondary-color);
+}
+
+.ipad-tag {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.watch-tag {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--warning-color);
+}
+
+.music-tag {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: var(--danger-color);
+}
+
+.stock-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stock-value {
+    font-weight: 600;
+    min-width: 30px;
+}
+
+.stock-bar {
+    width: 60px;
+    height: 8px;
+    background-color: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.stock-fill {
+    height: 100%;
+    border-radius: 4px;
+}
+
+.high-stock {
+    width: 80%;
+    background-color: var(--success-color);
+}
+
+.medium-stock {
+    width: 50%;
+    background-color: var(--warning-color);
+}
+
+.low-stock {
+    width: 20%;
+    background-color: var(--danger-color);
+}
+
+.no-stock {
+    width: 0%;
+    background-color: var(--danger-color);
+}
+
+.price-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.current-price {
+    font-weight: 700;
+    color: var(--dark-color);
+    font-size: 15px;
+}
+
+.original-price {
+    font-size: 13px;
+    color: var(--secondary-color);
+    text-decoration: line-through;
+}
+
+.status-published {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--success-color);
+}
+
+.status-draft {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: var(--secondary-color);
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.view-btn {
+    color: var(--primary-color);
+    background-color: rgba(74, 108, 247, 0.1);
+}
+
+.view-btn:hover {
+    background-color: rgba(74, 108, 247, 0.2);
+}
+
+.edit-btn {
+    color: var(--warning-color);
+    background-color: rgba(255, 193, 7, 0.1);
+}
+
+.edit-btn:hover {
+    background-color: rgba(255, 193, 7, 0.2);
+}
+
+.duplicate-btn {
+    color: #6f42c1;
+    background-color: rgba(111, 66, 193, 0.1);
+}
+
+.duplicate-btn:hover {
+    background-color: rgba(111, 66, 193, 0.2);
+}
+
+.delete-btn {
+    color: var(--danger-color);
+    background-color: rgba(220, 53, 69, 0.1);
+}
+
+.delete-btn:hover {
+    background-color: rgba(220, 53, 69, 0.2);
+}
+
+/* Bulk Actions */
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.bulk-select {
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: white;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    min-width: 150px;
+}
+
+.apply-bulk-btn {
+    padding: 10px 20px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.apply-bulk-btn:hover {
+    background-color: #3a5ce5;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background-color: white;
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    border-color: var(--primary-light);
+}
+
+.pagination-btn.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    padding: 0 10px;
+    color: var(--secondary-color);
+}
+
+.pagination-info {
+    margin-left: auto;
+    font-size: 14px;
+    color: var(--secondary-color);
+}
+
+/* Responsive Styles untuk Produk */
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-select {
+        min-width: unset;
+        width: 100%;
+    }
+    
+    .product-table {
+        font-size: 13px;
+    }
+    
+    .product-table th, 
+    .product-table td {
+        padding: 10px;
+    }
+    
+    .action-buttons {
+        flex-wrap: wrap;
+    }
+    
+    .pagination-info {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .filter-tabs {
+        flex-direction: column;
+    }
+    
+    .filter-tab {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .bulk-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .bulk-select,
+    .apply-bulk-btn {
+        width: 100%;
+    }
+    
+    .stock-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .stock-bar {
+        width: 100%;
+    }
+}
