@@ -8,6 +8,57 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Koneksi database
+require_once '../../db.php';
+
+// Fitur Filter/Pencarian
+$search = '';
+$where_clause = '';
+
+if (isset($_GET['search']) && !empty($_GET['search'])) {
+    $search = mysqli_real_escape_string($db, $_GET['search']);
+    $where_clause = " WHERE nama_kategori_model LIKE '%$search%'";
+}
+
+// Ambil data dengan filter dan urutan DESC (terbar/Z-A)
+$query = "SELECT * FROM admin_kategori_model $where_clause ORDER BY nama_kategori_model DESC";
+$result = mysqli_query($db, $query);
+
+// Cek apakah ada pesan sukses atau error
+$success_message = '';
+$error_message = '';
+
+if (isset($_GET['success'])) {
+    switch ($_GET['success']) {
+        case 'added':
+            $success_message = 'Kategori berhasil ditambahkan!';
+            break;
+        case 'updated':
+            $success_message = 'Kategori berhasil diperbarui!';
+            break;
+        case 'deleted':
+            $success_message = 'Kategori berhasil dihapus!';
+            break;
+    }
+}
+
+if (isset($_GET['error'])) {
+    switch ($_GET['error']) {
+        case 'empty':
+            $error_message = 'Nama kategori tidak boleh kosong!';
+            break;
+        case 'exists':
+            $error_message = 'Kategori dengan nama tersebut sudah ada!';
+            break;
+        case 'failed':
+            $error_message = 'Terjadi kesalahan saat memproses data!';
+            break;
+        case 'not_found':
+            $error_message = 'Kategori tidak ditemukan!';
+            break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -15,7 +66,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel iBox</title>
+    <title>Manajemen Kategori - Admin Panel iBox</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -70,6 +121,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         .sidebar-menu {
             flex: 1;
             padding: 20px 0;
+            overflow-y: auto;
         }
 
         .menu-section {
@@ -189,68 +241,231 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             flex-direction: column;
         }
 
-        .welcome-container {
-            text-align: center;
-            max-width: 600px;
-            padding: 40px;
-            background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        .page-header {
+            margin-bottom: 30px;
         }
 
-        .welcome-container h1 {
-            font-size: 42px;
+        .page-header h1 {
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 20px;
-        }
-
-        .welcome-container p {
-            font-size: 18px;
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        .welcome-icon {
-            font-size: 80px;
-            color: #4a6cf7;
-            margin-bottom: 30px;
-            opacity: 0.9;
-        }
-
-        .login-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-            text-align: left;
-        }
-
-        .login-info h3 {
-            color: #4a6cf7;
+            color: #1a1a2e;
             margin-bottom: 10px;
         }
 
-        .login-info p {
-            font-size: 14px;
-            margin-bottom: 5px;
+        .page-header p {
+            font-size: 16px;
+            color: #666;
         }
 
-        .btn-logout {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 25px;
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert i {
+            font-size: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .card-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1a1a2e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: #4a6cf7;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
         }
 
-        .btn-logout:hover {
+        .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+            color: #333;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+        }
+
+        .btn-sm {
+            padding: 8px 15px;
+            font-size: 13px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
+            color: white;
+        }
+
+        table thead th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        table tbody td {
+            padding: 15px;
+            font-size: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 18px;
         }
 
         /* Responsive Styles */
@@ -265,15 +480,15 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             }
 
             .main-content {
-                padding: 30px 20px;
+                padding: 20px;
             }
 
-            .welcome-container h1 {
-                font-size: 32px;
+            .page-header h1 {
+                font-size: 24px;
             }
 
-            .welcome-icon {
-                font-size: 60px;
+            .action-buttons {
+                flex-direction: column;
             }
         }
     </style>
@@ -449,37 +664,120 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="welcome-container">
-                <div class="welcome-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <h1>Selamat datang, <?php echo htmlspecialchars($admin_username); ?>!</h1>
-                <p>Anda telah berhasil login ke panel administrasi iBox. Gunakan menu di sebelah kiri untuk mengelola sistem.</p>
+            <div class="page-header">
+                <h1><i class="fas fa-tags"></i> Manajemen Kategori</h1>
+                <p>Kelola kategori produk Apple di iBox</p>
+            </div>
 
-                <div class="login-info">
-                    <h3>Informasi Login:</h3>
-                    <p><strong>Username:</strong> <?php echo htmlspecialchars($admin_username); ?></p>
-                    <p><strong>Waktu Login:</strong> <?php echo date('d/m/Y H:i:s'); ?></p>
-                    <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+            <?php if ($success_message): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span><?php echo $success_message; ?></span>
                 </div>
+            <?php endif; ?>
 
-                <a href="../../auth/logout.php" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </a>
+            <?php if ($error_message): ?>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span><?php echo $error_message; ?></span>
+                </div>
+            <?php endif; ?>
+
+            <!-- Form Tambah Kategori -->
+            <div class="card">
+                <div class="card-header">
+                    <h2><i class="fas fa-plus-circle"></i> Tambah Kategori Baru</h2>
+                </div>
+                <form action="api/api-add-category.php" method="POST">
+                    <div class="form-group">
+                        <label for="nama_kategori">Nama Kategori</label>
+                        <input type="text" id="nama_kategori" name="nama_kategori" placeholder="Masukkan nama kategori..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Simpan Kategori
+                    </button>
+                </form>
+            </div>
+
+            <!-- Daftar Kategori -->
+            <div class="card">
+                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <h2><i class="fas fa-list"></i> Daftar Kategori</h2>
+                    
+                    <!-- Form Filter -->
+                    <form action="" method="GET" style="display: flex; gap: 10px;">
+                        <div style="position: relative;">
+                            <input type="text" 
+                                   name="search" 
+                                   value="<?php echo htmlspecialchars($search); ?>" 
+                                   placeholder="Cari kategori..." 
+                                   style="padding: 8px 15px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; width: 250px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i> Cari
+                        </button>
+                        <?php if (!empty($search)): ?>
+                            <a href="kategori.php" class="btn btn-warning btn-sm" title="Reset Filter">
+                                <i class="fas fa-sync"></i>
+                            </a>
+                        <?php endif; ?>
+                    </form>
+                </div>
+                <div class="table-container">
+                    <?php if (mysqli_num_rows($result) > 0): ?>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th width="80">No</th>
+                                    <th>Nama Kategori</th>
+                                    <th width="200">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php 
+                                $no = 1;
+                                while ($row = mysqli_fetch_assoc($result)): 
+                                ?>
+                                    <tr>
+                                        <td><?php echo $no++; ?></td>
+                                        <td><?php echo htmlspecialchars($row['nama_kategori_model']); ?></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <a href="edit-category.php?id=<?php echo $row['id']; ?>" class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="api/api-delete-category.php?id=<?php echo $row['id']; ?>" 
+                                                   class="btn btn-danger btn-sm" 
+                                                   onclick="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <?php endwhile; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>Belum ada kategori. Silakan tambahkan kategori baru.</p>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </main>
     </div>
 
     <script>
-        // Session timeout warning (30 minutes)
+        // Auto hide alerts after 5 seconds
         setTimeout(function() {
-            alert('Session akan segera berakhir. Silakan login kembali.');
-        }, 25 * 60 * 1000);
-
-        // Auto logout after 30 minutes
-        setTimeout(function() {
-            window.location.href = 'auth/logout.php';
-        }, 30 * 60 * 1000);
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s ease';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
     </script>
 </body>
 
