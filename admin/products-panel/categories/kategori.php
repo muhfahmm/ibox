@@ -701,36 +701,18 @@ if (isset($_GET['error'])) {
 
             <!-- Daftar Kategori -->
             <div class="card">
-                <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div class="card-header">
                     <h2><i class="fas fa-list"></i> Daftar Kategori</h2>
-                    
-                    <!-- Form Filter -->
-                    <form action="" method="GET" style="display: flex; gap: 10px;">
-                        <div style="position: relative;">
-                            <input type="text" 
-                                   name="search" 
-                                   value="<?php echo htmlspecialchars($search); ?>" 
-                                   placeholder="Cari kategori..." 
-                                   style="padding: 8px 15px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; width: 250px;">
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fas fa-search"></i> Cari
-                        </button>
-                        <?php if (!empty($search)): ?>
-                            <a href="kategori.php" class="btn btn-warning btn-sm" title="Reset Filter">
-                                <i class="fas fa-sync"></i>
-                            </a>
-                        <?php endif; ?>
-                    </form>
                 </div>
                 <div class="table-container">
                     <?php if (mysqli_num_rows($result) > 0): ?>
                         <table>
                             <thead>
                                 <tr>
-                                    <th width="80">No</th>
+                                    <th>No</th>
+                                    <th>ID</th>
                                     <th>Nama Kategori</th>
-                                    <th width="200">Aksi</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -740,6 +722,7 @@ if (isset($_GET['error'])) {
                                 ?>
                                     <tr>
                                         <td><?php echo $no++; ?></td>
+                                        <td><?php echo $row['id']; ?></td>
                                         <td><?php echo htmlspecialchars($row['nama_kategori_model']); ?></td>
                                         <td>
                                             <div class="action-buttons">
