@@ -2,7 +2,7 @@
 session_start();
 require_once '../../db.php';
 
-// Jika belum login
+// Jika belum login, redirect ke login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../../auth/login.php?error=not_logged_in');
     exit();
@@ -16,7 +16,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Produk iPad</title>
+    <title>Tambah Produk AirTag - iBox Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -228,18 +228,18 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="ipad.php" class="btn btn-outline-secondary">
+            <a href="airtag.php" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i> Kembali
             </a>
             <div class="text-muted">
-                Admin Panel / iPad / Tambah Produk
+                Admin Panel / AirTag / Tambah Produk
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-plus-circle me-2"></i> Tambah Produk iPad Baru</h2>
-                <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk iPad baru</p>
+                <h2><i class="fas fa-plus-circle me-2"></i> Tambah Produk AirTag Baru</h2>
+                <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk AirTag baru</p>
             </div>
             
             <form id="addProductForm" enctype="multipart/form-data">
@@ -249,11 +249,11 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="nama_produk" class="form-label">Nama Produk</label>
-                                <input type="text" class="form-control" id="nama_produk" name="nama_produk" placeholder="Contoh: iPad Pro M4" required>
+                                <input type="text" class="form-control" id="nama_produk" name="nama_produk" placeholder="Contoh: AirTag" required>
                             </div>
                             
                             <div class="mb-3">
-                                <label for="deskripsi_produk" class="form-label">Deskripsi Produk (Opsional)</label>
+                                <label for="deskripsi_produk" class="form-label">Deskripsi Produk</label>
                                 <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="5" placeholder="Tuliskan deskripsi lengkap produk..."></textarea>
                             </div>
                         </div>
@@ -272,29 +272,29 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         <i class="fas fa-plus me-1"></i> Tambah Pilihan Warna Lain
                     </button>
 
-                    <!-- Pilihan Penyimpanan (Kapasitas) -->
+                    <!-- Pilihan Pack -->
                     <div class="section-title">
-                        <i class="fas fa-sd-card me-2"></i> Pilihan Kapasitas / Penyimpanan
+                        <i class="fas fa-box me-2"></i> Pilihan Pack
                     </div>
                     
-                    <div id="storage-container">
-                         <!-- Default Storage Added by JS -->
+                    <div id="pack-container">
+                         <!-- Default Pack Added by JS -->
                     </div>
                     
-                    <button type="button" class="btn-add-option" onclick="addStorageOption()">
-                        <i class="fas fa-plus me-1"></i> Tambah Opsi Kapasitas Lain
+                    <button type="button" class="btn-add-option" onclick="addPackOption()">
+                        <i class="fas fa-plus me-1"></i> Tambah Opsi Pack Lain
                     </button>
 
-                    <!-- Pilihan Konektivitas -->
+                    <!-- Pilihan Aksesoris -->
                     <div class="section-title">
-                        <i class="fas fa-wifi me-2"></i> Pilihan Konektivitas
+                        <i class="fas fa-key me-2"></i> Pilihan Aksesoris (Opsional)
                     </div>
                     
-                    <div id="connectivity-container">
-                        <!-- Default Conn -->
+                    <div id="aksesoris-container">
+                        <!-- Default Aksesoris Added by JS -->
                     </div>
-                    <button type="button" class="btn-add-option" onclick="addConnectivityOption()">
-                        <i class="fas fa-plus me-1"></i> Tambah Opsi Konektivitas Lain
+                    <button type="button" class="btn-add-option" onclick="addAksesorisOption()">
+                        <i class="fas fa-plus me-1"></i> Tambah Opsi Aksesoris Lain
                     </button>
 
                     <!-- Tabel Kombinasi -->
@@ -310,8 +310,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <thead>
                                 <tr>
                                     <th>Warna</th>
-                                    <th>Kapasitas</th>
-                                    <th>Konektivitas</th>
+                                    <th>Pack</th>
+                                    <th>Aksesoris</th>
                                     <th>Harga (Rp)</th>
                                     <th>Diskon (Rp)</th>
                                     <th>Stok</th>
@@ -342,20 +342,20 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let colorIndex = 0;
-        let storageIndex = 0;
-        let connectivityIndex = 0;
+        let packIndex = 0;
+        let aksesorisIndex = 0;
         
         // --- Add Color ---
         function addColorOption() {
             const container = document.getElementById('colors-container');
             const html = `
                 <div class="option-card color-option position-relative" data-idx="${colorIndex}">
-                    <button type="button" class="btn-remove" onclick="removeOption(this, 'color')"><i class="fas fa-times"></i></button>
+                    <button type="button" class="btn-remove" onclick="removeOption(this)"><i class="fas fa-times"></i></button>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Nama Warna</label>
-                                <input type="text" class="form-control color-name" name="warna[${colorIndex}][nama]" placeholder="Contoh: Space Grey" required onkeyup="updateCombinations()">
+                                <input type="text" class="form-control color-name" name="warna[${colorIndex}][nama]" placeholder="Contoh: Putih" required onkeyup="updateCombinations()">
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -377,86 +377,86 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             updateCombinations();
         }
 
-        // --- Add Storage ---
-        function addStorageOption() {
-            const container = document.getElementById('storage-container');
+        // --- Add Pack ---
+        function addPackOption(val = '') {
+            const container = document.getElementById('pack-container');
             const html = `
-                <div class="option-card storage-option position-relative">
-                    <button type="button" class="btn-remove" onclick="removeOption(this, 'storage')"><i class="fas fa-times"></i></button>
+                <div class="option-card pack-option position-relative">
+                    <button type="button" class="btn-remove" onclick="removeOption(this)"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
                         <div class="col-md-4">
-                            <label class="form-label">Kapasitas</label>
-                            <input type="text" class="form-control storage-value" name="penyimpanan[${storageIndex}][size]" placeholder="Contoh: 128GB" required onkeyup="updateCombinations()">
+                            <label class="form-label">Pack</label>
+                            <input type="text" class="form-control pack-value" name="pack[]" value="${val}" placeholder="Contoh: 1 Pack" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga (Rp)</label>
-                            <input type="number" class="form-control base-price" name="penyimpanan[${storageIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                            <label class="form-label">Harga Bawaan (Rp)</label>
+                            <input type="number" class="form-control base-price" name="pack_harga[]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][harga_diskon]" placeholder="0">
+                            <label class="form-label">Harga Diskon Bawaan (Optional)</label>
+                            <input type="number" class="form-control" name="pack_harga_diskon[]" placeholder="0">
                         </div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
-            storageIndex++;
+            packIndex++;
             updateCombinations();
         }
 
-        // --- Add Connectivity ---
-        function addConnectivityOption() {
-            const container = document.getElementById('connectivity-container');
+        // --- Add Aksesoris ---
+        function addAksesorisOption(val = '') {
+            const container = document.getElementById('aksesoris-container');
             const html = `
-                <div class="option-card connectivity-option position-relative">
-                    <button type="button" class="btn-remove" onclick="removeOption(this, 'conn')"><i class="fas fa-times"></i></button>
+                <div class="option-card aksesoris-option position-relative">
+                    <button type="button" class="btn-remove" onclick="removeOption(this)"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
                         <div class="col-md-11">
-                            <input type="text" class="form-control connectivity-value" name="konektivitas[]" value="Wi-Fi" placeholder="Contoh: Wi-Fi" onkeyup="updateCombinations()">
+                            <input type="text" class="form-control aksesoris-value" name="aksesoris[]" value="${val}" placeholder="Contoh: Leather Key Ring" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
-            connectivityIndex++;
+            aksesorisIndex++;
             updateCombinations();
         }
 
-        function removeOption(btn, type) {
+        function removeOption(btn) {
             btn.closest('.option-card').remove();
             updateCombinations();
         }
 
         function generateCombinations() {
             const colors = Array.from(document.querySelectorAll('.color-name')).map(i => i.value).filter(v => v);
-            const storages = Array.from(document.querySelectorAll('.storage-option')).map(row => {
+            const packs = Array.from(document.querySelectorAll('.pack-option')).map(row => {
                 return {
-                    size: row.querySelector('input[name*="[size]"]').value,
-                    price: row.querySelector('input[name*="[harga]"]').value,
-                    discount: row.querySelector('input[name*="[harga_diskon]"]').value
+                    val: row.querySelector('.pack-value').value,
+                    price: row.querySelector('.base-price').value,
+                    discount: row.querySelector('input[name*="diskon"]').value
                 };
-            }).filter(s => s.size);
+            }).filter(p => p.val);
             
-            let conns = Array.from(document.querySelectorAll('.connectivity-value')).map(i => i.value).filter(v => v);
-            if(conns.length === 0) conns = ['-'];
+            let aksesoris = Array.from(document.querySelectorAll('.aksesoris-value')).map(i => i.value).filter(v => v);
+            if(aksesoris.length === 0) aksesoris = ['-'];
 
             const tbody = document.getElementById('combinations-body');
             tbody.innerHTML = '';
 
-            if (colors.length === 0 || storages.length === 0) {
+            if (colors.length === 0 || packs.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Data belum lengkap</td></tr>';
                 return;
             }
 
             let idx = 0;
             colors.forEach(c => {
-                storages.forEach(s => {
-                    conns.forEach(conn => {
+                packs.forEach(p => {
+                    aksesoris.forEach(aks => {
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${c}<input type="hidden" name="combinations[${idx}][warna]" value="${c}"></td>
-                            <td>${s.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${s.size}"></td>
-                            <td>${conn}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${conn}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${s.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${s.discount}"></td>
+                            <td>${p.val}<input type="hidden" name="combinations[${idx}][pack]" value="${p.val}"></td>
+                            <td>${aks}<input type="hidden" name="combinations[${idx}][aksesoris]" value="${aks}"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${p.price}" required></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${p.discount || 0}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;
@@ -476,8 +476,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         // --- Init ---
         window.addEventListener('DOMContentLoaded', () => {
             addColorOption();
-            addStorageOption();
-            addConnectivityOption();
+            addPackOption('1 Pack');
+            addAksesorisOption('-');
         });
 
         // --- Submit ---
@@ -487,7 +487,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             const formData = new FormData(this);
             document.getElementById('loadingOverlay').classList.add('show');
 
-            fetch('api/api-add-ipad.php', {
+            fetch('api/api-add-airtag.php', {
                 method: 'POST',
                 body: formData
             })
@@ -496,7 +496,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 document.getElementById('loadingOverlay').classList.remove('show');
                 if (data.success) {
                     showFeedback(data.message, 'success');
-                    setTimeout(() => window.location.href = 'ipad.php', 1500);
+                    setTimeout(() => window.location.href = 'airtag.php', 1500);
                 } else {
                     showFeedback(data.message, 'error');
                 }
