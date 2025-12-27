@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 session_start();
 require_once '../../db.php';
 
@@ -515,4 +515,4 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html> -->
+</html>
