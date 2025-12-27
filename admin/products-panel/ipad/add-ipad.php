@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 session_start();
 require_once '../../db.php';
 
@@ -1036,4 +1036,4 @@ function debugFormData() {
 }
     </script>
 </body>
-</html> -->
+</html>
