@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 require_once '../../db.php';
 
@@ -10,8 +10,18 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
-// Ambil data produk iPad dari database
-$query = "SELECT * FROM admin_produk_ipad ORDER BY id DESC";
+// Ambil data produk iPad dengan kombinasi
+$query = "SELECT p.*, 
+                 COUNT(DISTINCT k.id) as total_kombinasi,
+                 COUNT(DISTINCT g.id) as total_warna,
+                 MIN(k.harga) as harga_terendah,
+                 MAX(k.harga) as harga_tertinggi,
+                 SUM(k.jumlah_stok) as total_stok
+          FROM admin_produk_ipad p
+          LEFT JOIN admin_produk_ipad_kombinasi k ON p.id = k.produk_id
+          LEFT JOIN admin_produk_ipad_gambar g ON p.id = g.produk_id
+          GROUP BY p.id
+          ORDER BY p.id DESC";
 $result = mysqli_query($db, $query);
 
 // Hitung jumlah produk iPad
@@ -146,6 +156,18 @@ $ipad_count = mysqli_num_rows($result);
 
         .badge-warning {
             background-color: #ff9800;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
         }
 
         .sidebar-footer {
@@ -293,45 +315,59 @@ $ipad_count = mysqli_num_rows($result);
         table tbody td {
             padding: 15px;
             font-size: 15px;
+            vertical-align: top;
         }
 
-        .product-images {
+        .product-info {
             display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-        }
-
-        .product-images img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+            align-items: flex-start;
+            gap: 15px;
         }
 
         .thumbnail-img {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #4a6cf7;
         }
 
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
+        .product-details {
+            flex: 1;
+        }
+
+        .product-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-stats {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            background: #f8f9fa;
+            border: 1px solid #eaeaea;
+            border-radius: 15px;
+            padding: 3px 10px;
             font-size: 12px;
-            font-weight: 500;
+            color: #666;
         }
 
-        .status-tersedia {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-habis {
-            background-color: #f8d7da;
-            color: #721c24;
+        .stat-badge i {
+            margin-right: 4px;
         }
 
         .action-buttons {
@@ -339,7 +375,7 @@ $ipad_count = mysqli_num_rows($result);
             gap: 8px;
         }
 
-        .btn-edit, .btn-delete {
+        .btn-edit, .btn-delete, .btn-view {
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
@@ -357,6 +393,16 @@ $ipad_count = mysqli_num_rows($result);
 
         .btn-edit:hover {
             background-color: #bbdefb;
+        }
+
+        .btn-view {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .btn-view:hover {
+            background-color: #ffeaa7;
         }
 
         .btn-delete {
@@ -381,6 +427,29 @@ $ipad_count = mysqli_num_rows($result);
             color: #ddd;
         }
 
+        .price-range {
+            font-weight: 600;
+            color: #4a6cf7;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+
+        .status-tersedia {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-habis {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
         /* Responsive Styles */
         @media (max-width: 768px) {
             .admin-container {
@@ -399,12 +468,21 @@ $ipad_count = mysqli_num_rows($result);
             .action-buttons {
                 flex-direction: column;
             }
+            
+            .product-info {
+                flex-direction: column;
+            }
+            
+            .product-stats {
+                flex-direction: column;
+                gap: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar (sama seperti kategori.php) -->
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -481,78 +559,7 @@ $ipad_count = mysqli_num_rows($result);
                     </ul>
                 </div>
 
-                <div class="menu-section">
-                    <h3 class="section-title">Homepage Panel</h3>
-                    <ul>
-                        <li>
-                            <a href="../../homepage-panel/image-slider/image-slider.php">
-                                <i class="fas fa-images"></i>
-                                <span>Image slider</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
-                                <i class="fas fa-fire"></i>
-                                <span>Produk Apple Populer</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
-                                <i class="fas fa-bolt"></i>
-                                <span>Produk Terbaru</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/image-grid/image-grid.php">
-                                <i class="fas fa-th"></i>
-                                <span>Image grid</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/trade-in/trade-in.php">
-                                <i class="fas fa-exchange-alt"></i>
-                                <span>Trade in</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
-                                <i class="fas fa-gem"></i>
-                                <span>Aksesori unggulan</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
-                                <i class="fas fa-shopping-bag"></i>
-                                <span>Checkout sekarang</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="menu-section">
-                    <h3 class="section-title">Lainnya</h3>
-                    <ul>
-                        <li>
-                            <a href="../../other/users/users.php">
-                                <i class="fas fa-users"></i>
-                                <span>Pengguna</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/orders/order.php">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Pesanan</span>
-                                <span class="badge badge-warning">5</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/settings/settings.php">
-                                <i class="fas fa-cog"></i>
-                                <span>Pengaturan</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                <!-- Other menu sections... -->
             </div>
 
             <div class="sidebar-footer">
@@ -589,89 +596,119 @@ $ipad_count = mysqli_num_rows($result);
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Thumbnail</th>
-                                        <th>Nama Produk</th>
-                                        <th>Harga</th>
-                                        <th>Diskon</th>
-                                        <th>Foto Produk</th>
-                                        <th>Stok</th>
-                                        <th>Status</th>
+                                        <th>Produk</th>
+                                        <th>Statistik</th>
+                                        <th>Harga Range</th>
+                                        <th>Total Stok</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php $no = 1; ?>
-                                    <?php while($row = mysqli_fetch_assoc($result)): 
-                                        // Ambil gambar untuk produk ini
-                                        $product_id = $row['id'];
-                                        $query_images = "SELECT * FROM admin_gambar_produk WHERE produk_id = '$product_id' AND tipe_produk = 'ipad'";
-                                        $result_images = mysqli_query($db, $query_images);
-                                        $images = mysqli_fetch_all($result_images, MYSQLI_ASSOC);
+                                    <?php while($product = mysqli_fetch_assoc($result)): 
+                                        // Ambil thumbnail pertama untuk produk
+                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_ipad_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
+                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
+                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
                                         
-                                        // Cari thumbnail
-                                        $thumbnail = '';
-                                        $product_images = [];
-                                        foreach($images as $img) {
-                                            if(!empty($img['foto_thumbnail'])) {
-                                                $thumbnail = $img['foto_thumbnail'];
-                                            }
-                                            if(!empty($img['foto_produk'])) {
-                                                $product_images[] = $img['foto_produk'];
-                                            }
-                                        }
+                                        // Ambil semua warna untuk produk ini
+                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_ipad_kombinasi WHERE produk_id = '{$product['id']}'";
+                                        $result_warna = mysqli_query($db, $query_warna);
+                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
+                                        
+                                        // Check if product has stock
+                                        $has_stock = $product['total_stok'] > 0;
                                     ?>
                                     <tr>
-                                        <td><?php echo $no?></td>
+                                        <td><?php echo $no++; ?></td>
                                         <td>
-                                            <?php if($thumbnail): ?>
-                                                <img src="../../uploads/<?php echo $thumbnail; ?>" alt="Thumbnail" class="thumbnail-img">
-                                            <?php else: ?>
-                                                <span class="text-muted">No thumbnail</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <strong><?php echo htmlspecialchars($row['nama_produk']); ?></strong><br>
-                                            <small class="text-muted">
-                                                <?php echo htmlspecialchars($row['warna']); ?> | 
-                                                <?php echo htmlspecialchars($row['penyimpanan']); ?> | 
-                                                <?php echo htmlspecialchars($row['konektivitas']); ?>
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <strong class="text-primary">Rp <?php echo number_format($row['harga'], 0, ',', '.'); ?></strong>
-                                        </td>
-                                        <td>
-                                            <?php if($row['harga_diskon']): ?>
-                                                <del class="text-muted">Rp <?php echo number_format($row['harga'], 0, ',', '.'); ?></del><br>
-                                                <strong class="text-danger">Rp <?php echo number_format($row['harga_diskon'], 0, ',', '.'); ?></strong>
-                                            <?php else: ?>
-                                                <span class="text-muted">Tidak ada</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <div class="product-images">
-                                                <?php foreach($product_images as $img): ?>
-                                                    <img src="../../uploads/<?php echo $img; ?>" alt="Product Image">
-                                                <?php endforeach; ?>
-                                                <?php if(empty($product_images)): ?>
-                                                    <span class="text-muted">No images</span>
+                                            <div class="product-info">
+                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
+                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
+                                                         alt="Thumbnail" class="thumbnail-img">
+                                                <?php else: ?>
+                                                    <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                                    </div>
                                                 <?php endif; ?>
+                                                <div class="product-details">
+                                                    <div class="product-title">
+                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
+                                                    </div>
+                                                    <div class="product-desc">
+                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
+                                                    </div>
+                                                    <div class="product-stats">
+                                                        <span class="stat-badge">
+                                                            <i class="fas fa-palette"></i>
+                                                            <?php echo $product['total_warna']; ?> Warna
+                                                        </span>
+                                                        <span class="stat-badge">
+                                                            <i class="fas fa-layer-group"></i>
+                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                        </span>
+                                                        <?php if(count($warna_list) > 0): ?>
+                                                        <span class="stat-badge">
+                                                            <i class="fas fa-tags"></i>
+                                                            <?php 
+                                                            $warna_names = array_column($warna_list, 'warna');
+                                                            echo implode(', ', array_slice($warna_names, 0, 2));
+                                                            if(count($warna_names) > 2) echo '...';
+                                                            ?>
+                                                        </span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="fw-bold"><?php echo $row['jumlah_stok']; ?></span> unit
+                                            <div class="product-stats">
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-boxes"></i>
+                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                </span>
+                                                <span class="stat-badge">
+                                                    <i class="fas fa-palette"></i>
+                                                    <?php echo $product['total_warna']; ?> Warna
+                                                </span>
+                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
+                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
+                                                </span>
+                                            </div>
                                         </td>
                                         <td>
-                                            <span class="status-badge status-<?php echo $row['status_stok']; ?>">
-                                                <?php echo ucfirst($row['status_stok']); ?>
-                                            </span>
+                                            <?php if($product['harga_terendah']): ?>
+                                                <div class="price-range">
+                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
+                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
+                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                                <small class="text-muted">
+                                                    Mulai dari
+                                                </small>
+                                            <?php else: ?>
+                                                <span class="text-muted">Belum ada harga</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
+                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
+                                            </div>
+                                            <small class="text-muted">
+                                                Stok total semua kombinasi
+                                            </small>
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <a href="edit-ipad.php?id=<?php echo $row['id']; ?>" class="btn-edit">
+                                                <a href="view-ipad.php?id=<?php echo $product['id']; ?>" class="btn-view">
+                                                    <i class="fas fa-eye"></i> Lihat
+                                                </a>
+                                                <a href="edit-ipad.php?id=<?php echo $product['id']; ?>" class="btn-edit">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <a href="delete-ipad.php?id=<?php echo $row['id']; ?>" class="btn-delete" onclick="return confirm('Yakin ingin menghapus produk ini?')">
+                                                <a href="delete-ipad.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
+                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
                                                     <i class="fas fa-trash"></i> Hapus
                                                 </a>
                                             </div>
@@ -685,7 +722,7 @@ $ipad_count = mysqli_num_rows($result);
                                 <i class="fas fa-box-open"></i>
                                 <h4>Belum ada produk iPad</h4>
                                 <p>Mulai dengan menambahkan produk iPad pertama Anda</p>
-                                <a href="add-ipad.php" class="btn btn-primary mt-3">
+                                <a href="add-ipad.php" class="btn-add mt-3" style="display: inline-flex;">
                                     <i class="fas fa-plus"></i> Tambah Produk Pertama
                                 </a>
                             </div>
@@ -708,4 +745,4 @@ $ipad_count = mysqli_num_rows($result);
         }, 30 * 60 * 1000);
     </script>
 </body>
-</html>
+</html> -->

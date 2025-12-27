@@ -1,6 +1,6 @@
-<?php
+<!-- <?php
 session_start();
-require_once '../../db.php';
+require_once '../../../db.php';
 
 // Cek login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
@@ -21,169 +21,345 @@ $max_size = 2 * 1024 * 1024; // 2MB
 // Fungsi untuk generate nama file unik
 function generateFileName($original_name) {
     $extension = pathinfo($original_name, PATHINFO_EXTENSION);
-    return uniqid() . '_' . time() . '.' . $extension;
+    return uniqid() . '_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
 }
 
 $response = ['success' => false, 'message' => ''];
 
 try {
-    // Validasi data dasar
-    if (empty($_POST['nama_produk'])) {
-        throw new Exception("Nama produk harus diisi");
+    // Debug: Lihat data yang dikirim
+    error_log("=== DEBUG DATA DITERIMA ===");
+    error_log("Nama Produk: " . ($_POST['nama_produk'] ?? ''));
+    error_log("Jumlah Warna: " . (is_array($_POST['warna'] ?? []) ? count($_POST['warna']) : 0));
+    error_log("Jumlah Penyimpanan: " . (is_array($_POST['penyimpanan'] ?? []) ? count($_POST['penyimpanan']) : 0));
+    error_log("Jumlah Konektivitas: " . (is_array($_POST['konektivitas'] ?? []) ? count($_POST['konektivitas']) : 0));
+    error_log("Jumlah Kombinasi: " . (is_array($_POST['combinations'] ?? []) ? count($_POST['combinations']) : 0));
+
+    // Validasi data
+    $required_fields = ['nama_produk'];
+    foreach ($required_fields as $field) {
+        if (empty($_POST[$field])) {
+            throw new Exception("Field $field harus diisi");
+        }
     }
 
-    // Nonaktifkan foreign key checks sementara
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=0");
-
-    $nama_produk = escape($_POST['nama_produk']);
-    $deskripsi_produk = escape($_POST['deskripsi_produk'] ?? '');
+    // Validasi minimal data
+    if (empty($_POST['warna']) || !is_array($_POST['warna'])) {
+        throw new Exception("Minimal satu warna harus diisi");
+    }
     
-    $total_products_created = 0;
-    $variant_errors = [];
-
-    // Proses setiap varian
-    if (isset($_POST['variant']) && is_array($_POST['variant'])) {
-        foreach ($_POST['variant'] as $variant_id => $variant_data) {
-            // Validasi varian
-            if (empty($variant_data['warna']) || !is_array($variant_data['warna']) || 
-                empty($variant_data['penyimpanan']) || !is_array($variant_data['penyimpanan']) ||
-                empty($variant_data['konektivitas']) || !is_array($variant_data['konektivitas'])) {
-                $variant_errors[] = "Varian #$variant_id: Data tidak lengkap";
-                continue;
-            }
-
-            // Filter nilai yang tidak kosong
-            $warna_array = array_filter(array_map('trim', $variant_data['warna']));
-            $penyimpanan_array = array_filter(array_map('trim', $variant_data['penyimpanan']));
-            $konektivitas_array = array_filter(array_map('trim', $variant_data['konektivitas']));
-
-            if (empty($warna_array) || empty($penyimpanan_array) || empty($konektivitas_array)) {
-                $variant_errors[] = "Varian #$variant_id: Warna, penyimpanan, atau konektivitas tidak boleh kosong";
-                continue;
-            }
-
-            // Proses upload thumbnail untuk varian ini
-            if (!isset($_FILES['variant'][$variant_id]['thumbnail']) || 
-                $_FILES['variant'][$variant_id]['thumbnail']['error'] != 0) {
-                $variant_errors[] = "Varian #$variant_id: Thumbnail harus diupload";
-                continue;
-            }
-
-            $thumbnail = $_FILES['variant'][$variant_id]['thumbnail'];
-            if (!in_array($thumbnail['type'], $allowed_types)) {
-                $variant_errors[] = "Varian #$variant_id: Format thumbnail tidak didukung";
-                continue;
-            }
-            if ($thumbnail['size'] > $max_size) {
-                $variant_errors[] = "Varian #$variant_id: Ukuran thumbnail terlalu besar (max 2MB)";
-                continue;
-            }
-
-            $thumbnail_name = generateFileName($thumbnail['name']);
-            $thumbnail_path = $upload_dir . $thumbnail_name;
-
-            if (!move_uploaded_file($thumbnail['tmp_name'], $thumbnail_path)) {
-                $variant_errors[] = "Varian #$variant_id: Gagal upload thumbnail";
-                continue;
-            }
-
-            // Proses upload foto produk untuk varian ini
-            $uploaded_images = [];
-            if (isset($_FILES['variant'][$variant_id]['product_images']) && 
-                is_array($_FILES['variant'][$variant_id]['product_images']['name'])) {
-                
-                $product_images = $_FILES['variant'][$variant_id]['product_images'];
-                
-                for ($i = 0; $i < count($product_images['name']); $i++) {
-                    if ($product_images['error'][$i] == 0) {
-                        if (in_array($product_images['type'][$i], $allowed_types) && 
-                            $product_images['size'][$i] <= $max_size) {
-                            
-                            $image_name = generateFileName($product_images['name'][$i]);
-                            $image_path = $upload_dir . $image_name;
-                            
-                            if (move_uploaded_file($product_images['tmp_name'][$i], $image_path)) {
-                                $uploaded_images[] = $image_name;
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Data varian
-            $harga = escape($variant_data['harga'] ?? 0);
-            $harga_diskon = !empty($variant_data['harga_diskon']) ? escape($variant_data['harga_diskon']) : NULL;
-            $status_stok = escape($variant_data['status_stok'] ?? 'tersedia');
-
-            // Buat semua kombinasi untuk varian ini
-            foreach ($warna_array as $warna) {
-                foreach ($penyimpanan_array as $penyimpanan) {
-                    foreach ($konektivitas_array as $konektivitas) {
-                        // Insert ke tabel produk iPad
-                        $query = "INSERT INTO admin_produk_ipad (
-                            nama_produk, harga, warna, penyimpanan, konektivitas, 
-                            deskripsi_produk, harga_diskon, jumlah_stok, status_stok
-                        ) VALUES (
-                            '$nama_produk', '$harga', '" . escape($warna) . "', '" . escape($penyimpanan) . "', '" . escape($konektivitas) . "',
-                            '$deskripsi_produk', " . ($harga_diskon ? "'$harga_diskon'" : "NULL") . ", 
-                            '0', '$status_stok'
-                        )";
-
-                        if (!mysqli_query($db, $query)) {
-                            $variant_errors[] = "Varian #$variant_id: Gagal menyimpan data produk - " . mysqli_error($db);
-                            continue;
-                        }
-
-                        $product_id = mysqli_insert_id($db);
-                        $total_products_created++;
-
-                        // Insert thumbnail ke tabel gambar
-                        $query_thumb = "INSERT INTO admin_gambar_produk (produk_id, foto_thumbnail, tipe_produk) 
-                                        VALUES ('$product_id', '$thumbnail_name', 'ipad')";
-                        
-                        if (!mysqli_query($db, $query_thumb)) {
-                            // Hapus produk jika gagal insert gambar
-                            mysqli_query($db, "DELETE FROM admin_produk_ipad WHERE id = '$product_id'");
-                            $total_products_created--;
-                            $variant_errors[] = "Varian #$variant_id: Gagal menyimpan thumbnail";
-                            continue;
-                        }
-
-                        // Insert foto produk
-                        foreach ($uploaded_images as $image_name) {
-                            $query_img = "INSERT INTO admin_gambar_produk (produk_id, foto_produk, tipe_produk) 
-                                         VALUES ('$product_id', '$image_name', 'ipad')";
-                            mysqli_query($db, $query_img);
-                        }
-                    }
-                }
-            }
-        }
-    } else {
-        throw new Exception("Tidak ada varian produk yang dimasukkan");
+    if (empty($_POST['penyimpanan']) || !is_array($_POST['penyimpanan'])) {
+        throw new Exception("Minimal satu penyimpanan harus diisi");
+    }
+    
+    if (empty($_POST['konektivitas']) || !is_array($_POST['konektivitas'])) {
+        throw new Exception("Minimal satu konektivitas harus diisi");
     }
 
-    // Aktifkan kembali foreign key checks
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=1");
+    // Insert data produk utama
+    $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
+    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
 
-    if ($total_products_created > 0) {
-        $response['success'] = true;
-        $response['message'] = "Berhasil menambahkan $total_products_created produk";
-        $response['total_created'] = $total_products_created;
+    $query = "INSERT INTO admin_produk_ipad (nama_produk, deskripsi_produk) VALUES ('$nama_produk', '$deskripsi_produk')";
+    
+    if (!mysqli_query($db, $query)) {
+        throw new Exception("Gagal menyimpan data produk: " . mysqli_error($db));
+    }
+
+    $product_id = mysqli_insert_id($db);
+    error_log("Product ID created: " . $product_id);
+
+    // Proses data warna dengan gambar
+    $warna_data = $_POST['warna'];
+    $warna_gambar = [];
+    
+    foreach ($warna_data as $color_index => $color_info) {
+        $warna_nama = mysqli_real_escape_string($db, $color_info['nama'] ?? '');
         
-        if (!empty($variant_errors)) {
-            $response['warnings'] = $variant_errors;
+        if (empty($warna_nama)) {
+            error_log("Warna nama kosong pada index: " . $color_index);
+            continue;
         }
-    } else {
-        $response['message'] = "Gagal menambahkan produk. " . implode("; ", $variant_errors);
+        
+        // Proses upload thumbnail untuk warna
+        $thumbnail_name = null;
+        if (isset($_FILES['warna']['name'][$color_index]['thumbnail']) && 
+            $_FILES['warna']['error'][$color_index]['thumbnail'] == 0) {
+            
+            $thumbnail = [
+                'name' => $_FILES['warna']['name'][$color_index]['thumbnail'],
+                'type' => $_FILES['warna']['type'][$color_index]['thumbnail'],
+                'tmp_name' => $_FILES['warna']['tmp_name'][$color_index]['thumbnail'],
+                'size' => $_FILES['warna']['size'][$color_index]['thumbnail']
+            ];
+            
+            if (in_array($thumbnail['type'], $allowed_types) && $thumbnail['size'] <= $max_size) {
+                $thumbnail_name = generateFileName($thumbnail['name']);
+                $thumbnail_path = $upload_dir . $thumbnail_name;
+                
+                if (!move_uploaded_file($thumbnail['tmp_name'], $thumbnail_path)) {
+                    throw new Exception("Gagal upload thumbnail untuk warna: $warna_nama");
+                }
+            } else {
+                throw new Exception("Format atau ukuran thumbnail untuk warna $warna_nama tidak valid");
+            }
+        } else {
+            throw new Exception("Thumbnail untuk warna $warna_nama harus diupload");
+        }
+        
+        // Proses upload foto produk untuk warna
+        $product_images = [];
+        if (isset($_FILES['warna']['name'][$color_index]['product_images'])) {
+            $images_count = count($_FILES['warna']['name'][$color_index]['product_images']);
+            
+            for ($i = 0; $i < $images_count; $i++) {
+                if ($_FILES['warna']['error'][$color_index]['product_images'][$i] == 0) {
+                    $image = [
+                        'name' => $_FILES['warna']['name'][$color_index]['product_images'][$i],
+                        'type' => $_FILES['warna']['type'][$color_index]['product_images'][$i],
+                        'tmp_name' => $_FILES['warna']['tmp_name'][$color_index]['product_images'][$i],
+                        'size' => $_FILES['warna']['size'][$color_index]['product_images'][$i]
+                    ];
+                    
+                    if (in_array($image['type'], $allowed_types) && $image['size'] <= $max_size) {
+                        $image_name = generateFileName($image['name']);
+                        $image_path = $upload_dir . $image_name;
+                        
+                        if (move_uploaded_file($image['tmp_name'], $image_path)) {
+                            $product_images[] = $image_name;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Simpan data gambar untuk warna
+        $product_images_json = json_encode($product_images);
+        
+        $query_gambar = "INSERT INTO admin_produk_ipad_gambar 
+                        (produk_id, warna, foto_thumbnail, foto_produk) 
+                        VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$product_images_json')";
+        
+        if (!mysqli_query($db, $query_gambar)) {
+            throw new Exception("Gagal menyimpan gambar untuk warna: $warna_nama - " . mysqli_error($db));
+        }
+        
+        $warna_gambar[$warna_nama] = true;
+        error_log("Warna berhasil disimpan: " . $warna_nama);
     }
+    
+    // Proses data penyimpanan
+    $penyimpanan_data = $_POST['penyimpanan'];
+    $penyimpanan_harga = [];
+    
+    foreach ($penyimpanan_data as $storage_index => $storage_info) {
+        $size = mysqli_real_escape_string($db, $storage_info['size'] ?? '');
+        $harga = mysqli_real_escape_string($db, $storage_info['harga'] ?? 0);
+        $harga_diskon = !empty($storage_info['harga_diskon']) ? 
+                       mysqli_real_escape_string($db, $storage_info['harga_diskon']) : NULL;
+        
+        if (!empty($size) && $harga > 0) {
+            $penyimpanan_harga[$size] = [
+                'harga' => $harga,
+                'harga_diskon' => $harga_diskon
+            ];
+        }
+    }
+    
+    // Proses data konektivitas
+    $konektivitas_data = $_POST['konektivitas'];
+    $konektivitas_list = [];
+    
+    foreach ($konektivitas_data as $konek) {
+        $konek_clean = mysqli_real_escape_string($db, $konek);
+        if (!empty($konek_clean)) {
+            $konektivitas_list[] = $konek_clean;
+        }
+    }
+    
+    // Proses kombinasi dan stok - METODE BARU
+    $combinations = $_POST['combinations'] ?? [];
+    $combination_count = 0;
+    
+    error_log("Memproses " . count($combinations) . " kombinasi...");
+    
+    // Jika tidak ada kombinasi dari frontend, kita buat sendiri dari data warna, penyimpanan, konektivitas
+    if (empty($combinations)) {
+        error_log("Kombinasi kosong, membuat kombinasi otomatis...");
+        
+        // Ambil semua data
+        $warna_names = [];
+        $penyimpanan_sizes = [];
+        $konektivitas_names = [];
+        
+        // Ambil data warna
+        foreach ($warna_data as $color_info) {
+            $warna_name = mysqli_real_escape_string($db, $color_info['nama'] ?? '');
+            if (!empty($warna_name)) {
+                $warna_names[] = $warna_name;
+            }
+        }
+        
+        // Ambil data penyimpanan
+        foreach ($penyimpanan_data as $storage_info) {
+            $storage_size = mysqli_real_escape_string($db, $storage_info['size'] ?? '');
+            $storage_price = mysqli_real_escape_string($db, $storage_info['harga'] ?? 0);
+            $storage_discount = !empty($storage_info['harga_diskon']) ? 
+                              mysqli_real_escape_string($db, $storage_info['harga_diskon']) : NULL;
+            
+            if (!empty($storage_size) && $storage_price > 0) {
+                $penyimpanan_sizes[] = [
+                    'size' => $storage_size,
+                    'harga' => $storage_price,
+                    'harga_diskon' => $storage_discount
+                ];
+            }
+        }
+        
+        // Ambil data konektivitas
+        foreach ($konektivitas_data as $konek) {
+            $konek_clean = mysqli_real_escape_string($db, $konek);
+            if (!empty($konek_clean)) {
+                $konektivitas_names[] = $konek_clean;
+            }
+        }
+        
+        // Buat kombinasi otomatis
+        foreach ($warna_names as $warna) {
+            foreach ($penyimpanan_sizes as $storage) {
+                foreach ($konektivitas_names as $konektivitas) {
+                    // Default stok 0
+                    $jumlah_stok = 0;
+                    $status_stok = 'habis';
+                    
+                    // Simpan kombinasi ke database
+                    $query_kombinasi = "INSERT INTO admin_produk_ipad_kombinasi 
+                                       (produk_id, warna, penyimpanan, konektivitas, harga, harga_diskon, jumlah_stok, status_stok) 
+                                       VALUES ('$product_id', '$warna', '{$storage['size']}', '$konektivitas', 
+                                               '{$storage['harga']}', " . 
+                                               ($storage['harga_diskon'] ? "'{$storage['harga_diskon']}'" : "NULL") . ", 
+                                               '$jumlah_stok', '$status_stok')";
+                    
+                    if (mysqli_query($db, $query_kombinasi)) {
+                        $combination_count++;
+                    } else {
+                        error_log("Error menyimpan kombinasi: " . mysqli_error($db));
+                    }
+                }
+            }
+        }
+        
+        error_log("Kombinasi otomatis dibuat: " . $combination_count);
+    } else {
+        // Proses kombinasi dari frontend
+        foreach ($combinations as $combination_id => $combination_data) {
+            $warna = mysqli_real_escape_string($db, $combination_data['warna'] ?? '');
+            $penyimpanan = mysqli_real_escape_string($db, $combination_data['penyimpanan'] ?? '');
+            $konektivitas = mysqli_real_escape_string($db, $combination_data['konektivitas'] ?? '');
+            $harga = mysqli_real_escape_string($db, $combination_data['harga'] ?? 0);
+            $harga_diskon = !empty($combination_data['harga_diskon']) ? 
+                           mysqli_real_escape_string($db, $combination_data['harga_diskon']) : NULL;
+            $jumlah_stok = mysqli_real_escape_string($db, $combination_data['jumlah_stok'] ?? 0);
+            
+            // Tentukan status stok berdasarkan jumlah stok
+            $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
+            
+            // Validasi data kombinasi
+            if (empty($warna) || empty($penyimpanan) || empty($konektivitas)) {
+                error_log("Kombinasi tidak valid - Warna: $warna, Penyimpanan: $penyimpanan, Konektivitas: $konektivitas");
+                continue;
+            }
+            
+            // Cek harga
+            if ($harga <= 0) {
+                error_log("Harga tidak valid untuk kombinasi: " . $combination_id);
+                continue;
+            }
+            
+            // Simpan kombinasi ke database
+            $query_kombinasi = "INSERT INTO admin_produk_ipad_kombinasi 
+                               (produk_id, warna, penyimpanan, konektivitas, harga, harga_diskon, jumlah_stok, status_stok) 
+                               VALUES ('$product_id', '$warna', '$penyimpanan', '$konektivitas', 
+                                       '$harga', " . ($harga_diskon ? "'$harga_diskon'" : "NULL") . ", 
+                                       '$jumlah_stok', '$status_stok')";
+            
+            if (mysqli_query($db, $query_kombinasi)) {
+                $combination_count++;
+                error_log("Kombinasi berhasil disimpan: $warna - $penyimpanan - $konektivitas");
+            } else {
+                error_log("Gagal menyimpan kombinasi: " . mysqli_error($db));
+                error_log("Query: " . $query_kombinasi);
+            }
+        }
+    }
+    
+    if ($combination_count === 0) {
+        // Coba metode alternatif - langsung dari data yang ada
+        error_log("Mencoba metode alternatif untuk menyimpan kombinasi...");
+        
+        // Ambil data dari POST
+        $warna_list = $warna_data;
+        $penyimpanan_list = $penyimpanan_data;
+        $konektivitas_list = $konektivitas_data;
+        
+        foreach ($warna_list as $warna_item) {
+            $warna_nama = mysqli_real_escape_string($db, $warna_item['nama'] ?? '');
+            if (empty($warna_nama)) continue;
+            
+            foreach ($penyimpanan_list as $penyimpanan_item) {
+                $penyimpanan_size = mysqli_real_escape_string($db, $penyimpanan_item['size'] ?? '');
+                $penyimpanan_harga = mysqli_real_escape_string($db, $penyimpanan_item['harga'] ?? 0);
+                $penyimpanan_diskon = !empty($penyimpanan_item['harga_diskon']) ? 
+                                    mysqli_real_escape_string($db, $penyimpanan_item['harga_diskon']) : NULL;
+                
+                if (empty($penyimpanan_size) || $penyimpanan_harga <= 0) continue;
+                
+                foreach ($konektivitas_list as $konektivitas_nama) {
+                    $konektivitas_clean = mysqli_real_escape_string($db, $konektivitas_nama);
+                    if (empty($konektivitas_clean)) continue;
+                    
+                    // Default stok 0
+                    $jumlah_stok = 0;
+                    $status_stok = 'habis';
+                    
+                    $query_kombinasi = "INSERT INTO admin_produk_ipad_kombinasi 
+                                       (produk_id, warna, penyimpanan, konektivitas, harga, harga_diskon, jumlah_stok, status_stok) 
+                                       VALUES ('$product_id', '$warna_nama', '$penyimpanan_size', '$konektivitas_clean', 
+                                               '$penyimpanan_harga', " . ($penyimpanan_diskon ? "'$penyimpanan_diskon'" : "NULL") . ", 
+                                               '$jumlah_stok', '$status_stok')";
+                    
+                    if (mysqli_query($db, $query_kombinasi)) {
+                        $combination_count++;
+                    }
+                }
+            }
+        }
+        
+        error_log("Kombinasi alternatif berhasil: " . $combination_count);
+    }
+    
+    if ($combination_count === 0) {
+        // Hapus produk yang sudah dibuat karena gagal membuat kombinasi
+        mysqli_query($db, "DELETE FROM admin_produk_ipad WHERE id = '$product_id'");
+        throw new Exception("Tidak ada kombinasi yang berhasil disimpan. Periksa data yang dikirim.");
+    }
+
+    $response['success'] = true;
+    $response['message'] = "Produk berhasil ditambahkan dengan $combination_count kombinasi";
+    $response['product_id'] = $product_id;
+    $response['debug'] = [
+        'warna_count' => count($warna_data),
+        'penyimpanan_count' => count($penyimpanan_data),
+        'konektivitas_count' => count($konektivitas_data),
+        'combinations_received' => count($combinations),
+        'combinations_saved' => $combination_count
+    ];
 
 } catch (Exception $e) {
-    // Pastikan foreign key checks diaktifkan kembali
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=1");
     $response['message'] = $e->getMessage();
+    error_log("ERROR: " . $e->getMessage());
 }
 
 header('Content-Type: application/json');
 echo json_encode($response);
-?>
+?> -->

@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 require_once '../../db.php';
 
@@ -49,4 +49,4 @@ if (mysqli_query($db, $delete_product)) {
     header('Location: ipad.php?error=delete_failed');
 }
 exit();
-?>
+?> -->

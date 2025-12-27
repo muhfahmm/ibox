@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 require_once '../../../db.php';
 
@@ -11,158 +11,163 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 // Konfigurasi upload
 $upload_dir = '../../../uploads/';
-$allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-$max_size = 2 * 1024 * 1024;
+if (!file_exists($upload_dir)) {
+    mkdir($upload_dir, 0777, true);
+}
 
+$allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+$max_size = 2 * 1024 * 1024; // 2MB
+
+// Fungsi untuk generate nama file unik
 function generateFileName($original_name) {
     $extension = pathinfo($original_name, PATHINFO_EXTENSION);
-    return uniqid() . '_' . time() . '.' . $extension;
+    return uniqid() . '_' . time() . '_' . rand(1000, 9999) . '.' . $extension;
 }
 
 $response = ['success' => false, 'message' => ''];
 
 try {
-    // Nonaktifkan foreign key checks sementara
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=0");
-
-    // Validasi ID produk
-    if (empty($_POST['product_id'])) {
-        throw new Exception("Product ID tidak valid");
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        throw new Exception('Invalid request method');
     }
 
-    $product_id = escape($_POST['product_id']);
+    $product_id = $_POST['product_id'] ?? null;
+    if (!$product_id) throw new Exception('Product ID is required');
 
-    // Cek apakah produk ada
-    $check_query = "SELECT id FROM admin_produk_ipad WHERE id = '$product_id'";
-    $check_result = mysqli_query($db, $check_query);
+    // Validasi data basics
+    if (empty($_POST['nama_produk'])) throw new Exception("Nama produk harus diisi");
+    if (empty($_POST['warna']) || !is_array($_POST['warna'])) throw new Exception("Minimal satu warna harus diisi");
+    if (empty($_POST['combinations']) || !is_array($_POST['combinations'])) throw new Exception("Kombinasi produk tidak valid");
+
+    // Start Transaction
+    mysqli_begin_transaction($db);
+
+    // 1. Update Produk Utama
+    $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
+    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
     
-    if (mysqli_num_rows($check_result) == 0) {
-        throw new Exception("Produk tidak ditemukan");
+    $query_update_produk = "UPDATE admin_produk_ipad SET 
+                           nama_produk = '$nama_produk', 
+                           deskripsi_produk = '$deskripsi_produk',
+                           updated_at = NOW() 
+                           WHERE id = '$product_id'";
+    
+    if (!mysqli_query($db, $query_update_produk)) {
+        throw new Exception("Gagal update produk: " . mysqli_error($db));
     }
 
-    // Update data produk
-    $nama_produk = escape($_POST['nama_produk']);
-    $harga = escape($_POST['harga']);
-    $warna = escape($_POST['warna'] ?? '');
-    $penyimpanan = escape($_POST['penyimpanan'] ?? '');
-    $konektivitas = escape($_POST['konektivitas'] ?? '');
-    $deskripsi_produk = escape($_POST['deskripsi_produk'] ?? '');
-    $harga_diskon = !empty($_POST['harga_diskon']) ? escape($_POST['harga_diskon']) : NULL;
-    $jumlah_stok = escape($_POST['jumlah_stok'] ?? 0);
-    $status_stok = escape($_POST['status_stok'] ?? 'tersedia');
+    // 2. Update Gambar (Delete all then Re-insert is safer for sync)
+    // Warning: We must preserve old files if not replaced. The form sends existing filenames.
+    
+    // First, delete existing image records for this product (but NOT the physical files yet)
+    mysqli_query($db, "DELETE FROM admin_produk_ipad_gambar WHERE produk_id = '$product_id'");
 
-    $update_query = "UPDATE admin_produk_ipad SET
-        nama_produk = '$nama_produk',
-        harga = '$harga',
-        warna = '$warna',
-        penyimpanan = '$penyimpanan',
-        konektivitas = '$konektivitas',
-        deskripsi_produk = '$deskripsi_produk',
-        harga_diskon = " . ($harga_diskon ? "'$harga_diskon'" : "NULL") . ",
-        jumlah_stok = '$jumlah_stok',
-        status_stok = '$status_stok'
-        WHERE id = '$product_id'";
+    $warna_data = $_POST['warna'];
+    
+    foreach ($warna_data as $color_index => $color_info) {
+        $warna_nama = mysqli_real_escape_string($db, $color_info['nama'] ?? '');
+        if (empty($warna_nama)) continue;
 
-    if (!mysqli_query($db, $update_query)) {
-        throw new Exception("Gagal update data produk: " . mysqli_error($db));
-    }
+        // --- Handle Thumbnail ---
+        $thumbnail_name = $color_info['existing_thumbnail'] ?? null;
 
-    // Proses penghapusan gambar yang dipilih
-    if (!empty($_POST['images_to_delete'])) {
-        $images_to_delete = json_decode($_POST['images_to_delete'], true);
-        
-        foreach ($images_to_delete as $image) {
-            // Hapus dari database
-            $delete_query = "DELETE FROM admin_gambar_produk WHERE id = '" . escape($image['id']) . "'";
-            mysqli_query($db, $delete_query);
+        // Check if new thumbnail uploaded
+        if (isset($_FILES['warna']['name'][$color_index]['thumbnail']) && 
+            $_FILES['warna']['error'][$color_index]['thumbnail'] == 0) {
             
-            // Hapus file dari server
-            $img_query = "SELECT foto_thumbnail, foto_produk FROM admin_gambar_produk WHERE id = '" . escape($image['id']) . "'";
-            $img_result = mysqli_query($db, $img_query);
-            if ($img_row = mysqli_fetch_assoc($img_result)) {
-                if (!empty($img_row['foto_thumbnail'])) {
-                    $thumb_path = $upload_dir . $img_row['foto_thumbnail'];
-                    if (file_exists($thumb_path)) unlink($thumb_path);
-                }
-                if (!empty($img_row['foto_produk'])) {
-                    $img_path = $upload_dir . $img_row['foto_produk'];
-                    if (file_exists($img_path)) unlink($img_path);
+            $file = [
+                'name' => $_FILES['warna']['name'][$color_index]['thumbnail'],
+                'type' => $_FILES['warna']['type'][$color_index]['thumbnail'],
+                'tmp_name' => $_FILES['warna']['tmp_name'][$color_index]['thumbnail'],
+                'size' => $_FILES['warna']['size'][$color_index]['thumbnail']
+            ];
+
+            if (in_array($file['type'], $allowed_types) && $file['size'] <= $max_size) {
+                $new_name = generateFileName($file['name']);
+                if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) {
+                    $thumbnail_name = $new_name; // Replace with new
                 }
             }
         }
-    }
 
-    // Proses upload thumbnail baru (jika ada)
-    if (isset($_FILES['new_thumbnail']) && $_FILES['new_thumbnail']['error'] == 0) {
-        $thumbnail = $_FILES['new_thumbnail'];
-        
-        if (in_array($thumbnail['type'], $allowed_types) && $thumbnail['size'] <= $max_size) {
-            $thumbnail_name = generateFileName($thumbnail['name']);
-            $thumbnail_path = $upload_dir . $thumbnail_name;
-            
-            if (move_uploaded_file($thumbnail['tmp_name'], $thumbnail_path)) {
-                // Hapus thumbnail lama jika ada
-                if (!empty($_POST['existing_thumbnail'])) {
-                    $old_thumb_path = $upload_dir . $_POST['existing_thumbnail'];
-                    if (file_exists($old_thumb_path)) {
-                        unlink($old_thumb_path);
-                    }
-                }
-                
-                // Update atau insert thumbnail baru
-                $check_thumb_query = "SELECT id FROM admin_gambar_produk WHERE produk_id = '$product_id' AND tipe_produk = 'ipad' AND foto_thumbnail IS NOT NULL";
-                $thumb_result = mysqli_query($db, $check_thumb_query);
-                
-                if (mysqli_num_rows($thumb_result) > 0) {
-                    // Update existing thumbnail
-                    $update_thumb_query = "UPDATE admin_gambar_produk SET foto_thumbnail = '$thumbnail_name' 
-                                          WHERE produk_id = '$product_id' AND tipe_produk = 'ipad' AND foto_thumbnail IS NOT NULL";
-                } else {
-                    // Insert new thumbnail
-                    $update_thumb_query = "INSERT INTO admin_gambar_produk (produk_id, foto_thumbnail, tipe_produk) 
-                                          VALUES ('$product_id', '$thumbnail_name', 'ipad')";
-                }
-                
-                mysqli_query($db, $update_thumb_query);
-            }
+        if (!$thumbnail_name) {
+            throw new Exception("Thumbnail untuk warna $warna_nama harus ada");
         }
-    }
 
-    // Proses upload foto produk baru (jika ada)
-    if (isset($_FILES['new_product_images']) && is_array($_FILES['new_product_images']['name'])) {
-        $product_images = $_FILES['new_product_images'];
+        // --- Handle Product Images ---
+        $product_images = $color_info['existing_images'] ?? []; // Start with existing
         
-        for ($i = 0; $i < count($product_images['name']); $i++) {
-            if ($product_images['error'][$i] == 0) {
-                if (in_array($product_images['type'][$i], $allowed_types) && 
-                    $product_images['size'][$i] <= $max_size) {
-                    
-                    $image_name = generateFileName($product_images['name'][$i]);
-                    $image_path = $upload_dir . $image_name;
-                    
-                    if (move_uploaded_file($product_images['tmp_name'][$i], $image_path)) {
-                        // Insert foto produk baru
-                        $insert_img_query = "INSERT INTO admin_gambar_produk (produk_id, foto_produk, tipe_produk) 
-                                           VALUES ('$product_id', '$image_name', 'ipad')";
-                        mysqli_query($db, $insert_img_query);
+        // Check for new uploads
+        if (isset($_FILES['warna']['name'][$color_index]['product_images'])) {
+            $count = count($_FILES['warna']['name'][$color_index]['product_images']);
+            for ($i = 0; $i < $count; $i++) {
+                if ($_FILES['warna']['error'][$color_index]['product_images'][$i] == 0) {
+                    $file = [
+                        'name' => $_FILES['warna']['name'][$color_index]['product_images'][$i],
+                        'type' => $_FILES['warna']['type'][$color_index]['product_images'][$i],
+                        'tmp_name' => $_FILES['warna']['tmp_name'][$color_index]['product_images'][$i],
+                        'size' => $_FILES['warna']['size'][$color_index]['product_images'][$i]
+                    ];
+
+                    if (in_array($file['type'], $allowed_types) && $file['size'] <= $max_size) {
+                        $new_name = generateFileName($file['name']);
+                        if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) {
+                            $product_images[] = $new_name;
+                        }
                     }
                 }
             }
         }
+
+        $product_images_json = json_encode(array_values($product_images)); // Re-index array
+
+        // Insert into DB
+        $query_gambar = "INSERT INTO admin_produk_ipad_gambar 
+                        (produk_id, warna, foto_thumbnail, foto_produk) 
+                        VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$product_images_json')";
+        
+        if (!mysqli_query($db, $query_gambar)) {
+            throw new Exception("Gagal menyimpan gambar warna $warna_nama: " . mysqli_error($db));
+        }
     }
 
-    // Aktifkan kembali foreign key checks
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=1");
+    // 3. Update Kombinasi (Delete all then Re-insert)
+    mysqli_query($db, "DELETE FROM admin_produk_ipad_kombinasi WHERE produk_id = '$product_id'");
+
+    $combinations = $_POST['combinations'] ?? [];
+    $count = 0;
+
+    foreach ($combinations as $combo) {
+        $warna = mysqli_real_escape_string($db, $combo['warna']);
+        $penyimpanan = mysqli_real_escape_string($db, $combo['penyimpanan']);
+        $konektivitas = mysqli_real_escape_string($db, $combo['konektivitas']);
+        $harga = mysqli_real_escape_string($db, $combo['harga']);
+        $harga_diskon = !empty($combo['harga_diskon']) ? mysqli_real_escape_string($db, $combo['harga_diskon']) : "NULL";
+        $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok']);
+        $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
+
+        $query_kombinasi = "INSERT INTO admin_produk_ipad_kombinasi 
+                           (produk_id, warna, penyimpanan, konektivitas, harga, harga_diskon, jumlah_stok, status_stok) 
+                           VALUES ('$product_id', '$warna', '$penyimpanan', '$konektivitas', 
+                                   '$harga', " . ($harga_diskon === "NULL" ? "NULL" : "'$harga_diskon'") . ", 
+                                   '$jumlah_stok', '$status_stok')";
+        
+        if (mysqli_query($db, $query_kombinasi)) {
+            $count++;
+        }
+    }
+
+    mysqli_commit($db);
 
     $response['success'] = true;
-    $response['message'] = 'Produk berhasil diperbarui';
+    $response['message'] = "Produk berhasil diperbarui dengan $count kombinasi data.";
 
 } catch (Exception $e) {
-    // Pastikan foreign key checks diaktifkan kembali
-    mysqli_query($db, "SET FOREIGN_KEY_CHECKS=1");
+    mysqli_rollback($db);
     $response['message'] = $e->getMessage();
+    error_log("Edit Error: " . $e->getMessage());
 }
 
 header('Content-Type: application/json');
 echo json_encode($response);
-?>
+?> -->

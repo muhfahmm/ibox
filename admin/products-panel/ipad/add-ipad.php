@@ -1,4 +1,4 @@
-<?php
+<!-- <?php
 session_start();
 require_once '../../db.php';
 
@@ -163,29 +163,11 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             color: white;
         }
         
-        .btn-add-field {
-            background-color: #17a2b8;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-size: 14px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            margin-top: 10px;
-        }
-        
-        .btn-add-field:hover {
-            background-color: #138496;
-        }
-        
         .form-section {
             background-color: #f8f9fa;
             padding: 20px;
             border-radius: 10px;
             margin-bottom: 25px;
-            position: relative;
         }
         
         .form-section h4 {
@@ -193,95 +175,116 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #eaeaea;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         
-        .variant-group {
-            margin-bottom: 15px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 8px;
+        .color-option, .storage-option, .connectivity-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
             border: 1px solid #eaeaea;
         }
         
-        .remove-variant {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #dc3545;
+        .add-option-btn {
+            background-color: #17a2b8;
             color: white;
             border: none;
-            border-radius: 50%;
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .add-option-btn:hover {
+            background-color: #138496;
+        }
+        
+        .btn-danger-sm {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
             width: 30px;
             height: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 14px;
         }
         
-        .alert-info {
-            background-color: #d1ecf1;
-            border-color: #bee5eb;
-            color: #0c5460;
+        .btn-danger-sm:hover {
+            background-color: #c82333;
+        }
+        
+        .color-images-section {
+            margin-top: 15px;
             padding: 15px;
+            background: white;
             border-radius: 8px;
-            margin-bottom: 20px;
+            border: 1px solid #eaeaea;
         }
         
-        .input-group-dynamic {
+        .combination-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .combination-table th {
+            background: #4a6cf7;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .combination-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .combination-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .combination-table input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .total-combinations {
+            background: #e3f2fd;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+        
+        .price-input-group {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
         }
         
-        .input-group-dynamic .form-control {
+        .price-input-group input {
             flex: 1;
         }
         
-        .input-group-dynamic .btn-remove-item {
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            width: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .variant-counter {
-            background-color: #4a6cf7;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 10px;
-        }
-        
-        .variant-list {
-            background-color: white;
-            border: 1px solid #eaeaea;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        
-        .variant-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 8px 12px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .variant-list-item:last-child {
-            border-bottom: none;
+        .alert-info {
+            background-color: #e7f3ff;
+            border-color: #b6d4fe;
+            color: #084298;
         }
     </style>
 </head>
@@ -293,165 +296,165 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             </div>
             <div class="card-body">
                 <form id="addIpadForm" action="api/api-add-ipad.php" method="POST" enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-section">
-                                <h4>Informasi Produk Dasar</h4>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="nama_produk" required>
-                                </div>
-                                
-                                <div class="mb-3">
-                                    <label class="form-label">Deskripsi Produk</label>
-                                    <textarea class="form-control" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi lengkap produk..."></textarea>
-                                </div>
-                            </div>
+                    
+                    <!-- Informasi Produk -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-info-circle me-2"></i> Informasi Produk</h4>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="nama_produk" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Deskripsi Produk</label>
+                            <textarea class="form-control" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi lengkap produk..."></textarea>
                         </div>
                     </div>
                     
-                    <!-- Container untuk varian produk -->
-                    <div id="variantContainer">
-                        <div class="variant-item">
-                            <div class="form-section">
-                                <h4>Varian Produk #1</h4>
-                                
-                                <!-- Warna -->
-                                <div class="mb-4">
-                                    <label class="form-label">Warna <span class="text-danger">*</span></label>
-                                    <div id="warna-container-1">
-                                        <div class="input-group-dynamic">
-                                            <input type="text" class="form-control" name="variant[1][warna][]" placeholder="Masukkan warna" required>
-                                            <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'warna')">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
+                    <!-- Warna dengan Gambar -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-palette me-2"></i> Warna Produk</h4>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Untuk setiap warna yang ditambahkan, silakan upload gambar thumbnail dan foto produk.
+                        </div>
+                        
+                        <div id="colorsContainer">
+                            <!-- Warna pertama -->
+                            <div class="color-option" data-color-index="0">
+                                <div class="row g-3 w-100">
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control" name="warna[0][nama]" 
+                                               placeholder="Nama Warna (Contoh: Silver)" required>
                                     </div>
-                                    <button type="button" class="btn-add-field" onclick="addVariantItem(1, 'warna')">
-                                        <i class="fas fa-plus"></i> Tambah Warna
-                                    </button>
-                                </div>
-                                
-                                <!-- Penyimpanan -->
-                                <div class="mb-4">
-                                    <label class="form-label">Penyimpanan <span class="text-danger">*</span></label>
-                                    <div id="penyimpanan-container-1">
-                                        <div class="input-group-dynamic">
-                                            <input type="text" class="form-control" name="variant[1][penyimpanan][]" placeholder="Masukkan penyimpanan" required>
-                                            <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'penyimpanan')">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn-add-field" onclick="addVariantItem(1, 'penyimpanan')">
-                                        <i class="fas fa-plus"></i> Tambah Penyimpanan
-                                    </button>
-                                </div>
-                                
-                                <!-- Konektivitas -->
-                                <div class="mb-4">
-                                    <label class="form-label">Konektivitas <span class="text-danger">*</span></label>
-                                    <div id="konektivitas-container-1">
-                                        <div class="input-group-dynamic">
-                                            <input type="text" class="form-control" name="variant[1][konektivitas][]" placeholder="Masukkan konektivitas" required>
-                                            <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'konektivitas')">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn-add-field" onclick="addVariantItem(1, 'konektivitas')">
-                                        <i class="fas fa-plus"></i> Tambah Konektivitas
-                                    </button>
-                                </div>
-                                
-                                <!-- Harga & Stok -->
-                                <div class="row mb-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" name="variant[1][harga]" min="0" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Harga Diskon</label>
-                                        <input type="number" class="form-control" name="variant[1][harga_diskon]" min="0" placeholder="Kosongkan jika tidak ada diskon">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label">Status Stok</label>
-                                        <select class="form-select" name="variant[1][status_stok]">
-                                            <option value="tersedia">Tersedia</option>
-                                            <option value="habis">Habis</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                
-                                <!-- Gambar Produk -->
-                                <div class="mb-4">
-                                    <label class="form-label">Thumbnail (Satu Gambar) <span class="text-danger">*</span></label>
-                                    <div class="file-upload" onclick="document.getElementById('thumbnail-1').click()">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <p class="mb-1">Klik untuk upload thumbnail</p>
-                                        <small class="text-muted">Format: JPG, PNG, GIF. Max: 2MB</small>
-                                        <input type="file" id="thumbnail-1" name="variant[1][thumbnail]" accept="image/*" style="display: none;" required>
-                                    </div>
-                                    <div class="preview-container">
-                                        <div id="thumbnailPreview-1" class="preview-item" style="display: none;">
-                                            <img id="thumbnailImg-1" src="" alt="Thumbnail Preview">
-                                            <button type="button" class="remove-btn" onclick="removeThumbnail(1)">&times;</button>
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Thumbnail Warna <span class="text-danger">*</span></label>
+                                                <div class="file-upload" onclick="document.getElementById('thumbnail-0').click()">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <p class="mb-1">Upload thumbnail</p>
+                                                    <small class="text-muted">Max: 2MB</small>
+                                                    <input type="file" id="thumbnail-0" 
+                                                           name="warna[0][thumbnail]" 
+                                                           accept="image/*" style="display: none;" required 
+                                                           onchange="previewThumbnail(0, this)">
+                                                </div>
+                                                <div class="preview-container">
+                                                    <div id="thumbnailPreview-0" class="preview-item" style="display: none;">
+                                                        <img id="thumbnailImg-0" src="" alt="Thumbnail Preview">
+                                                        <button type="button" class="remove-btn" onclick="removeThumbnail(0)">&times;</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
+                                                <div class="file-upload" onclick="document.getElementById('productImages-0').click()">
+                                                    <i class="fas fa-images"></i>
+                                                    <p class="mb-1">Upload foto produk</p>
+                                                    <small class="text-muted">Max: 2MB per gambar</small>
+                                                    <input type="file" id="productImages-0" 
+                                                           name="warna[0][product_images][]" 
+                                                           accept="image/*" multiple style="display: none;" 
+                                                           onchange="previewProductImages(0, this)">
+                                                </div>
+                                                <div class="preview-container" id="productImagesPreview-0"></div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                
-                                <div class="mb-4">
-                                    <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
-                                    <div class="file-upload" onclick="document.getElementById('productImages-1').click()">
-                                        <i class="fas fa-images"></i>
-                                        <p class="mb-1">Klik untuk upload foto produk</p>
-                                        <small class="text-muted">Format: JPG, PNG, GIF. Max: 2MB per gambar</small>
-                                        <input type="file" id="productImages-1" name="variant[1][product_images][]" accept="image/*" multiple style="display: none;">
-                                    </div>
-                                    <div class="preview-container" id="productImagesPreview-1"></div>
-                                </div>
-                                
-                                <button type="button" class="remove-variant" onclick="removeVariant(1)" style="display: none;">
-                                    <i class="fas fa-trash"></i>
+                                <button type="button" class="btn-danger-sm" onclick="removeColor(0)">
+                                    &times;
                                 </button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Tombol untuk menambah varian baru -->
-                    <div class="mb-4">
-                        <button type="button" class="btn btn-success" onclick="addNewVariant()">
-                            <i class="fas fa-plus-circle me-2"></i> Tambah Varian Baru
+                        
+                        <button type="button" class="add-option-btn" onclick="addColor()">
+                            <i class="fas fa-plus"></i> Tambah Warna Lain
                         </button>
-                        <span class="text-muted ms-3">Klik untuk menambah varian produk dengan spesifikasi berbeda</span>
                     </div>
                     
-                    <!-- Preview Kombinasi Varian -->
+                    <!-- Penyimpanan dengan Harga -->
                     <div class="form-section">
-                        <h4>Preview Kombinasi Varian <span id="totalCombinations" class="variant-counter">0</span></h4>
-                        <div id="combinationPreview" class="variant-list">
-                            <p class="text-muted">Belum ada kombinasi varian</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Konfirmasi -->
-                    <div class="form-section">
-                        <h4>Konfirmasi</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Sistem akan membuat semua kombinasi dari warna, penyimpanan, dan konektivitas yang dimasukkan.
-                            Pastikan semua data sudah benar sebelum menyimpan.
+                        <h4><i class="fas fa-hdd me-2"></i> Penyimpanan & Harga</h4>
+                        
+                        <div id="storagesContainer">
+                            <!-- Penyimpanan pertama -->
+                            <div class="storage-option" data-storage-index="0">
+                                <div class="row g-3 w-100">
+                                    <div class="col-md-3">
+                                        <input type="text" class="form-control" name="penyimpanan[0][size]" 
+                                               placeholder="Ukuran (Contoh: 128GB)" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" name="penyimpanan[0][harga]" 
+                                               placeholder="Harga" min="0" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label">Harga Diskon</label>
+                                        <input type="number" class="form-control" name="penyimpanan[0][harga_diskon]" 
+                                               placeholder="Diskon (opsional)" min="0">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-danger-sm" onclick="removeStorage(0)">
+                                    &times;
+                                </button>
+                            </div>
                         </div>
                         
-                        <div class="d-flex justify-content-between mt-4">
-                            <a href="ipad.php" class="btn-back">
-                                <i class="fas fa-arrow-left"></i> Kembali
-                            </a>
-                            <button type="submit" class="btn-submit">
-                                <i class="fas fa-save me-2"></i> Simpan Semua Produk
-                            </button>
+                        <button type="button" class="add-option-btn" onclick="addStorage()">
+                            <i class="fas fa-plus"></i> Tambah Penyimpanan Lain
+                        </button>
+                    </div>
+                    
+                    <!-- Konektivitas -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-wifi me-2"></i> Konektivitas</h4>
+                        
+                        <div id="connectivitiesContainer">
+                            <!-- Konektivitas pertama -->
+                            <div class="connectivity-option" data-connectivity-index="0">
+                                <input type="text" class="form-control" name="konektivitas[0]" 
+                                       placeholder="Tipe Konektivitas (Contoh: Wi-Fi)" required>
+                                <button type="button" class="btn-danger-sm" onclick="removeConnectivity(0)">
+                                    &times;
+                                </button>
+                            </div>
                         </div>
+                        
+                        <button type="button" class="add-option-btn" onclick="addConnectivity()">
+                            <i class="fas fa-plus"></i> Tambah Konektivitas Lain
+                        </button>
+                    </div>
+                    
+                    <!-- Tabel Kombinasi & Stok -->
+                    <div class="form-section">
+                        <h4><i class="fas fa-table me-2"></i> Kombinasi & Stok</h4>
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Sistem akan membuat semua kombinasi dari Warna, Penyimpanan, dan Konektivitas. 
+                            Silakan isi stok untuk setiap kombinasi.
+                        </div>
+                        
+                        <div id="combinationsContainer">
+                            <!-- Tabel kombinasi akan di-generate di sini -->
+                        </div>
+                        
+                        <div class="total-combinations" id="totalCombinations">
+                            Menghitung kombinasi...
+                        </div>
+                    </div>
+                    
+                    <!-- Tombol Aksi -->
+                    <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                        <a href="ipad.php" class="btn-back">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </a>
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save me-2"></i> Simpan Produk iPad
+                        </button>
                     </div>
                 </form>
             </div>
@@ -460,196 +463,399 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        let variantCounter = 1;
+        let colorCount = 1;
+        let storageCount = 1;
+        let connectivityCount = 1;
         
-        // Fungsi untuk menambah varian baru
-        function addNewVariant() {
-            variantCounter++;
-            const variantContainer = document.getElementById('variantContainer');
-            const newVariant = document.createElement('div');
-            newVariant.className = 'variant-item';
-            newVariant.innerHTML = `
-                <div class="form-section">
-                    <h4>Varian Produk #${variantCounter}</h4>
-                    
-                    <!-- Warna -->
-                    <div class="mb-4">
-                        <label class="form-label">Warna <span class="text-danger">*</span></label>
-                        <div id="warna-container-${variantCounter}">
-                            <div class="input-group-dynamic">
-                                <input type="text" class="form-control" name="variant[${variantCounter}][warna][]" placeholder="Masukkan warna" required>
-                                <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'warna')">
-                                    <i class="fas fa-times"></i>
-                                </button>
+        // Warna
+        function addColor() {
+            const container = document.getElementById('colorsContainer');
+            const newIndex = colorCount;
+            
+            const newColor = document.createElement('div');
+            newColor.className = 'color-option';
+            newColor.dataset.colorIndex = newIndex;
+            newColor.innerHTML = `
+                <div class="row g-3 w-100">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
+                               placeholder="Nama Warna (Contoh: Black)" required>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label">Thumbnail Warna <span class="text-danger">*</span></label>
+                                <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p class="mb-1">Upload thumbnail</p>
+                                    <small class="text-muted">Max: 2MB</small>
+                                    <input type="file" id="thumbnail-${newIndex}" 
+                                           name="warna[${newIndex}][thumbnail]" 
+                                           accept="image/*" style="display: none;" required 
+                                           onchange="previewThumbnail(${newIndex}, this)">
+                                </div>
+                                <div class="preview-container">
+                                    <div id="thumbnailPreview-${newIndex}" class="preview-item" style="display: none;">
+                                        <img id="thumbnailImg-${newIndex}" src="" alt="Thumbnail Preview">
+                                        <button type="button" class="remove-btn" onclick="removeThumbnail(${newIndex})">&times;</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <button type="button" class="btn-add-field" onclick="addVariantItem(${variantCounter}, 'warna')">
-                            <i class="fas fa-plus"></i> Tambah Warna
-                        </button>
-                    </div>
-                    
-                    <!-- Penyimpanan -->
-                    <div class="mb-4">
-                        <label class="form-label">Penyimpanan <span class="text-danger">*</span></label>
-                        <div id="penyimpanan-container-${variantCounter}">
-                            <div class="input-group-dynamic">
-                                <input type="text" class="form-control" name="variant[${variantCounter}][penyimpanan][]" placeholder="Masukkan penyimpanan" required>
-                                <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'penyimpanan')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-add-field" onclick="addVariantItem(${variantCounter}, 'penyimpanan')">
-                            <i class="fas fa-plus"></i> Tambah Penyimpanan
-                        </button>
-                    </div>
-                    
-                    <!-- Konektivitas -->
-                    <div class="mb-4">
-                        <label class="form-label">Konektivitas <span class="text-danger">*</span></label>
-                        <div id="konektivitas-container-${variantCounter}">
-                            <div class="input-group-dynamic">
-                                <input type="text" class="form-control" name="variant[${variantCounter}][konektivitas][]" placeholder="Masukkan konektivitas" required>
-                                <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, 'konektivitas')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-add-field" onclick="addVariantItem(${variantCounter}, 'konektivitas')">
-                            <i class="fas fa-plus"></i> Tambah Konektivitas
-                        </button>
-                    </div>
-                    
-                    <!-- Harga & Stok -->
-                    <div class="row mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control" name="variant[${variantCounter}][harga]" min="0" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Harga Diskon</label>
-                            <input type="number" class="form-control" name="variant[${variantCounter}][harga_diskon]" min="0" placeholder="Kosongkan jika tidak ada diskon">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Status Stok</label>
-                            <select class="form-select" name="variant[${variantCounter}][status_stok]">
-                                <option value="tersedia">Tersedia</option>
-                                <option value="habis">Habis</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <!-- Gambar Produk -->
-                    <div class="mb-4">
-                        <label class="form-label">Thumbnail (Satu Gambar) <span class="text-danger">*</span></label>
-                        <div class="file-upload" onclick="document.getElementById('thumbnail-${variantCounter}').click()">
-                            <i class="fas fa-cloud-upload-alt"></i>
-                            <p class="mb-1">Klik untuk upload thumbnail</p>
-                            <small class="text-muted">Format: JPG, PNG, GIF. Max: 2MB</small>
-                            <input type="file" id="thumbnail-${variantCounter}" name="variant[${variantCounter}][thumbnail]" accept="image/*" style="display: none;" required>
-                        </div>
-                        <div class="preview-container">
-                            <div id="thumbnailPreview-${variantCounter}" class="preview-item" style="display: none;">
-                                <img id="thumbnailImg-${variantCounter}" src="" alt="Thumbnail Preview">
-                                <button type="button" class="remove-btn" onclick="removeThumbnail(${variantCounter})">&times;</button>
+                            <div class="col-md-6">
+                                <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
+                                <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
+                                    <i class="fas fa-images"></i>
+                                    <p class="mb-1">Upload foto produk</p>
+                                    <small class="text-muted">Max: 2MB per gambar</small>
+                                    <input type="file" id="productImages-${newIndex}" 
+                                           name="warna[${newIndex}][product_images][]" 
+                                           accept="image/*" multiple style="display: none;" 
+                                           onchange="previewProductImages(${newIndex}, this)">
+                                </div>
+                                <div class="preview-container" id="productImagesPreview-${newIndex}"></div>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
-                        <div class="file-upload" onclick="document.getElementById('productImages-${variantCounter}').click()">
-                            <i class="fas fa-images"></i>
-                            <p class="mb-1">Klik untuk upload foto produk</p>
-                            <small class="text-muted">Format: JPG, PNG, GIF. Max: 2MB per gambar</small>
-                            <input type="file" id="productImages-${variantCounter}" name="variant[${variantCounter}][product_images][]" accept="image/*" multiple style="display: none;">
-                        </div>
-                        <div class="preview-container" id="productImagesPreview-${variantCounter}"></div>
-                    </div>
-                    
-                    <button type="button" class="remove-variant" onclick="removeVariant(${variantCounter})">
-                        <i class="fas fa-trash"></i>
-                    </button>
                 </div>
-            `;
-            
-            variantContainer.appendChild(newVariant);
-            
-            // Tambah event listener untuk thumbnail
-            document.getElementById(`thumbnail-${variantCounter}`).addEventListener('change', function(e) {
-                handleThumbnailChange(variantCounter, e);
-            });
-            
-            // Tambah event listener untuk product images
-            document.getElementById(`productImages-${variantCounter}`).addEventListener('change', function(e) {
-                handleProductImagesChange(variantCounter, e);
-            });
-            
-            // Update kombinasi
-            updateCombinationPreview();
-            
-            // Tampilkan tombol hapus untuk varian pertama
-            if (variantCounter > 1) {
-                document.querySelectorAll('.remove-variant')[0].style.display = 'block';
-            }
-        }
-        
-        // Fungsi untuk menambah item ke dalam varian (warna, penyimpanan, konektivitas)
-        function addVariantItem(variantId, type) {
-            const container = document.getElementById(`${type}-container-${variantId}`);
-            const newItem = document.createElement('div');
-            newItem.className = 'input-group-dynamic';
-            newItem.innerHTML = `
-                <input type="text" class="form-control" name="variant[${variantId}][${type}][]" placeholder="Masukkan ${type}" required>
-                <button type="button" class="btn-remove-item" onclick="removeVariantItem(this, '${type}')">
-                    <i class="fas fa-times"></i>
+                <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
+                    &times;
                 </button>
             `;
-            container.appendChild(newItem);
-            updateCombinationPreview();
+            
+            container.appendChild(newColor);
+            colorCount++;
+            generateCombinations();
         }
         
-        // Fungsi untuk menghapus item dari varian
-        function removeVariantItem(button, type) {
-            const container = button.closest('.input-group-dynamic');
-            if (container) {
-                container.remove();
-                updateCombinationPreview();
+        function removeColor(index) {
+            if (colorCount <= 1) {
+                alert('Minimal harus ada satu warna');
+                return;
+            }
+            
+            const colorElement = document.querySelector(`.color-option[data-color-index="${index}"]`);
+            if (colorElement) {
+                colorElement.remove();
+                colorCount--;
+                reindexColors();
+                generateCombinations();
             }
         }
         
-        // Fungsi untuk menghapus varian
-        function removeVariant(variantId) {
-            const variantItem = document.querySelector(`.variant-item:nth-child(${variantId})`);
-            if (variantItem) {
-                variantItem.remove();
-                updateCombinationPreview();
+        function reindexColors() {
+            const colorElements = document.querySelectorAll('.color-option');
+            colorElements.forEach((element, newIndex) => {
+                const oldIndex = element.dataset.colorIndex;
+                element.dataset.colorIndex = newIndex;
+                
+                // Update semua input dalam element
+                const inputs = element.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(
+                            /warna\[\d+\]/g,
+                            `warna[${newIndex}]`
+                        );
+                    }
+                });
+                
+                // Update ID dan event handlers
+                const fileInputs = element.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(input => {
+                    if (input.id.includes('thumbnail')) {
+                        input.id = `thumbnail-${newIndex}`;
+                        input.setAttribute('onchange', `previewThumbnail(${newIndex}, this)`);
+                        input.parentElement.setAttribute('onclick', `document.getElementById('thumbnail-${newIndex}').click()`);
+                    }
+                    if (input.id.includes('productImages')) {
+                        input.id = `productImages-${newIndex}`;
+                        input.setAttribute('onchange', `previewProductImages(${newIndex}, this)`);
+                        input.parentElement.setAttribute('onclick', `document.getElementById('productImages-${newIndex}').click()`);
+                    }
+                });
+                
+                // Update preview containers
+                element.querySelectorAll('[id*="Preview"]').forEach(el => {
+                    el.id = el.id.replace(/\d+/, newIndex);
+                });
+                
+                // Update remove button
+                const removeBtn = element.querySelector('.btn-danger-sm');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeColor(${newIndex})`);
+                }
+            });
+        }
+        
+        // Penyimpanan
+        function addStorage() {
+            const container = document.getElementById('storagesContainer');
+            const newIndex = storageCount;
+            
+            const newStorage = document.createElement('div');
+            newStorage.className = 'storage-option';
+            newStorage.dataset.storageIndex = newIndex;
+            newStorage.innerHTML = `
+                <div class="row g-3 w-100">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" name="penyimpanan[${newIndex}][size]" 
+                               placeholder="Ukuran (Contoh: 256GB)" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga]" 
+                               placeholder="Harga" min="0" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga Diskon</label>
+                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
+                               placeholder="Diskon (opsional)" min="0">
+                    </div>
+                </div>
+                <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
+                    &times;
+                </button>
+            `;
+            
+            container.appendChild(newStorage);
+            storageCount++;
+            generateCombinations();
+        }
+        
+        function removeStorage(index) {
+            if (storageCount <= 1) {
+                alert('Minimal harus ada satu penyimpanan');
+                return;
+            }
+            
+            const storageElement = document.querySelector(`.storage-option[data-storage-index="${index}"]`);
+            if (storageElement) {
+                storageElement.remove();
+                storageCount--;
+                reindexStorages();
+                generateCombinations();
             }
         }
         
-        // Fungsi untuk menghandle thumbnail change
-        function handleThumbnailChange(variantId, e) {
-            const file = e.target.files[0];
+        function reindexStorages() {
+            const storageElements = document.querySelectorAll('.storage-option');
+            storageElements.forEach((element, newIndex) => {
+                const oldIndex = element.dataset.storageIndex;
+                element.dataset.storageIndex = newIndex;
+                
+                // Update semua input dalam element
+                const inputs = element.querySelectorAll('input, select, textarea');
+                inputs.forEach(input => {
+                    if (input.name) {
+                        input.name = input.name.replace(
+                            /penyimpanan\[\d+\]/g,
+                            `penyimpanan[${newIndex}]`
+                        );
+                    }
+                });
+                
+                // Update remove button
+                const removeBtn = element.querySelector('.btn-danger-sm');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeStorage(${newIndex})`);
+                }
+            });
+        }
+        
+        // Konektivitas
+        function addConnectivity() {
+            const container = document.getElementById('connectivitiesContainer');
+            const newIndex = connectivityCount;
+            
+            const newConnectivity = document.createElement('div');
+            newConnectivity.className = 'connectivity-option';
+            newConnectivity.dataset.connectivityIndex = newIndex;
+            newConnectivity.innerHTML = `
+                <input type="text" class="form-control" name="konektivitas[${newIndex}]" 
+                       placeholder="Tipe Konektivitas (Contoh: Wi-Fi + Cellular)" required>
+                <button type="button" class="btn-danger-sm" onclick="removeConnectivity(${newIndex})">
+                    &times;
+                </button>
+            `;
+            
+            container.appendChild(newConnectivity);
+            connectivityCount++;
+            generateCombinations();
+        }
+        
+        function removeConnectivity(index) {
+            if (connectivityCount <= 1) {
+                alert('Minimal harus ada satu konektivitas');
+                return;
+            }
+            
+            const connectivityElement = document.querySelector(`.connectivity-option[data-connectivity-index="${index}"]`);
+            if (connectivityElement) {
+                connectivityElement.remove();
+                connectivityCount--;
+                reindexConnectivities();
+                generateCombinations();
+            }
+        }
+        
+        function reindexConnectivities() {
+            const connectivityElements = document.querySelectorAll('.connectivity-option');
+            connectivityElements.forEach((element, newIndex) => {
+                const oldIndex = element.dataset.connectivityIndex;
+                element.dataset.connectivityIndex = newIndex;
+                
+                // Update input name
+                const input = element.querySelector('input');
+                if (input) {
+                    input.name = `konektivitas[${newIndex}]`;
+                }
+                
+                // Update remove button
+                const removeBtn = element.querySelector('.btn-danger-sm');
+                if (removeBtn) {
+                    removeBtn.setAttribute('onclick', `removeConnectivity(${newIndex})`);
+                }
+            });
+        }
+        
+        // Generate Combinations
+        function generateCombinations() {
+    const container = document.getElementById('combinationsContainer');
+    
+    // Collect data
+    const colors = [];
+    document.querySelectorAll('.color-option input[name$="[nama]"]').forEach(input => {
+        if (input.value.trim()) {
+            colors.push(input.value.trim());
+        }
+    });
+    
+    const storages = [];
+    document.querySelectorAll('.storage-option').forEach(option => {
+        const sizeInput = option.querySelector('input[name$="[size]"]');
+        const hargaInput = option.querySelector('input[name$="[harga]"]');
+        const diskonInput = option.querySelector('input[name$="[harga_diskon]"]');
+        
+        if (sizeInput && hargaInput && sizeInput.value.trim() && hargaInput.value) {
+            storages.push({
+                size: sizeInput.value.trim(),
+                harga: hargaInput.value,
+                harga_diskon: diskonInput ? diskonInput.value : ''
+            });
+        }
+    });
+    
+    const connectivities = [];
+    document.querySelectorAll('.connectivity-option input').forEach(input => {
+        if (input.value.trim()) {
+            connectivities.push(input.value.trim());
+        }
+    });
+    
+    console.log("Colors:", colors);
+    console.log("Storages:", storages);
+    console.log("Connectivities:", connectivities);
+    
+    // Calculate total combinations
+    const totalCombinations = colors.length * storages.length * connectivities.length;
+    document.getElementById('totalCombinations').innerHTML = 
+        `Total Kombinasi: <strong>${totalCombinations}</strong> (${colors.length} warna × ${storages.length} penyimpanan × ${connectivities.length} konektivitas)`;
+    
+    // Generate table
+    if (totalCombinations > 0) {
+        let tableHTML = `
+            <table class="combination-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Warna</th>
+                        <th>Penyimpanan</th>
+                        <th>Konektivitas</th>
+                        <th>Harga</th>
+                        <th>Harga Diskon</th>
+                        <th>Jumlah Stok</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        
+        let counter = 1;
+        colors.forEach((color, colorIndex) => {
+            storages.forEach((storage, storageIndex) => {
+                connectivities.forEach((connectivity, connectivityIndex) => {
+                    const combinationId = `${colorIndex}-${storageIndex}-${connectivityIndex}`;
+                    
+                    tableHTML += `
+                        <tr>
+                            <td>${counter}</td>
+                            <td><strong>${color}</strong></td>
+                            <td><strong>${storage.size}</strong></td>
+                            <td>${connectivity}</td>
+                            <td>
+                                <input type="hidden" name="combinations[${combinationId}][warna]" value="${color}">
+                                <input type="hidden" name="combinations[${combinationId}][penyimpanan]" value="${storage.size}">
+                                <input type="hidden" name="combinations[${combinationId}][konektivitas]" value="${connectivity}">
+                                <input type="hidden" name="combinations[${combinationId}][harga]" value="${storage.harga}">
+                                <input type="hidden" name="combinations[${combinationId}][harga_diskon]" value="${storage.harga_diskon || ''}">
+                                <div class="text-success fw-bold">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
+                            </td>
+                            <td>
+                                ${storage.harga_diskon ? 
+                                    `<div class="text-danger fw-bold">Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</div>` : 
+                                    '<span class="text-muted">-</span>'}
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" 
+                                       name="combinations[${combinationId}][jumlah_stok]" 
+                                       value="0" min="0" required 
+                                       style="width: 100px;">
+                            </td>
+                        </tr>
+                    `;
+                    counter++;
+                });
+            });
+        });
+        
+        tableHTML += `
+                </tbody>
+            </table>
+        `;
+        
+        container.innerHTML = tableHTML;
+    } else {
+        container.innerHTML = '<p class="text-muted">Tambahkan minimal satu warna, penyimpanan, dan konektivitas untuk melihat kombinasi.</p>';
+    }
+}
+        
+        // Preview functions
+        function previewThumbnail(index, input) {
+            const file = input.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById(`thumbnailImg-${variantId}`).src = e.target.result;
-                    document.getElementById(`thumbnailPreview-${variantId}`).style.display = 'block';
-                }
+                    const img = document.getElementById(`thumbnailImg-${index}`);
+                    const preview = document.getElementById(`thumbnailPreview-${index}`);
+                    if (img) img.src = e.target.result;
+                    if (preview) preview.style.display = 'block';
+                };
                 reader.readAsDataURL(file);
             }
         }
         
-        // Fungsi untuk remove thumbnail
-        function removeThumbnail(variantId) {
-            document.getElementById(`thumbnail-${variantId}`).value = '';
-            document.getElementById(`thumbnailPreview-${variantId}`).style.display = 'none';
+        function removeThumbnail(index) {
+            const input = document.getElementById(`thumbnail-${index}`);
+            const preview = document.getElementById(`thumbnailPreview-${index}`);
+            if (input) input.value = '';
+            if (preview) preview.style.display = 'none';
         }
         
-        // Fungsi untuk menghandle product images change
-        function handleProductImagesChange(variantId, e) {
-            const files = e.target.files;
-            const previewContainer = document.getElementById(`productImagesPreview-${variantId}`);
+        function previewProductImages(index, input) {
+            const files = input.files;
+            const previewContainer = document.getElementById(`productImagesPreview-${index}`);
+            
+            // Clear existing previews
+            previewContainer.innerHTML = '';
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -660,173 +866,104 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                     previewItem.className = 'preview-item';
                     previewItem.innerHTML = `
                         <img src="${e.target.result}" alt="Product Image">
-                        <button type="button" class="remove-btn" onclick="removeProductImage(this)">&times;</button>
+                        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">&times;</button>
                     `;
                     previewContainer.appendChild(previewItem);
-                }
+                };
                 
                 reader.readAsDataURL(file);
             }
         }
         
-        // Fungsi untuk remove product image
-        function removeProductImage(button) {
-            button.parentElement.remove();
-        }
-        
-        // Fungsi untuk menghitung dan menampilkan kombinasi
-        function updateCombinationPreview() {
-            const combinations = [];
-            const variantItems = document.querySelectorAll('.variant-item');
-            
-            variantItems.forEach((variantItem, variantIndex) => {
-                const variantId = variantIndex + 1;
-                
-                // Ambil semua warna
-                const warnaInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][warna][]"]`);
-                const warna = Array.from(warnaInputs).map(input => input.value.trim()).filter(val => val);
-                
-                // Ambil semua penyimpanan
-                const penyimpananInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][penyimpanan][]"]`);
-                const penyimpanan = Array.from(penyimpananInputs).map(input => input.value.trim()).filter(val => val);
-                
-                // Ambil semua konektivitas
-                const konektivitasInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][konektivitas][]"]`);
-                const konektivitas = Array.from(konektivitasInputs).map(input => input.value.trim()).filter(val => val);
-                
-                // Ambil harga
-                const hargaInput = variantItem.querySelector(`input[name="variant[${variantId}][harga]"]`);
-                const harga = hargaInput ? hargaInput.value : '0';
-                
-                // Buat kombinasi
-                warna.forEach(w => {
-                    penyimpanan.forEach(p => {
-                        konektivitas.forEach(k => {
-                            combinations.push({
-                                warna: w,
-                                penyimpanan: p,
-                                konektivitas: k,
-                                harga: harga,
-                                variant: variantId
-                            });
-                        });
-                    });
-                });
-            });
-            
-            // Update total kombinasi
-            document.getElementById('totalCombinations').textContent = combinations.length;
-            
-            // Update preview
-            const previewContainer = document.getElementById('combinationPreview');
-            if (combinations.length > 0) {
-                let html = '';
-                combinations.forEach((combo, index) => {
-                    html += `
-                        <div class="variant-list-item">
-                            <div>
-                                <strong>Kombinasi #${index + 1}</strong><br>
-                                <small class="text-muted">
-                                    Warna: ${combo.warna} | 
-                                    Penyimpanan: ${combo.penyimpanan} | 
-                                    Konektivitas: ${combo.konektivitas} |
-                                    Harga: Rp ${parseInt(combo.harga).toLocaleString('id-ID')}
-                                </small>
-                            </div>
-                            <small class="text-muted">Varian #${combo.variant}</small>
-                        </div>
-                    `;
-                });
-                previewContainer.innerHTML = html;
-            } else {
-                previewContainer.innerHTML = '<p class="text-muted">Belum ada kombinasi varian</p>';
-            }
-        }
-        
-        // Event listener untuk real-time update kombinasi
-        document.addEventListener('input', function(e) {
-            if (e.target.name.includes('variant') && 
-                (e.target.name.includes('[warna]') || 
-                 e.target.name.includes('[penyimpanan]') || 
-                 e.target.name.includes('[konektivitas]') ||
-                 e.target.name.includes('[harga]'))) {
-                updateCombinationPreview();
-            }
-        });
-        
-        // Inisialisasi event listener untuk varian pertama
-        document.getElementById('thumbnail-1').addEventListener('change', function(e) {
-            handleThumbnailChange(1, e);
-        });
-        
-        document.getElementById('productImages-1').addEventListener('change', function(e) {
-            handleProductImagesChange(1, e);
-        });
-        
-        // Form submission
+        // Form validation and submission
         document.getElementById('addIpadForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Validasi minimal satu varian
-            const variantItems = document.querySelectorAll('.variant-item');
-            if (variantItems.length === 0) {
-                alert('Minimal harus ada satu varian produk!');
+            // Validate product name
+            const productName = document.querySelector('input[name="nama_produk"]').value;
+            if (!productName.trim()) {
+                alert('Nama produk harus diisi');
                 return;
             }
             
-            // Validasi setiap varian
-            let isValid = true;
-            variantItems.forEach((variantItem, variantIndex) => {
-                const variantId = variantIndex + 1;
-                
-                // Validasi warna
-                const warnaInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][warna][]"]`);
-                const hasWarna = Array.from(warnaInputs).some(input => input.value.trim() !== '');
-                
-                // Validasi penyimpanan
-                const penyimpananInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][penyimpanan][]"]`);
-                const hasPenyimpanan = Array.from(penyimpananInputs).some(input => input.value.trim() !== '');
-                
-                // Validasi konektivitas
-                const konektivitasInputs = variantItem.querySelectorAll(`input[name="variant[${variantId}][konektivitas][]"]`);
-                const hasKonektivitas = Array.from(konektivitasInputs).some(input => input.value.trim() !== '');
-                
-                if (!hasWarna || !hasPenyimpanan || !hasKonektivitas) {
-                    isValid = false;
-                    alert(`Varian #${variantId}: Harap isi minimal satu warna, penyimpanan, dan konektivitas!`);
-                    return;
-                }
-                
-                // Validasi harga
-                const hargaInput = variantItem.querySelector(`input[name="variant[${variantId}][harga]"]`);
-                if (!hargaInput || hargaInput.value.trim() === '' || parseFloat(hargaInput.value) <= 0) {
-                    isValid = false;
-                    alert(`Varian #${variantId}: Harga harus diisi dengan nilai yang valid!`);
-                    return;
-                }
-                
-                // Validasi harga diskon
-                const hargaDiskonInput = variantItem.querySelector(`input[name="variant[${variantId}][harga_diskon]"]`);
-                if (hargaDiskonInput && hargaDiskonInput.value.trim() !== '') {
-                    if (parseFloat(hargaDiskonInput.value) >= parseFloat(hargaInput.value)) {
-                        isValid = false;
-                        alert(`Varian #${variantId}: Harga diskon harus lebih rendah dari harga normal!`);
-                        return;
-                    }
-                }
-                
-                // Validasi thumbnail
-                const thumbnailInput = variantItem.querySelector(`input[name="variant[${variantId}][thumbnail]"]`);
-                if (!thumbnailInput || !thumbnailInput.files || thumbnailInput.files.length === 0) {
-                    isValid = false;
-                    alert(`Varian #${variantId}: Thumbnail harus diupload!`);
-                    return;
+            // Validate colors
+            const colorInputs = document.querySelectorAll('.color-option input[name$="[nama]"]');
+            const validColors = Array.from(colorInputs).filter(input => input.value.trim()).length;
+            if (validColors === 0) {
+                alert('Minimal satu warna harus diisi');
+                return;
+            }
+            
+            // Validate color thumbnails
+            let missingThumbnail = false;
+            document.querySelectorAll('.color-option').forEach((option, index) => {
+                const thumbnailInput = document.getElementById(`thumbnail-${index}`);
+                if (!thumbnailInput || !thumbnailInput.files[0]) {
+                    missingThumbnail = true;
                 }
             });
             
-            if (!isValid) return;
+            if (missingThumbnail) {
+                alert('Semua warna harus memiliki thumbnail');
+                return;
+            }
             
-            // Tampilkan loading
+            // Validate storages
+            const storageInputs = document.querySelectorAll('.storage-option input[name$="[size]"]');
+            const validStorages = Array.from(storageInputs).filter(input => input.value.trim()).length;
+            if (validStorages === 0) {
+                alert('Minimal satu penyimpanan harus diisi');
+                return;
+            }
+            
+            // Validate storage prices
+            let invalidPrice = false;
+            document.querySelectorAll('.storage-option').forEach(option => {
+                const hargaInput = option.querySelector('input[name$="[harga]"]');
+                const diskonInput = option.querySelector('input[name$="[harga_diskon]"]');
+                
+                if (hargaInput && parseFloat(hargaInput.value) <= 0) {
+                    invalidPrice = true;
+                }
+                
+                if (diskonInput && diskonInput.value) {
+                    const harga = parseFloat(hargaInput.value);
+                    const diskon = parseFloat(diskonInput.value);
+                    if (diskon >= harga) {
+                        alert('Harga diskon harus lebih rendah dari harga normal');
+                        invalidPrice = true;
+                    }
+                }
+            });
+            
+            if (invalidPrice) {
+                alert('Periksa harga dan diskon pada penyimpanan');
+                return;
+            }
+            
+            // Validate connectivities
+            const connectivityInputs = document.querySelectorAll('.connectivity-option input');
+            const validConnectivities = Array.from(connectivityInputs).filter(input => input.value.trim()).length;
+            if (validConnectivities === 0) {
+                alert('Minimal satu konektivitas harus diisi');
+                return;
+            }
+            
+            // Validate combinations
+            const stockInputs = document.querySelectorAll('input[name$="[jumlah_stok]"]');
+            let invalidStock = false;
+            stockInputs.forEach(input => {
+                if (parseInt(input.value) < 0) {
+                    invalidStock = true;
+                }
+            });
+            
+            if (invalidStock) {
+                alert('Stok tidak boleh kurang dari 0');
+                return;
+            }
+            
+            // Show loading
             const submitBtn = document.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
@@ -842,7 +979,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('Semua produk berhasil ditambahkan!');
+                    alert('Produk berhasil ditambahkan!');
                     window.location.href = 'ipad.php';
                 } else {
                     alert('Error: ' + data.message);
@@ -858,8 +995,45 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             });
         });
         
-        // Inisialisasi preview kombinasi
-        updateCombinationPreview();
+        // Initialize combinations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            generateCombinations();
+            
+            // Add event listeners for real-time validation
+            document.addEventListener('input', function(e) {
+                if (e.target.name && e.target.name.includes('[harga]')) {
+                    generateCombinations();
+                }
+            });
+        });
+        // Debug function
+function debugFormData() {
+    const formData = new FormData(document.getElementById('addIpadForm'));
+    console.log("=== DEBUG FORM DATA ===");
+    
+    // Log warna
+    const warnaInputs = document.querySelectorAll('input[name^="warna["]');
+    console.log("Warna inputs found:", warnaInputs.length);
+    
+    // Log penyimpanan
+    const storageInputs = document.querySelectorAll('input[name^="penyimpanan["]');
+    console.log("Penyimpanan inputs found:", storageInputs.length);
+    
+    // Log konektivitas
+    const connectivityInputs = document.querySelectorAll('input[name^="konektivitas["]');
+    console.log("Konektivitas inputs found:", connectivityInputs.length);
+    
+    // Log kombinasi
+    const combinationInputs = document.querySelectorAll('input[name^="combinations["]');
+    console.log("Combination inputs found:", combinationInputs.length);
+    
+    // Show form data
+    for (let pair of formData.entries()) {
+        console.log(pair[0] + ': ' + pair[1]);
+    }
+    
+    return false;
+}
     </script>
 </body>
-</html>
+</html> -->
