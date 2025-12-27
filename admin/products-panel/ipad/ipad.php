@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 session_start();
 require_once '../../db.php';
 
@@ -745,4 +745,4 @@ $ipad_count = mysqli_num_rows($result);
         }, 30 * 60 * 1000);
     </script>
 </body>
-</html> -->
+</html>
