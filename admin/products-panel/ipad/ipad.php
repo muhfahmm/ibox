@@ -26,6 +26,14 @@ $result = mysqli_query($db, $query);
 
 // Hitung jumlah produk iPad
 $ipad_count = mysqli_num_rows($result);
+
+// Hitung jumlah produk kategori lain untuk sidebar
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
 ?>
 
 <!DOCTYPE html>
@@ -518,42 +526,42 @@ $ipad_count = mysqli_num_rows($result);
                             <a href="../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
-                                <span class="badge">24</span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
-                                <span class="badge">12</span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
-                                <span class="badge">10</span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $airtag_count; ?></span>
                             </a>
                         </li>
                     </ul>
