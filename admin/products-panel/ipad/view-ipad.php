@@ -332,9 +332,10 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
                 <div class="product-header">
                     <h1 class="product-title"><?php echo htmlspecialchars($product['nama_produk']); ?></h1>
                     <div class="product-meta">
-                        <i class="fas fa-hashtag me-1"></i> ID: <?php echo $product['id']; ?> | 
                         <i class="fas fa-calendar-alt me-1"></i> 
-                        Ditambahkan: <?php echo isset($product['created_at']) ? date('d F Y H:i', strtotime($product['created_at'])) : '-'; ?>
+                        Ditambahkan: <?php echo date('d F Y H:i', strtotime($product['created_at'])); ?> |
+                        <i class="fas fa-history me-1"></i> 
+                        Terakhir diupdate: <?php echo date('d F Y H:i', strtotime($product['updated_at'])); ?>
                     </div>
                     
                     <div class="stats-container">
