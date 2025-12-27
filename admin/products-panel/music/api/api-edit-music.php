@@ -37,16 +37,23 @@ try {
 
     $product_id = mysqli_real_escape_string($db, $_POST['product_id']);
     
-    // Update data produk utama
+    // Update data produk utama (tanpa updated_at)
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
-    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    
+    // Handle deskripsi produk - prevent '0' from being saved
+    $deskripsi_produk = trim($_POST['deskripsi_produk'] ?? '');
+    // If the value is '0' or empty, save as empty string instead of '0'
+    if ($deskripsi_produk === '0' || $deskripsi_produk === 0) {
+        $deskripsi_produk = '';
+    }
+    $deskripsi_produk = mysqli_real_escape_string($db, $deskripsi_produk);
+    
     $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
 
     $query = "UPDATE admin_produk_music SET 
               nama_produk = '$nama_produk', 
               deskripsi_produk = '$deskripsi_produk',
-              kategori = '$kategori',
-              updated_at = NOW()
+              kategori = '$kategori'
               WHERE id = '$product_id'";
     
     if (!mysqli_query($db, $query)) {

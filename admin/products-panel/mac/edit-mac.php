@@ -66,10 +66,34 @@ foreach ($combinations as $combination) {
     $storage = $combination['penyimpanan'];
     if (!isset($storage_data[$storage])) {
         $storage_data[$storage] = [
+            'size' => $storage,
             'harga' => $combination['harga'],
-            'harga_diskon' => $combination['harga_diskon']
+            'harga_diskon' => $combination['harga_diskon'] ?? ''
         ];
     }
+}
+
+// Prepare initial data for JavaScript
+$initialData = [
+    'colors' => [],
+    'processors' => $unique_processors,
+    'storages' => array_values($storage_data),
+    'rams' => $unique_rams,
+    'stocks' => []
+];
+
+foreach($color_images as $color) {
+    $photos = json_decode($color['foto_produk'], true) ?? [];
+    $initialData['colors'][] = [
+        'nama' => $color['warna'],
+        'thumbnail' => $color['foto_thumbnail'],
+        'images' => $photos
+    ];
+}
+
+foreach($combinations as $c) {
+    $key = $c['warna'] . '|' . $c['processor'] . '|' . $c['penyimpanan'] . '|' . $c['ram'];
+    $initialData['stocks'][$key] = $c['jumlah_stok'];
 }
 ?>
 
@@ -80,16 +104,16 @@ foreach ($combinations as $combination) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Produk Mac - <?php echo htmlspecialchars($product['nama_produk']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Same CSS as add-mac.php */
         body {
             background-color: #f5f7fb;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 20px;
         }
@@ -98,132 +122,25 @@ foreach ($combinations as $combination) {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: none;
+            background: white;
+            overflow: hidden;
         }
         
         .card-header {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            border-radius: 15px 15px 0 0 !important;
+            border-radius: 15px 15px 0 0;
             padding: 25px;
         }
         
         .card-header h2 {
             margin: 0;
             font-weight: 600;
+            font-size: 24px;
         }
         
         .card-body {
             padding: 30px;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
-        }
-        
-        .file-upload {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background-color: #fafafa;
-        }
-        
-        .file-upload:hover {
-            border-color: #4a6cf7;
-            background-color: #f0f4ff;
-        }
-        
-        .file-upload i {
-            font-size: 40px;
-            color: #4a6cf7;
-            margin-bottom: 10px;
-        }
-        
-        .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .preview-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
-        
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #eaeaea;
-        }
-        
-        .remove-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
-        }
-        
-        .btn-back {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-back:hover {
-            background-color: #5a6268;
-            color: white;
         }
         
         .form-section {
@@ -235,72 +152,162 @@ foreach ($combinations as $combination) {
         
         .form-section h4 {
             color: #4a6cf7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
             border-bottom: 2px solid #eaeaea;
-        }
-        
-        .color-option, .processor-option, .storage-option, .ram-option {
+            padding-bottom: 10px;
+            margin: 0 0 20px 0;
+            font-size: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #eaeaea;
         }
         
-        .add-option-btn {
-            background-color: #17a2b8;
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control, textarea.form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-control:focus, textarea.form-control:focus {
+            border-color: #4a6cf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.25);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 14px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 16px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            transition: all 0.3s;
         }
         
-        .add-option-btn:hover {
-            background-color: #138496;
+        .btn-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+        }
+        
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-back:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Custom styles for dynamic sections */
+        .color-option, .processor-option, .storage-option, .ram-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            margin-bottom: 10px;
+            position: relative;
         }
         
         .btn-danger-sm {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background-color: #dc3545;
             color: white;
             border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 12px;
         }
         
-        .btn-danger-sm:hover {
-            background-color: #c82333;
-        }
-        
-        .color-images-section {
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
+        .add-option-btn {
+            background-color: transparent;
+            border: 2px solid #4a6cf7;
+            color: #4a6cf7;
+            padding: 10px 20px;
             border-radius: 8px;
-            border: 1px solid #eaeaea;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .add-option-btn:hover {
+            background-color: #4a6cf7;
+            color: white;
         }
         
         .combination-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .combination-table th {
@@ -312,8 +319,8 @@ foreach ($combinations as $combination) {
         }
         
         .combination-table td {
-            padding: 10px;
-            border-bottom: 1px solid #eaeaea;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
         }
         
         .combination-table tr:hover {
@@ -321,53 +328,174 @@ foreach ($combinations as $combination) {
         }
         
         .combination-table input {
-            width: 100%;
+            width: 100px;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
         
         .total-combinations {
             background: #e3f2fd;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 12px 15px;
+            border-radius: 8px;
             margin-top: 15px;
             font-weight: 500;
         }
         
-        .price-input-group {
+        .alert-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b6d4fe;
+            color: #084298;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             display: flex;
+            align-items: center;
             gap: 10px;
         }
         
-        .price-input-group input {
-            flex: 1;
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #fafafa;
+            margin-bottom: 15px;
         }
         
-        .alert-info {
-            background-color: #e7f3ff;
-            border-color: #b6d4fe;
-            color: #084298;
+        .file-upload:hover {
+            border-color: #4a6cf7;
+            background-color: #f0f4ff;
         }
         
-        .existing-data {
-            background: #f0f8ff;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border-left: 4px solid #4a6cf7;
-        }
-        
-        .existing-data strong {
+        .file-upload i {
+            font-size: 24px;
             color: #4a6cf7;
+            margin-bottom: 10px;
+        }
+        
+        .file-upload p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+            color: #4a6cf7;
+        }
+        
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Grid System Replacement */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px 15px -10px;
+        }
+        
+        .form-col {
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        .col-3 { width: 25%; }
+        .col-4 { width: 33.333%; }
+        .col-6 { width: 50%; }
+        .col-9 { width: 75%; }
+        .col-12 { width: 100%; }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .mb-3 { margin-bottom: 15px; }
+        .mt-2 { margin-top: 10px; }
+        .mt-5 { margin-top: 30px; }
+        .pt-3 { padding-top: 15px; }
+        .pt-4 { padding-top: 20px; }
+        .text-danger { color: #dc3545; }
+        .text-muted { color: #6c757d; }
+        .text-center { text-align: center; }
+        .p-4 { padding: 20px; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+                padding: 15px;
+            }
+            
+            .form-row {
+                margin: 0 -8px 15px -8px;
+            }
+            
+            .form-col {
+                padding: 0 8px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .col-3, .col-4, .col-6, .col-9, .col-12 {
+                width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-submit, .btn-back {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .combination-table {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 <body>
+    <div id="loadingOverlay">
+        <div class="spinner-border" role="status"></div>
+        <div style="margin-top: 10px; font-weight: bold;">Menyimpan perubahan...</div>
+    </div>
+
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-edit me-2"></i> Edit Produk Mac</h2>
+                <h2><i class="fas fa-edit"></i> Edit Produk Mac</h2>
             </div>
             <div class="card-body">
                 <form id="editMacForm" action="api/api-edit-mac.php" method="POST" enctype="multipart/form-data">
@@ -375,125 +503,98 @@ foreach ($combinations as $combination) {
                     
                     <!-- Informasi Produk -->
                     <div class="form-section">
-                        <h4><i class="fas fa-info-circle me-2"></i> Informasi Produk</h4>
-                        
+                        <h4><i class="fas fa-info-circle"></i> Informasi Dasar</h4>
                         <div class="mb-3">
                             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="nama_produk" required 
-                                   value="<?php echo htmlspecialchars($product['nama_produk']); ?>">
+                            <input type="text" class="form-control" name="nama_produk" value="<?php echo htmlspecialchars($product['nama_produk']); ?>" required>
                         </div>
-                        
                         <div class="mb-3">
                             <label class="form-label">Deskripsi Produk</label>
-                            <textarea class="form-control" name="deskripsi_produk" rows="4"><?php echo htmlspecialchars($product['deskripsi_produk']); ?></textarea>
+                            <textarea class="form-control" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi lengkap produk..."><?php echo htmlspecialchars($product['deskripsi_produk']); ?></textarea>
                         </div>
                     </div>
                     
                     <!-- Warna dengan Gambar -->
                     <div class="form-section">
-                        <h4><i class="fas fa-palette me-2"></i> Warna Produk</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Warna yang sudah ada: 
-                            <?php foreach($unique_colors as $color): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($color); ?></span>
-                            <?php endforeach; ?>
+                        <h4><i class="fas fa-palette"></i> Warna Produk</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Anda bisa membiarkan field upload kosong jika tidak ingin mengubah gambar.
                         </div>
                         
                         <div id="colorsContainer">
-                            <!-- Existing colors will be loaded here -->
+                            <!-- Warna akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addColor()">
-                            <i class="fas fa-plus"></i> Tambah Warna Baru
+                            <i class="fas fa-plus"></i> Tambah Warna Lain
                         </button>
                     </div>
                     
                     <!-- Processor -->
                     <div class="form-section">
-                        <h4><i class="fas fa-microchip me-2"></i> Processor</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Processor yang sudah ada: 
-                            <?php foreach($unique_processors as $processor): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($processor); ?></span>
-                            <?php endforeach; ?>
-                        </div>
+                        <h4><i class="fas fa-microchip"></i> Processor</h4>
                         
                         <div id="processorsContainer">
-                            <!-- Existing processors will be loaded here -->
+                            <!-- Processor akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addProcessor()">
-                            <i class="fas fa-plus"></i> Tambah Processor Baru
+                            <i class="fas fa-plus"></i> Tambah Processor Lain
                         </button>
                     </div>
                     
                     <!-- Penyimpanan dengan Harga -->
                     <div class="form-section">
-                        <h4><i class="fas fa-hdd me-2"></i> Penyimpanan & Harga</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Penyimpanan yang sudah ada: 
-                            <?php foreach($unique_storages as $storage): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($storage); ?></span>
-                            <?php endforeach; ?>
-                        </div>
+                        <h4><i class="fas fa-hdd"></i> Penyimpanan & Harga</h4>
                         
                         <div id="storagesContainer">
-                            <!-- Existing storages will be loaded here -->
+                            <!-- Penyimpanan akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addStorage()">
-                            <i class="fas fa-plus"></i> Tambah Penyimpanan Baru
+                            <i class="fas fa-plus"></i> Tambah Penyimpanan Lain
                         </button>
                     </div>
                     
                     <!-- RAM -->
                     <div class="form-section">
-                        <h4><i class="fas fa-memory me-2"></i> RAM</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            RAM yang sudah ada: 
-                            <?php foreach($unique_rams as $ram): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($ram); ?></span>
-                            <?php endforeach; ?>
-                        </div>
+                        <h4><i class="fas fa-memory"></i> RAM</h4>
                         
                         <div id="ramsContainer">
-                            <!-- Existing RAMs will be loaded here -->
+                            <!-- RAM akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addRam()">
-                            <i class="fas fa-plus"></i> Tambah RAM Baru
+                            <i class="fas fa-plus"></i> Tambah RAM Lain
                         </button>
                     </div>
                     
                     <!-- Tabel Kombinasi & Stok -->
                     <div class="form-section">
-                        <h4><i class="fas fa-table me-2"></i> Kombinasi & Stok</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
+                        <h4><i class="fas fa-table"></i> Kombinasi & Stok</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
                             Sistem akan membuat semua kombinasi dari Warna, Processor, Penyimpanan, dan RAM. 
                             Untuk kombinasi yang sudah ada, stok akan ditampilkan.
                         </div>
                         
                         <div id="combinationsContainer">
-                            <!-- Tabel kombinasi akan di-generate di sini -->
+                            <!-- Table generated by JS -->
                         </div>
                         
                         <div class="total-combinations" id="totalCombinations">
-                            Menghitung kombinasi...
+                            Loading data...
                         </div>
                     </div>
                     
                     <!-- Tombol Aksi -->
-                    <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                    <div class="form-actions">
                         <a href="view-mac.php?id=<?php echo $product_id; ?>" class="btn-back">
                             <i class="fas fa-arrow-left"></i> Kembali ke Detail
                         </a>
                         <button type="submit" class="btn-submit">
-                            <i class="fas fa-save me-2"></i> Update Produk Mac
+                            <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -501,163 +602,163 @@ foreach ($combinations as $combination) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Data dari PHP -->
     <script>
+        const initialData = <?php echo json_encode($initialData); ?>;
+        const uploadPath = '../../uploads/';
+        
         let colorCount = 0;
         let processorCount = 0;
         let storageCount = 0;
         let ramCount = 0;
         
-        // Initialize with existing data
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load existing colors
-            <?php foreach($color_images as $color): ?>
-                addExistingColor(
-                    '<?php echo htmlspecialchars($color['warna'], ENT_QUOTES); ?>',
-                    '<?php echo htmlspecialchars($color['foto_thumbnail']); ?>'
-                );
-            <?php endforeach; ?>
+        // Initialize Form
+        window.addEventListener('DOMContentLoaded', () => {
+            // Colors
+            if (initialData.colors && initialData.colors.length > 0) {
+                initialData.colors.forEach(color => addColor(color));
+            } else {
+                addColor(); // Default empty
+            }
             
-            // Load existing processors
-            <?php foreach($unique_processors as $processor): ?>
-                addExistingProcessor('<?php echo htmlspecialchars($processor, ENT_QUOTES); ?>');
-            <?php endforeach; ?>
+            // Processors
+            if (initialData.processors && initialData.processors.length > 0) {
+                initialData.processors.forEach(processor => addProcessor(processor));
+            } else {
+                addProcessor();
+            }
             
-            // Load existing storages
-            <?php foreach($storage_data as $storage => $data): ?>
-                addExistingStorage(
-                    '<?php echo htmlspecialchars($storage, ENT_QUOTES); ?>',
-                    '<?php echo $data['harga']; ?>',
-                    '<?php echo $data['harga_diskon'] ?? ''; ?>'
-                );
-            <?php endforeach; ?>
+            // Storages
+            if (initialData.storages && initialData.storages.length > 0) {
+                initialData.storages.forEach(storage => addStorage(storage));
+            } else {
+                addStorage();
+            }
             
-            // Load existing RAMs
-            <?php foreach($unique_rams as $ram): ?>
-                addExistingRam('<?php echo htmlspecialchars($ram, ENT_QUOTES); ?>');
-            <?php endforeach; ?>
+            // RAMs
+            if (initialData.rams && initialData.rams.length > 0) {
+                initialData.rams.forEach(ram => addRam(ram));
+            } else {
+                addRam();
+            }
             
-            // Generate combinations
-            generateCombinations();
+            // Generate Combinations with slight delay to ensure DOM is ready
+            setTimeout(() => {
+                generateCombinations();
+            }, 100);
         });
-        
-        // Color functions
-        function addExistingColor(colorName, thumbnail) {
+
+        // Form Submission
+        document.getElementById('editMacForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Berhasil: ' + data.message);
+                    window.location.href = 'view-mac.php?id=<?php echo $product_id; ?>';
+                } else {
+                    alert('Gagal: ' + data.message);
+                    overlay.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                alert('Error sistem');
+                console.error(err);
+                overlay.style.display = 'none';
+            });
+        });
+
+        // Warna
+        function addColor(data = null) {
             const container = document.getElementById('colorsContainer');
             const newIndex = colorCount;
             
             const newColor = document.createElement('div');
             newColor.className = 'color-option';
             newColor.dataset.colorIndex = newIndex;
+            
+            let thumbnailPreview = '';
+            let productImagesPreview = '';
+            let isExisting = false;
+            
+            if (data) {
+                isExisting = true;
+                if (data.thumbnail) {
+                    thumbnailPreview = `
+                        <div id="thumbnailPreview-${newIndex}" class="preview-item">
+                            <img id="thumbnailImg-${newIndex}" src="${uploadPath}${data.thumbnail}" alt="Thumbnail Preview">
+                        </div>
+                        <input type="hidden" name="warna[${newIndex}][existing_thumbnail]" value="${data.thumbnail}">
+                    `;
+                }
+                
+                if (data.images && data.images.length > 0) {
+                    productImagesPreview = `<div class="preview-container">`;
+                    data.images.forEach(img => {
+                        productImagesPreview += `
+                            <div class="preview-item">
+                                <img src="${uploadPath}${img}" alt="Product Image">
+                                <input type="hidden" name="warna[${newIndex}][existing_images][]" value="${img}">
+                            </div>
+                        `;
+                    });
+                    productImagesPreview += `</div>`;
+                }
+            }
+            
             newColor.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
+                        <label class="form-label">Nama Warna</label>
                         <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
-                               value="${colorName}" required>
-                        <input type="hidden" name="warna[${newIndex}][existing]" value="1">
+                               placeholder="Nama Warna (Contoh: Space Gray)" required value="${data ? data.nama : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Thumbnail Warna</label>
+                    <div class="form-col col-9">
+                        <div class="form-row">
+                            <div class="form-col col-6">
+                                <label class="form-label">Thumbnail Warna ${!isExisting ? '<span class="text-danger">*</span>' : ''}</label>
                                 <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
                                     <i class="fas fa-cloud-upload-alt"></i>
-                                    <p class="mb-1">Upload thumbnail baru (opsional)</p>
-                                    <small class="text-muted">Max: 2MB</small>
+                                    <p>${isExisting ? 'Ubah thumbnail' : 'Upload thumbnail'}</p>
                                     <input type="file" id="thumbnail-${newIndex}" 
                                            name="warna[${newIndex}][thumbnail]" 
-                                           accept="image/*" style="display: none;" 
+                                           accept="image/*" style="display: none;" ${!isExisting ? 'required' : ''} 
                                            onchange="previewThumbnail(${newIndex}, this)">
                                 </div>
                                 <div class="preview-container">
-                                    ${thumbnail ? `
-                                        <div class="existing-data">
-                                            <strong>Thumbnail saat ini:</strong> ${thumbnail}<br>
-                                            <input type="hidden" name="warna[${newIndex}][old_thumbnail]" value="${thumbnail}">
-                                        </div>
-                                    ` : ''}
-                                    <div id="thumbnailPreview-${newIndex}" class="preview-item" style="display: none;">
-                                        <img id="thumbnailImg-${newIndex}" src="" alt="Thumbnail Preview">
-                                        <button type="button" class="remove-btn" onclick="removeThumbnail(${newIndex})">&times;</button>
+                                    ${thumbnailPreview}
+                                    <div id="thumbnailNewPreview-${newIndex}" class="preview-item" style="display: none;">
+                                        <img id="thumbnailNewImg-${newIndex}" src="" alt="New Thumbnail Preview">
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Foto Produk Baru (opsional)</label>
+                            <div class="form-col col-6">
+                                <label class="form-label">Foto Produk</label>
                                 <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
                                     <i class="fas fa-images"></i>
-                                    <p class="mb-1">Upload foto produk baru</p>
-                                    <small class="text-muted">Max: 2MB per gambar</small>
+                                    <p>${isExisting ? 'Tambah foto' : 'Upload foto produk'}</p>
                                     <input type="file" id="productImages-${newIndex}" 
                                            name="warna[${newIndex}][product_images][]" 
                                            accept="image/*" multiple style="display: none;" 
                                            onchange="previewProductImages(${newIndex}, this)">
                                 </div>
-                                <div class="preview-container" id="productImagesPreview-${newIndex}"></div>
+                                <div class="preview-container" id="productImagesPreview-${newIndex}">
+                                    ${productImagesPreview}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
-                    &times;
-                </button>
-            `;
-            
-            container.appendChild(newColor);
-            colorCount++;
-        }
-        
-        function addColor() {
-            const container = document.getElementById('colorsContainer');
-            const newIndex = colorCount;
-            
-            const newColor = document.createElement('div');
-            newColor.className = 'color-option';
-            newColor.dataset.colorIndex = newIndex;
-            newColor.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
-                               placeholder="Nama Warna Baru" required>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Thumbnail Warna <span class="text-danger">*</span></label>
-                                <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <p class="mb-1">Upload thumbnail</p>
-                                    <small class="text-muted">Max: 2MB</small>
-                                    <input type="file" id="thumbnail-${newIndex}" 
-                                           name="warna[${newIndex}][thumbnail]" 
-                                           accept="image/*" style="display: none;" required 
-                                           onchange="previewThumbnail(${newIndex}, this)">
-                                </div>
-                                <div class="preview-container">
-                                    <div id="thumbnailPreview-${newIndex}" class="preview-item" style="display: none;">
-                                        <img id="thumbnailImg-${newIndex}" src="" alt="Thumbnail Preview">
-                                        <button type="button" class="remove-btn" onclick="removeThumbnail(${newIndex})">&times;</button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
-                                <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
-                                    <i class="fas fa-images"></i>
-                                    <p class="mb-1">Upload foto produk</p>
-                                    <small class="text-muted">Max: 2MB per gambar</small>
-                                    <input type="file" id="productImages-${newIndex}" 
-                                           name="warna[${newIndex}][product_images][]" 
-                                           accept="image/*" multiple style="display: none;" 
-                                           onchange="previewProductImages(${newIndex}, this)">
-                                </div>
-                                <div class="preview-container" id="productImagesPreview-${newIndex}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -667,7 +768,8 @@ foreach ($combinations as $combination) {
         }
         
         function removeColor(index) {
-            if (colorCount <= 1) {
+            const colorElements = document.querySelectorAll('.color-option');
+            if (colorElements.length <= 1) {
                 alert('Minimal harus ada satu warna');
                 return;
             }
@@ -675,15 +777,12 @@ foreach ($combinations as $combination) {
             const colorElement = document.querySelector(`.color-option[data-color-index="${index}"]`);
             if (colorElement) {
                 colorElement.remove();
-                colorCount--;
-                reindexColors();
                 generateCombinations();
             }
         }
         
-        // Similar functions for processor, storage, and RAM...
-        // Processor functions
-        function addExistingProcessor(processor) {
+        // Processor
+        function addProcessor(data = null) {
             const container = document.getElementById('processorsContainer');
             const newIndex = processorCount;
             
@@ -692,29 +791,9 @@ foreach ($combinations as $combination) {
             newProcessor.dataset.processorIndex = newIndex;
             newProcessor.innerHTML = `
                 <input type="text" class="form-control" name="processor[${newIndex}]" 
-                       value="${processor}" required>
-                <input type="hidden" name="processor[${newIndex}][existing]" value="1">
+                       placeholder="Processor (Contoh: Apple M3)" required value="${data ? data : ''}" onchange="generateCombinations()">
                 <button type="button" class="btn-danger-sm" onclick="removeProcessor(${newIndex})">
-                    &times;
-                </button>
-            `;
-            
-            container.appendChild(newProcessor);
-            processorCount++;
-        }
-        
-        function addProcessor() {
-            const container = document.getElementById('processorsContainer');
-            const newIndex = processorCount;
-            
-            const newProcessor = document.createElement('div');
-            newProcessor.className = 'processor-option';
-            newProcessor.dataset.processorIndex = newIndex;
-            newProcessor.innerHTML = `
-                <input type="text" class="form-control" name="processor[${newIndex}]" 
-                       placeholder="Processor Baru" required>
-                <button type="button" class="btn-danger-sm" onclick="removeProcessor(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -723,43 +802,73 @@ foreach ($combinations as $combination) {
             generateCombinations();
         }
         
-        // Storage functions
-        function addExistingStorage(storage, harga, harga_diskon) {
+        function removeProcessor(index) {
+            const processorElements = document.querySelectorAll('.processor-option');
+            if (processorElements.length <= 1) {
+                alert('Minimal harus ada satu processor');
+                return;
+            }
+            
+            const processorElement = document.querySelector(`.processor-option[data-processor-index="${index}"]`);
+            if (processorElement) {
+                processorElement.remove();
+                generateCombinations();
+            }
+        }
+        
+        // Penyimpanan
+        function addStorage(data = null) {
             const container = document.getElementById('storagesContainer');
             const newIndex = storageCount;
             
             const newStorage = document.createElement('div');
             newStorage.className = 'storage-option';
             newStorage.dataset.storageIndex = newIndex;
+            
             newStorage.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
+                        <label class="form-label">Ukuran</label>
                         <input type="text" class="form-control" name="penyimpanan[${newIndex}][size]" 
-                               value="${storage}" required>
-                        <input type="hidden" name="penyimpanan[${newIndex}][existing]" value="1">
+                               placeholder="Ukuran (Contoh: 512GB)" required value="${data && data.size ? data.size : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
+                    <div class="form-col col-4">
                         <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga]" 
-                               value="${harga}" min="0" required>
+                               placeholder="Harga" min="0" required value="${data && data.harga ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
+                    <div class="form-col col-4">
                         <label class="form-label">Harga Diskon</label>
                         <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
-                               value="${harga_diskon}" min="0">
+                               placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
             container.appendChild(newStorage);
             storageCount++;
+            generateCombinations();
         }
         
-        // RAM functions
-        function addExistingRam(ram) {
+        function removeStorage(index) {
+            const storageElements = document.querySelectorAll('.storage-option');
+            if (storageElements.length <= 1) {
+                alert('Minimal harus ada satu penyimpanan');
+                return;
+            }
+            
+            const storageElement = document.querySelector(`.storage-option[data-storage-index="${index}"]`);
+            if (storageElement) {
+                storageElement.remove();
+                generateCombinations();
+            }
+        }
+        
+        // RAM
+        function addRam(data = null) {
             const container = document.getElementById('ramsContainer');
             const newIndex = ramCount;
             
@@ -768,58 +877,111 @@ foreach ($combinations as $combination) {
             newRam.dataset.ramIndex = newIndex;
             newRam.innerHTML = `
                 <input type="text" class="form-control" name="ram[${newIndex}]" 
-                       value="${ram}" required>
-                <input type="hidden" name="ram[${newIndex}][existing]" value="1">
+                       placeholder="RAM (Contoh: 16GB)" required value="${data ? data : ''}" onchange="generateCombinations()">
                 <button type="button" class="btn-danger-sm" onclick="removeRam(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
             container.appendChild(newRam);
             ramCount++;
+            generateCombinations();
         }
         
-        // Generate Combinations for edit
+        function removeRam(index) {
+            const ramElements = document.querySelectorAll('.ram-option');
+            if (ramElements.length <= 1) {
+                alert('Minimal harus ada satu RAM');
+                return;
+            }
+            
+            const ramElement = document.querySelector(`.ram-option[data-ram-index="${index}"]`);
+            if (ramElement) {
+                ramElement.remove();
+                generateCombinations();
+            }
+        }
+        
+        // Preview functions
+        function previewThumbnail(index, input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewNew = document.getElementById(`thumbnailNewPreview-${index}`);
+                    const imgNew = document.getElementById(`thumbnailNewImg-${index}`);
+                    if (previewNew && imgNew) {
+                        imgNew.src = e.target.result;
+                        previewNew.style.display = 'block';
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function previewProductImages(index, input) {
+            const container = document.getElementById(`productImagesPreview-${index}`);
+            
+            if (input.files) {
+                // Remove only previous newly added previews (with class 'new-preview')
+                const existingNew = container.querySelectorAll('.new-preview');
+                existingNew.forEach(el => el.remove());
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'preview-item new-preview';
+                        div.innerHTML = `<img src="${e.target.result}" alt="New Image">`;
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        // Generate Combinations
         function generateCombinations() {
             const container = document.getElementById('combinationsContainer');
+            const totalContainer = document.getElementById('totalCombinations');
             
-            // Collect data
+            // Collect data from DOM inputs
             const colors = [];
-            document.querySelectorAll('.color-option input[name$="[nama]"]').forEach(input => {
-                colors.push(input.value);
+            document.querySelectorAll('.color-option input[name*="[nama]"]').forEach(input => {
+                if (input.value.trim()) colors.push(input.value.trim());
             });
             
             const processors = [];
             document.querySelectorAll('.processor-option input').forEach(input => {
-                processors.push(input.value);
+                const val = input.value.trim();
+                if (val) processors.push(val);
             });
             
             const storages = [];
             document.querySelectorAll('.storage-option').forEach(option => {
-                const sizeInput = option.querySelector('input[name$="[size]"]');
-                const hargaInput = option.querySelector('input[name$="[harga]"]');
-                const diskonInput = option.querySelector('input[name$="[harga_diskon]"]');
+                const sizeInput = option.querySelector('input[name*="[size]"]');
+                const hargaInput = option.querySelector('input[name*="[harga]"]');
+                const diskonInput = option.querySelector('input[name*="[harga_diskon]"]');
                 
-                if (sizeInput && hargaInput) {
+                if (sizeInput && hargaInput && sizeInput.value.trim() && hargaInput.value) {
                     storages.push({
-                        size: sizeInput.value,
+                        size: sizeInput.value.trim(),
                         harga: hargaInput.value,
-                        harga_diskon: diskonInput.value
+                        harga_diskon: diskonInput ? diskonInput.value : ''
                     });
                 }
             });
             
             const rams = [];
             document.querySelectorAll('.ram-option input').forEach(input => {
-                rams.push(input.value);
+                const val = input.value.trim();
+                if (val) rams.push(val);
             });
             
-            // Calculate total combinations
+            // Generate table
             const totalCombinations = colors.length * processors.length * storages.length * rams.length;
-            document.getElementById('totalCombinations').innerHTML = 
+            totalContainer.innerHTML = 
                 `Total Kombinasi: <strong>${totalCombinations}</strong> (${colors.length} warna × ${processors.length} processor × ${storages.length} penyimpanan × ${rams.length} RAM)`;
             
-            // Generate table
             if (totalCombinations > 0) {
                 let tableHTML = `
                     <table class="combination-table">
@@ -831,7 +993,6 @@ foreach ($combinations as $combination) {
                                 <th>Penyimpanan</th>
                                 <th>RAM</th>
                                 <th>Harga</th>
-                                <th>Harga Diskon</th>
                                 <th>Jumlah Stok</th>
                             </tr>
                         </thead>
@@ -839,49 +1000,39 @@ foreach ($combinations as $combination) {
                 `;
                 
                 let counter = 1;
-                colors.forEach((color, colorIndex) => {
-                    processors.forEach((processor, processorIndex) => {
-                        storages.forEach((storage, storageIndex) => {
-                            rams.forEach((ram, ramIndex) => {
-                                const combinationId = `${colorIndex}-${processorIndex}-${storageIndex}-${ramIndex}`;
+                colors.forEach((color, cIdx) => {
+                    processors.forEach((processor, pIdx) => {
+                        storages.forEach((storage, sIdx) => {
+                            rams.forEach((ram, rIdx) => {
+                                const uniqueId = `${cIdx}_${pIdx}_${sIdx}_${rIdx}`; // Just for DOM uniqueness
                                 
-                                // Find existing stock for this combination
-                                let existingStock = 0;
-                                <?php foreach($combinations as $combination): ?>
-                                    if ('<?php echo $combination['warna']; ?>' === color &&
-                                        '<?php echo $combination['processor']; ?>' === processor &&
-                                        '<?php echo $combination['penyimpanan']; ?>' === storage.size &&
-                                        '<?php echo $combination['ram']; ?>' === ram) {
-                                        existingStock = <?php echo $combination['jumlah_stok']; ?>;
-                                    }
-                                <?php endforeach; ?>
+                                // Try to find existing stock
+                                const stockKey = `${color}|${processor}|${storage.size}|${ram}`;
+                                const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
                                 
                                 tableHTML += `
                                     <tr>
                                         <td>${counter}</td>
-                                        <td><strong>${color}</strong></td>
+                                        <td>${color}</td>
                                         <td>${processor}</td>
-                                        <td><strong>${storage.size}</strong></td>
+                                        <td>${storage.size}</td>
                                         <td>${ram}</td>
                                         <td>
-                                            <input type="hidden" name="combinations[${combinationId}][warna]" value="${color}">
-                                            <input type="hidden" name="combinations[${combinationId}][processor]" value="${processor}">
-                                            <input type="hidden" name="combinations[${combinationId}][penyimpanan]" value="${storage.size}">
-                                            <input type="hidden" name="combinations[${combinationId}][ram]" value="${ram}">
-                                            <input type="hidden" name="combinations[${combinationId}][harga]" value="${storage.harga}">
-                                            <input type="hidden" name="combinations[${combinationId}][harga_diskon]" value="${storage.harga_diskon || ''}">
-                                            <div class="text-success fw-bold">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
+                                            <div style="font-weight: bold; color: #28a745;">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
+                                            ${storage.harga_diskon ? `<small style="color: #dc3545; text-decoration: line-through;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
+                                            
+                                            <!-- Hidden Inputs for Combination Data -->
+                                            <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">
+                                            <input type="hidden" name="combinations[${uniqueId}][processor]" value="${processor}">
+                                            <input type="hidden" name="combinations[${uniqueId}][penyimpanan]" value="${storage.size}">
+                                            <input type="hidden" name="combinations[${uniqueId}][ram]" value="${ram}">
+                                            <input type="hidden" name="combinations[${uniqueId}][harga]" value="${storage.harga}">
+                                            <input type="hidden" name="combinations[${uniqueId}][harga_diskon]" value="${storage.harga_diskon || ''}">
                                         </td>
                                         <td>
-                                            ${storage.harga_diskon ? 
-                                                `<div class="text-danger fw-bold">Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</div>` : 
-                                                '<span class="text-muted">-</span>'}
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" 
-                                                   name="combinations[${combinationId}][jumlah_stok]" 
-                                                   value="${existingStock}" min="0" required 
-                                                   style="width: 100px;">
+                                            <input type="number" class="form-control" style="width: 100px;" 
+                                                   name="combinations[${uniqueId}][jumlah_stok]" 
+                                                   value="${existingStock}" min="0" required>
                                         </td>
                                     </tr>
                                 `;
@@ -891,162 +1042,20 @@ foreach ($combinations as $combination) {
                     });
                 });
                 
-                tableHTML += `
-                        </tbody>
-                    </table>
-                `;
-                
+                tableHTML += `</tbody></table>`;
                 container.innerHTML = tableHTML;
             } else {
-                container.innerHTML = '<p class="text-muted">Tambahkan minimal satu warna, processor, penyimpanan, dan RAM untuk melihat kombinasi.</p>';
+                container.innerHTML = '<div class="text-center p-4 text-muted">Lengkapi data warna, processor, penyimpanan, dan RAM untuk melihat tabel kombinasi</div>';
             }
         }
         
-        // Preview functions (same as add-mac.php)
-        function previewThumbnail(index, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById(`thumbnailImg-${index}`);
-                    const preview = document.getElementById(`thumbnailPreview-${index}`);
-                    if (img) img.src = e.target.result;
-                    if (preview) preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+        // Listen for input changes to update combinations
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[name*="[nama]"], input[name*="[size]"], input[name*="[harga]"], input[name*="processor"], input[name*="ram"]')) {
+               if (!e.target.name.includes('jumlah_stok')) {
+                   generateCombinations();
+               }
             }
-        }
-        
-        function removeThumbnail(index) {
-            const input = document.getElementById(`thumbnail-${index}`);
-            const preview = document.getElementById(`thumbnailPreview-${index}`);
-            if (input) input.value = '';
-            if (preview) preview.style.display = 'none';
-        }
-        
-        function previewProductImages(index, input) {
-            const files = input.files;
-            const previewContainer = document.getElementById(`productImagesPreview-${index}`);
-            
-            // Clear existing previews
-            previewContainer.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Product Image">
-                        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">&times;</button>
-                    `;
-                    previewContainer.appendChild(previewItem);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // Form validation and submission
-        document.getElementById('editMacForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate product name
-            const productName = document.querySelector('input[name="nama_produk"]').value;
-            if (!productName.trim()) {
-                alert('Nama produk harus diisi');
-                return;
-            }
-            
-            // Validate colors
-            const colorInputs = document.querySelectorAll('.color-option input[name$="[nama]"]');
-            const validColors = Array.from(colorInputs).filter(input => input.value.trim()).length;
-            if (validColors === 0) {
-                alert('Minimal satu warna harus diisi');
-                return;
-            }
-            
-            // Validate processors
-            const processorInputs = document.querySelectorAll('.processor-option input');
-            const validProcessors = Array.from(processorInputs).filter(input => input.value.trim()).length;
-            if (validProcessors === 0) {
-                alert('Minimal satu processor harus diisi');
-                return;
-            }
-            
-            // Validate storages
-            const storageInputs = document.querySelectorAll('.storage-option input[name$="[size]"]');
-            const validStorages = Array.from(storageInputs).filter(input => input.value.trim()).length;
-            if (validStorages === 0) {
-                alert('Minimal satu penyimpanan harus diisi');
-                return;
-            }
-            
-            // Validate storage prices
-            let invalidPrice = false;
-            document.querySelectorAll('.storage-option').forEach(option => {
-                const hargaInput = option.querySelector('input[name$="[harga]"]');
-                const diskonInput = option.querySelector('input[name$="[harga_diskon]"]');
-                
-                if (hargaInput && parseFloat(hargaInput.value) <= 0) {
-                    invalidPrice = true;
-                }
-                
-                if (diskonInput && diskonInput.value) {
-                    const harga = parseFloat(hargaInput.value);
-                    const diskon = parseFloat(diskonInput.value);
-                    if (diskon >= harga) {
-                        alert('Harga diskon harus lebih rendah dari harga normal');
-                        invalidPrice = true;
-                    }
-                }
-            });
-            
-            if (invalidPrice) {
-                alert('Periksa harga dan diskon pada penyimpanan');
-                return;
-            }
-            
-            // Validate RAMs
-            const ramInputs = document.querySelectorAll('.ram-option input');
-            const validRams = Array.from(ramInputs).filter(input => input.value.trim()).length;
-            if (validRams === 0) {
-                alert('Minimal satu RAM harus diisi');
-                return;
-            }
-            
-            // Show loading
-            const submitBtn = document.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-            submitBtn.disabled = true;
-            
-            // Submit form
-            const formData = new FormData(this);
-            
-            fetch('api/api-edit-mac.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Produk berhasil diperbarui!');
-                    window.location.href = 'view-mac.php?id=<?php echo $product_id; ?>';
-                } else {
-                    alert('Error: ' + data.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menyimpan data');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
         });
     </script>
 </body>

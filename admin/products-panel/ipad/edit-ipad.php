@@ -72,11 +72,12 @@ $initialData = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Produk iPad - <?php echo htmlspecialchars($product['nama_produk']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             background-color: #f5f7fb;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
         .container {
@@ -89,132 +90,25 @@ $initialData = [
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: none;
+            background: white;
+            overflow: hidden;
         }
         
         .card-header {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            border-radius: 15px 15px 0 0 !important;
+            border-radius: 15px 15px 0 0;
             padding: 25px;
         }
         
         .card-header h2 {
             margin: 0;
             font-weight: 600;
+            font-size: 24px;
         }
         
         .card-body {
             padding: 30px;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
-        }
-        
-        .file-upload {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background-color: #fafafa;
-        }
-        
-        .file-upload:hover {
-            border-color: #4a6cf7;
-            background-color: #f0f4ff;
-        }
-        
-        .file-upload i {
-            font-size: 40px;
-            color: #4a6cf7;
-            margin-bottom: 10px;
-        }
-        
-        .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .preview-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
-        
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #eaeaea;
-        }
-        
-        .remove-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
-        }
-        
-        .btn-back {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-back:hover {
-            background-color: #5a6268;
-            color: white;
         }
         
         .form-section {
@@ -226,64 +120,162 @@ $initialData = [
         
         .form-section h4 {
             color: #4a6cf7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
             border-bottom: 2px solid #eaeaea;
-        }
-        
-        .color-option, .storage-option, .connectivity-option {
+            padding-bottom: 10px;
+            margin: 0 0 20px 0;
+            font-size: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #eaeaea;
         }
         
-        .add-option-btn {
-            background-color: #17a2b8;
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control, textarea.form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-control:focus, textarea.form-control:focus {
+            border-color: #4a6cf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.25);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 14px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 16px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            transition: all 0.3s;
         }
         
-        .add-option-btn:hover {
-            background-color: #138496;
+        .btn-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+        }
+        
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-back:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Custom styles for dynamic sections */
+        .color-option, .storage-option, .connectivity-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            margin-bottom: 10px;
+            position: relative;
         }
         
         .btn-danger-sm {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background-color: #dc3545;
             color: white;
             border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 12px;
         }
         
-        .btn-danger-sm:hover {
-            background-color: #c82333;
+        .add-option-btn {
+            background-color: transparent;
+            border: 2px solid #4a6cf7;
+            color: #4a6cf7;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .add-option-btn:hover {
+            background-color: #4a6cf7;
+            color: white;
         }
         
         .combination-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .combination-table th {
@@ -295,9 +287,8 @@ $initialData = [
         }
         
         .combination-table td {
-            padding: 10px;
-            border-bottom: 1px solid #eaeaea;
-            vertical-align: middle;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
         }
         
         .combination-table tr:hover {
@@ -305,27 +296,61 @@ $initialData = [
         }
         
         .combination-table input {
-            width: 100%;
+            width: 100px;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
         
         .total-combinations {
             background: #e3f2fd;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 12px 15px;
+            border-radius: 8px;
             margin-top: 15px;
             font-weight: 500;
         }
         
         .alert-info {
             background-color: #e7f3ff;
-            border-color: #b6d4fe;
+            border: 1px solid #b6d4fe;
             color: #084298;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-
-        /* Overlay loader for async actions */
+        
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #fafafa;
+            margin-bottom: 15px;
+        }
+        
+        .file-upload:hover {
+            border-color: #4a6cf7;
+            background-color: #f0f4ff;
+        }
+        
+        .file-upload i {
+            font-size: 24px;
+            color: #4a6cf7;
+            margin-bottom: 10px;
+        }
+        
+        .file-upload p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
         #loadingOverlay {
             position: fixed;
             top: 0;
@@ -339,18 +364,106 @@ $initialData = [
             justify-content: center;
             flex-direction: column;
         }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+            color: #4a6cf7;
+        }
+        
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Grid System Replacement */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px 15px -10px;
+        }
+        
+        .form-col {
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        .col-3 { width: 25%; }
+        .col-4 { width: 33.333%; }
+        .col-6 { width: 50%; }
+        .col-9 { width: 75%; }
+        .col-12 { width: 100%; }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .mb-3 { margin-bottom: 15px; }
+        .mt-2 { margin-top: 10px; }
+        .mt-5 { margin-top: 30px; }
+        .pt-3 { padding-top: 15px; }
+        .pt-4 { padding-top: 20px; }
+        .text-danger { color: #dc3545; }
+        .text-muted { color: #6c757d; }
+        .text-center { text-align: center; }
+        .p-4 { padding: 20px; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+                padding: 15px;
+            }
+            
+            .form-row {
+                margin: 0 -8px 15px -8px;
+            }
+            
+            .form-col {
+                padding: 0 8px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .col-3, .col-4, .col-6, .col-9, .col-12 {
+                width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-submit, .btn-back {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .combination-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
     </style>
 </head>
 <body>
     <div id="loadingOverlay">
-        <div class="spinner-border text-primary" role="status"></div>
-        <div class="mt-2 fw-bold">Menyimpan perubahan...</div>
+        <div class="spinner-border" role="status"></div>
+        <div style="margin-top: 10px; font-weight: bold;">Menyimpan perubahan...</div>
     </div>
 
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-edit me-2"></i> Edit Produk iPad</h2>
+                <h2><i class="fas fa-edit"></i> Edit Produk iPad</h2>
             </div>
             <div class="card-body">
                 <form id="editIpadForm" action="api/api-edit-ipad.php" method="POST" enctype="multipart/form-data">
@@ -358,7 +471,7 @@ $initialData = [
                     
                     <!-- Informasi Produk -->
                     <div class="form-section">
-                        <h4><i class="fas fa-info-circle me-2"></i> Informasi Produk</h4>
+                        <h4><i class="fas fa-info-circle"></i> Informasi Produk</h4>
                         
                         <div class="mb-3">
                             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
@@ -373,9 +486,9 @@ $initialData = [
                     
                     <!-- Warna dengan Gambar -->
                     <div class="form-section">
-                        <h4><i class="fas fa-palette me-2"></i> Warna Produk</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
+                        <h4><i class="fas fa-palette"></i> Warna Produk</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
                             Anda bisa membiarkan field upload kosong jika tidak ingin mengubah gambar.
                         </div>
                         
@@ -390,7 +503,7 @@ $initialData = [
                     
                     <!-- Penyimpanan dengan Harga -->
                     <div class="form-section">
-                        <h4><i class="fas fa-hdd me-2"></i> Penyimpanan & Harga</h4>
+                        <h4><i class="fas fa-hdd"></i> Penyimpanan & Harga</h4>
                         
                         <div id="storagesContainer">
                             <!-- Penyimpanan akan di-generate oleh Javascript -->
@@ -403,7 +516,7 @@ $initialData = [
                     
                     <!-- Konektivitas -->
                     <div class="form-section">
-                        <h4><i class="fas fa-wifi me-2"></i> Konektivitas</h4>
+                        <h4><i class="fas fa-wifi"></i> Konektivitas</h4>
                         
                         <div id="connectivitiesContainer">
                             <!-- Konektivitas akan di-generate oleh Javascript -->
@@ -416,9 +529,9 @@ $initialData = [
                     
                     <!-- Tabel Kombinasi & Stok -->
                     <div class="form-section">
-                        <h4><i class="fas fa-table me-2"></i> Kombinasi & Stok</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
+                        <h4><i class="fas fa-table"></i> Kombinasi & Stok</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
                             Stok akan di-update otomatis dari data yang ada. Ubah jumlah stok jika ingin melakukan update.
                         </div>
                         
@@ -432,12 +545,12 @@ $initialData = [
                     </div>
                     
                     <!-- Tombol Aksi -->
-                    <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                    <div class="form-actions">
                         <a href="ipad.php" class="btn-back">
                             <i class="fas fa-arrow-left"></i> Kembali
                         </a>
                         <button type="submit" class="btn-submit">
-                            <i class="fas fa-save me-2"></i> Simpan Perubahan
+                            <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -445,9 +558,8 @@ $initialData = [
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Data dari PHP -->
     <script>
-        // Data dari PHP
         const initialData = <?php echo json_encode($initialData); ?>;
         const uploadPath = '../../uploads/';
         
@@ -484,6 +596,44 @@ $initialData = [
             }, 100);
         });
 
+        // Form Submission
+        document.getElementById('editIpadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Basic Validation
+            const productName = document.querySelector('input[name="nama_produk"]').value;
+            if (!productName.trim()) {
+                alert('Nama produk harus diisi');
+                return;
+            }
+
+            // Show Loading
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+
+            const formData = new FormData(this);
+
+            fetch('api/api-edit-ipad.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Produk berhasil diperbarui!');
+                    window.location.href = 'view-ipad.php?id=<?php echo $product_id; ?>';
+                } else {
+                    alert('Error: ' + data.message);
+                    overlay.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan network/server');
+                overlay.style.display = 'none';
+            });
+        });
+
         // Warna
         function addColor(data = null) {
             const container = document.getElementById('colorsContainer');
@@ -503,14 +653,13 @@ $initialData = [
                     thumbnailPreview = `
                         <div id="thumbnailPreview-${newIndex}" class="preview-item">
                             <img id="thumbnailImg-${newIndex}" src="${uploadPath}${data.thumbnail}" alt="Thumbnail Preview">
-                            <!-- Disembunyikan karena logic update gambar sedikit beda -->
                         </div>
                         <input type="hidden" name="warna[${newIndex}][existing_thumbnail]" value="${data.thumbnail}">
                     `;
                 }
                 
                 if (data.images && data.images.length > 0) {
-                    productImagesPreview = `<div class="d-flex flex-wrap gap-2 mt-2">`;
+                    productImagesPreview = `<div class="preview-container">`;
                     data.images.forEach(img => {
                         productImagesPreview += `
                             <div class="preview-item">
@@ -524,18 +673,19 @@ $initialData = [
             }
             
             newColor.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
+                        <label class="form-label">Nama Warna</label>
                         <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
-                               placeholder="Nama Warna (Contoh: Silver)" required value="${data ? data.nama : ''}">
+                               placeholder="Nama Warna (Contoh: Silver)" required value="${data ? data.nama : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-6">
+                    <div class="form-col col-9">
+                        <div class="form-row">
+                            <div class="form-col col-6">
                                 <label class="form-label">Thumbnail Warna ${!isExisting ? '<span class="text-danger">*</span>' : ''}</label>
-                                <div class="file-upload p-2" onclick="document.getElementById('thumbnail-${newIndex}').click()">
-                                    <i class="fas fa-cloud-upload-alt fs-4"></i>
-                                    <p class="mb-0 small">Ubah thumbnail</p>
+                                <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>${isExisting ? 'Ubah thumbnail' : 'Upload thumbnail'}</p>
                                     <input type="file" id="thumbnail-${newIndex}" 
                                            name="warna[${newIndex}][thumbnail]" 
                                            accept="image/*" style="display: none;" ${!isExisting ? 'required' : ''} 
@@ -544,15 +694,15 @@ $initialData = [
                                 <div class="preview-container">
                                     ${thumbnailPreview}
                                     <div id="thumbnailNewPreview-${newIndex}" class="preview-item" style="display: none;">
-                                        <img id="thumbnailNewImg-${newIndex}" src="">
+                                        <img id="thumbnailNewImg-${newIndex}" src="" alt="New Thumbnail Preview">
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="form-col col-6">
                                 <label class="form-label">Foto Produk</label>
-                                <div class="file-upload p-2" onclick="document.getElementById('productImages-${newIndex}').click()">
-                                    <i class="fas fa-images fs-4"></i>
-                                    <p class="mb-0 small">Tambah foto</p>
+                                <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
+                                    <i class="fas fa-images"></i>
+                                    <p>${isExisting ? 'Tambah foto' : 'Upload foto produk'}</p>
                                     <input type="file" id="productImages-${newIndex}" 
                                            name="warna[${newIndex}][product_images][]" 
                                            accept="image/*" multiple style="display: none;" 
@@ -565,8 +715,8 @@ $initialData = [
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn-danger-sm ms-2" onclick="removeColor(${newIndex})">
-                    &times;
+                <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
+                    ×
                 </button>
             `;
             
@@ -585,8 +735,6 @@ $initialData = [
             const colorElement = document.querySelector(`.color-option[data-color-index="${index}"]`);
             if (colorElement) {
                 colorElement.remove();
-                // We re-generate combinations, but we don't strictly modify colorCount to avoid index collision
-                // actually better to not reuse indices or rely on accurate count if we don't reindex
                 generateCombinations();
             }
         }
@@ -608,12 +756,9 @@ $initialData = [
         
         function previewProductImages(index, input) {
             const container = document.getElementById(`productImagesPreview-${index}`);
-            // Don't clear existing previews, append new ones? 
-            // Or just show new ones in a separate wrapper? 
-            // Let's simplified: add new ones
             
             if (input.files) {
-                // remove only prev newly added previews
+                // Remove only previous newly added previews (with class 'new-preview')
                 const existingNew = container.querySelectorAll('.new-preview');
                 existingNew.forEach(el => el.remove());
 
@@ -640,24 +785,25 @@ $initialData = [
             newStorage.dataset.storageIndex = newIndex;
             
             newStorage.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
+                        <label class="form-label">Ukuran</label>
                         <input type="text" class="form-control" name="penyimpanan[${newIndex}][size]" 
-                               placeholder="Ukuran (Contoh: 128GB)" required value="${data ? data.size : ''}">
+                               placeholder="Ukuran (Contoh: 128GB)" required value="${data && data.size ? data.size : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
+                    <div class="form-col col-4">
                         <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga]" 
-                               placeholder="Harga" min="0" required value="${data ? data.harga : ''}">
+                               placeholder="Harga" min="0" required value="${data && data.harga ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
+                    <div class="form-col col-4">
                         <label class="form-label">Harga Diskon</label>
                         <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
-                               placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}">
+                               placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
-                <button type="button" class="btn-danger-sm ms-2" onclick="removeStorage(${newIndex})">
-                    &times;
+                <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
+                    ×
                 </button>
             `;
             
@@ -690,9 +836,9 @@ $initialData = [
             newConnectivity.dataset.connectivityIndex = newIndex;
             newConnectivity.innerHTML = `
                 <input type="text" class="form-control" name="konektivitas[${newIndex}]" 
-                       placeholder="Tipe Konektivitas (Contoh: Wi-Fi)" required value="${data ? data : ''}">
+                       placeholder="Tipe Konektivitas (Contoh: Wi-Fi)" required value="${data ? data : ''}" onchange="generateCombinations()">
                 <button type="button" class="btn-danger-sm" onclick="removeConnectivity(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -718,6 +864,7 @@ $initialData = [
         // Generate Combinations
         function generateCombinations() {
             const container = document.getElementById('combinationsContainer');
+            const totalContainer = document.getElementById('totalCombinations');
             
             // Collect data from DOM inputs
             const colors = [];
@@ -743,13 +890,12 @@ $initialData = [
             const connectivities = [];
             document.querySelectorAll('.connectivity-option input').forEach(input => {
                 const val = input.value.trim();
-                // Avoid capturing hidden inputs if name is just 'konektivitas[]' etc (regex match above was specific enough)
-                if (val && input.name.includes('konektivitas[')) connectivities.push(val);
+                if (val) connectivities.push(val);
             });
             
             // Generate table
             const totalCombinations = colors.length * storages.length * connectivities.length;
-            document.getElementById('totalCombinations').innerHTML = 
+            totalContainer.innerHTML = 
                 `Total Kombinasi: <strong>${totalCombinations}</strong> (${colors.length} warna × ${storages.length} penyimpanan × ${connectivities.length} konektivitas)`;
             
             if (totalCombinations > 0) {
@@ -785,8 +931,8 @@ $initialData = [
                                     <td>${storage.size}</td>
                                     <td>${connectivity}</td>
                                     <td>
-                                        <div class="fw-bold text-success">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
-                                        ${storage.harga_diskon ? `<small class="text-danger text-decoration-line-through">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
+                                        <div style="font-weight: bold; color: #28a745;">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
+                                        ${storage.harga_diskon ? `<small style="color: #dc3545; text-decoration: line-through;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
                                         
                                         <!-- Hidden Inputs for Combination Data -->
                                         <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">
@@ -813,54 +959,10 @@ $initialData = [
                 container.innerHTML = '<div class="text-center p-4 text-muted">Lengkapi data warna, penyimpanan, dan konektivitas untuk melihat tabel kombinasi</div>';
             }
         }
-
-        // Form Submission
-        document.getElementById('editIpadForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Basic Validation
-            const productName = document.querySelector('input[name="nama_produk"]').value;
-            if (!productName.trim()) {
-                alert('Nama produk harus diisi');
-                return;
-            }
-
-            // Show Loading
-            document.getElementById('loadingOverlay').style.display = 'flex';
-            const submitBtn = document.querySelector('.btn-submit');
-            submitBtn.disabled = true;
-
-            const formData = new FormData(this);
-
-            fetch('api/api-edit-ipad.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Produk berhasil diperbarui!');
-                    window.location.href = 'view-ipad.php?id=<?php echo $product_id; ?>';
-                } else {
-                    alert('Error: ' + data.message);
-                    document.getElementById('loadingOverlay').style.display = 'none';
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan network/server');
-                document.getElementById('loadingOverlay').style.display = 'none';
-                submitBtn.disabled = false;
-            });
-        });
         
-        // Listen for price changes to update combinations table prices if needed?
-        // Actually generateCombinations pulls directly from inputs so we just need to trigger it
+        // Listen for input changes to update combinations
         document.addEventListener('input', function(e) {
             if (e.target.matches('input[name*="[nama]"], input[name*="[size]"], input[name*="[harga]"], input[name*="konektivitas"]')) {
-               // Debounce or just run? Run is fine.
-               // Check if the input is NOT the stock input (which is inside the table)
                if (!e.target.name.includes('jumlah_stok')) {
                    generateCombinations();
                }

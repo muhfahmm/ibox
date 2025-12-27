@@ -29,6 +29,12 @@ if (mysqli_num_rows($result_product) === 0) {
 
 $product = mysqli_fetch_assoc($result_product);
 
+// Handle deskripsi produk - replace '0' with empty string
+$deskripsi_produk = $product['deskripsi_produk'];
+if ($deskripsi_produk === '0' || $deskripsi_produk === 0) {
+    $deskripsi_produk = '';
+}
+
 // Fetch all color images
 $query_images = "SELECT * FROM admin_produk_music_gambar WHERE produk_id = '$product_id'";
 $result_images = mysqli_query($db, $query_images);
@@ -56,16 +62,31 @@ foreach ($combinations as $combination) {
     }
 }
 
-// Group combinations by type for easier editing (since price is per combination)
-$type_data = [];
-foreach ($combinations as $combination) {
-    $type = $combination['tipe'];
-    if (!isset($type_data[$type])) {
-        $type_data[$type] = [
-            'harga' => $combination['harga'],
-            'harga_diskon' => $combination['harga_diskon']
-        ];
-    }
+// Prepare initial data for JavaScript
+$initialData = [
+    'colors' => [],
+    'tipes' => $unique_tipes,
+    'konektivitases' => $unique_konektivitases,
+    'stocks' => [],
+    'prices' => []
+];
+
+foreach($color_images as $color) {
+    $photos = json_decode($color['foto_produk'], true) ?? [];
+    $initialData['colors'][] = [
+        'nama' => $color['warna'],
+        'thumbnail' => $color['foto_thumbnail'],
+        'images' => $photos
+    ];
+}
+
+foreach($combinations as $c) {
+    $key = $c['warna'] . '|' . $c['tipe'] . '|' . $c['konektivitas'];
+    $initialData['stocks'][$key] = $c['jumlah_stok'];
+    $initialData['prices'][$key] = [
+        'harga' => $c['harga'],
+        'harga_diskon' => $c['harga_diskon'] ?? ''
+    ];
 }
 ?>
 
@@ -76,16 +97,16 @@ foreach ($combinations as $combination) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Produk Music - <?php echo htmlspecialchars($product['nama_produk']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Same CSS as add-mac.php */
         body {
             background-color: #f5f7fb;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 20px;
         }
@@ -94,132 +115,25 @@ foreach ($combinations as $combination) {
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             border: none;
+            background: white;
+            overflow: hidden;
         }
         
         .card-header {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            border-radius: 15px 15px 0 0 !important;
+            border-radius: 15px 15px 0 0;
             padding: 25px;
         }
         
         .card-header h2 {
             margin: 0;
             font-weight: 600;
+            font-size: 24px;
         }
         
         .card-body {
             padding: 30px;
-        }
-        
-        .form-label {
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        
-        .form-control, .form-select {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 10px 15px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus, .form-select:focus {
-            border-color: #4a6cf7;
-            box-shadow: 0 0 0 0.2rem rgba(74, 108, 247, 0.25);
-        }
-        
-        .file-upload {
-            border: 2px dashed #ddd;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            background-color: #fafafa;
-        }
-        
-        .file-upload:hover {
-            border-color: #4a6cf7;
-            background-color: #f0f4ff;
-        }
-        
-        .file-upload i {
-            font-size: 40px;
-            color: #4a6cf7;
-            margin-bottom: 10px;
-        }
-        
-        .preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        
-        .preview-item {
-            position: relative;
-            width: 100px;
-            height: 100px;
-        }
-        
-        .preview-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #eaeaea;
-        }
-        
-        .remove-btn {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .btn-submit {
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-        
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
-        }
-        
-        .btn-back {
-            background-color: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .btn-back:hover {
-            background-color: #5a6268;
-            color: white;
         }
         
         .form-section {
@@ -231,72 +145,162 @@ foreach ($combinations as $combination) {
         
         .form-section h4 {
             color: #4a6cf7;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
             border-bottom: 2px solid #eaeaea;
-        }
-        
-        .color-option, .processor-option, .storage-option, .ram-option {
+            padding-bottom: 10px;
+            margin: 0 0 20px 0;
+            font-size: 18px;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
-            padding: 10px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #eaeaea;
         }
         
-        .add-option-btn {
-            background-color: #17a2b8;
+        .form-label {
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .form-control, textarea.form-control, select.form-control {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-control:focus, textarea.form-control:focus, select.form-control:focus {
+            border-color: #4a6cf7;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.25);
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            font-size: 14px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 16px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            transition: all 0.3s;
         }
         
-        .add-option-btn:hover {
-            background-color: #138496;
+        .btn-submit:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+        }
+        
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .btn-back:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+        
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .preview-item {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        /* Custom styles for dynamic sections */
+        .color-option, .tipe-option, .konektivitas-option {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            margin-bottom: 10px;
+            position: relative;
         }
         
         .btn-danger-sm {
+            position: absolute;
+            top: 10px;
+            right: 10px;
             background-color: #dc3545;
             color: white;
             border: none;
-            border-radius: 4px;
-            width: 30px;
-            height: 30px;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
+            font-size: 12px;
         }
         
-        .btn-danger-sm:hover {
-            background-color: #c82333;
-        }
-        
-        .color-images-section {
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
+        .add-option-btn {
+            background-color: transparent;
+            border: 2px solid #4a6cf7;
+            color: #4a6cf7;
+            padding: 10px 20px;
             border-radius: 8px;
-            border: 1px solid #eaeaea;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .add-option-btn:hover {
+            background-color: #4a6cf7;
+            color: white;
         }
         
         .combination-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 15px;
             background: white;
             border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .combination-table th {
@@ -308,8 +312,8 @@ foreach ($combinations as $combination) {
         }
         
         .combination-table td {
-            padding: 10px;
-            border-bottom: 1px solid #eaeaea;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
         }
         
         .combination-table tr:hover {
@@ -317,53 +321,177 @@ foreach ($combinations as $combination) {
         }
         
         .combination-table input {
-            width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
+            box-sizing: border-box;
         }
         
         .total-combinations {
             background: #e3f2fd;
-            padding: 10px 15px;
-            border-radius: 6px;
+            padding: 12px 15px;
+            border-radius: 8px;
             margin-top: 15px;
             font-weight: 500;
         }
         
-        .price-input-group {
+        .alert-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b6d4fe;
+            color: #084298;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
             display: flex;
+            align-items: center;
             gap: 10px;
         }
         
-        .price-input-group input {
-            flex: 1;
+        .file-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #fafafa;
+            margin-bottom: 15px;
         }
         
-        .alert-info {
-            background-color: #e7f3ff;
-            border-color: #b6d4fe;
-            color: #084298;
+        .file-upload:hover {
+            border-color: #4a6cf7;
+            background-color: #f0f4ff;
         }
         
-        .existing-data {
-            background: #f0f8ff;
-            padding: 10px;
-            border-radius: 6px;
+        .file-upload i {
+            font-size: 24px;
+            color: #4a6cf7;
             margin-bottom: 10px;
-            border-left: 4px solid #4a6cf7;
         }
         
-        .existing-data strong {
+        .file-upload p {
+            margin: 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            border: 0.25em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
             color: #4a6cf7;
         }
-    </style> 
+        
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Grid System Replacement */
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px 15px -10px;
+        }
+        
+        .form-col {
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+        
+        .col-3 { width: 25%; }
+        .col-4 { width: 33.333%; }
+        .col-6 { width: 50%; }
+        .col-9 { width: 75%; }
+        .col-12 { width: 100%; }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .mb-3 { margin-bottom: 15px; }
+        .mt-2 { margin-top: 10px; }
+        .mt-5 { margin-top: 30px; }
+        .pt-3 { padding-top: 15px; }
+        .pt-4 { padding-top: 20px; }
+        .text-danger { color: #dc3545; }
+        .text-muted { color: #6c757d; }
+        .text-center { text-align: center; }
+        .p-4 { padding: 20px; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 95%;
+                padding: 15px;
+            }
+            
+            .form-row {
+                margin: 0 -8px 15px -8px;
+            }
+            
+            .form-col {
+                padding: 0 8px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .col-3, .col-4, .col-6, .col-9, .col-12 {
+                width: 100%;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn-submit, .btn-back {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .combination-table {
+                display: block;
+                overflow-x: auto;
+            }
+            
+            .combination-table input {
+                width: 100px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div id="loadingOverlay">
+        <div class="spinner-border" role="status"></div>
+        <div style="margin-top: 10px; font-weight: bold;">Menyimpan perubahan...</div>
+    </div>
+
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-edit me-2"></i> Edit Produk Music</h2>
+                <h2><i class="fas fa-edit"></i> Edit Produk Music</h2>
             </div>
             <div class="card-body">
                 <form id="editMusicForm" action="api/api-edit-music.php" method="POST" enctype="multipart/form-data">
@@ -371,17 +499,15 @@ foreach ($combinations as $combination) {
                     
                     <!-- Informasi Produk -->
                     <div class="form-section">
-                        <h4><i class="fas fa-info-circle me-2"></i> Informasi Produk</h4>
-                        
+                        <h4><i class="fas fa-info-circle"></i> Informasi Dasar</h4>
                         <div class="mb-3">
                             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="nama_produk" required 
-                                   value="<?php echo htmlspecialchars($product['nama_produk']); ?>">
+                            <input type="text" class="form-control" name="nama_produk" value="<?php echo htmlspecialchars($product['nama_produk']); ?>" required>
                         </div>
                         
                         <div class="mb-3">
                             <label class="form-label">Kategori Music</label>
-                            <select class="form-select" name="kategori">
+                            <select class="form-control" name="kategori">
                                 <option value="airpods" <?php echo $product['kategori'] == 'airpods' ? 'selected' : ''; ?>>AirPods</option>
                                 <option value="homepod" <?php echo $product['kategori'] == 'homepod' ? 'selected' : ''; ?>>HomePod</option>
                                 <option value="beats" <?php echo $product['kategori'] == 'beats' ? 'selected' : ''; ?>>Beats</option>
@@ -391,95 +517,77 @@ foreach ($combinations as $combination) {
                         
                         <div class="mb-3">
                             <label class="form-label">Deskripsi Produk</label>
-                            <textarea class="form-control" name="deskripsi_produk" rows="4"><?php echo htmlspecialchars($product['deskripsi_produk']); ?></textarea>
+                            <textarea class="form-control" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi lengkap produk..."><?php echo htmlspecialchars($deskripsi_produk); ?></textarea>
                         </div>
                     </div>
                     
                     <!-- Warna dengan Gambar -->
                     <div class="form-section">
-                        <h4><i class="fas fa-palette me-2"></i> Warna Produk</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Warna yang sudah ada: 
-                            <?php foreach($unique_colors as $color): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($color); ?></span>
-                            <?php endforeach; ?>
+                        <h4><i class="fas fa-palette"></i> Warna Produk</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Anda bisa membiarkan field upload kosong jika tidak ingin mengubah gambar.
                         </div>
                         
                         <div id="colorsContainer">
-                            <!-- Existing colors will be loaded here -->
+                            <!-- Warna akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addColor()">
-                            <i class="fas fa-plus"></i> Tambah Warna Baru
+                            <i class="fas fa-plus"></i> Tambah Warna Lain
                         </button>
                     </div>
                     
                     <!-- Tipe -->
                     <div class="form-section">
-                        <h4><i class="fas fa-headphones me-2"></i> Tipe</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Tipe yang sudah ada: 
-                            <?php foreach($unique_tipes as $tipe): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($tipe); ?></span>
-                            <?php endforeach; ?>
-                        </div>
+                        <h4><i class="fas fa-headphones"></i> Tipe</h4>
                         
                         <div id="tipesContainer">
-                            <!-- Existing types will be loaded here -->
+                            <!-- Tipe akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addTipe()">
-                            <i class="fas fa-plus"></i> Tambah Tipe Baru
+                            <i class="fas fa-plus"></i> Tambah Tipe Lain
                         </button>
                     </div>
                     
                     <!-- Konektivitas -->
                     <div class="form-section">
-                        <h4><i class="fas fa-bluetooth me-2"></i> Konektivitas</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Konektivitas yang sudah ada: 
-                            <?php foreach($unique_konektivitases as $konektivitas): ?>
-                                <span class="badge bg-secondary"><?php echo htmlspecialchars($konektivitas); ?></span>
-                            <?php endforeach; ?>
-                        </div>
+                        <h4><i class="fas fa-bluetooth"></i> Konektivitas</h4>
                         
                         <div id="konektivitasesContainer">
-                            <!-- Existing konektivitases will be loaded here -->
+                            <!-- Konektivitas akan di-generate oleh Javascript -->
                         </div>
                         
                         <button type="button" class="add-option-btn" onclick="addKonektivitas()">
-                            <i class="fas fa-plus"></i> Tambah Konektivitas Baru
+                            <i class="fas fa-plus"></i> Tambah Konektivitas Lain
                         </button>
                     </div>
                     
                     <!-- Tabel Kombinasi & Stok -->
                     <div class="form-section">
-                        <h4><i class="fas fa-table me-2"></i> Kombinasi & Stok</h4>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Sistem akan membuat semua kombinasi dari Warna, Tipe, dan Konektivitas. 
-                            Untuk kombinasi yang sudah ada, stok akan ditampilkan.
+                        <h4><i class="fas fa-table"></i> Kombinasi & Stok</h4>
+                        <div class="alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            Sistem akan membuat semua kombinasi dari Warna, Tipe, dan Konektivitas.
                         </div>
                         
                         <div id="combinationsContainer">
-                            <!-- Tabel kombinasi akan di-generate di sini -->
+                            <!-- Table generated by JS -->
                         </div>
                         
                         <div class="total-combinations" id="totalCombinations">
-                            Menghitung kombinasi...
+                            Loading data...
                         </div>
                     </div>
                     
                     <!-- Tombol Aksi -->
-                    <div class="d-flex justify-content-between mt-5 pt-4 border-top">
+                    <div class="form-actions">
                         <a href="view-music.php?id=<?php echo $product_id; ?>" class="btn-back">
                             <i class="fas fa-arrow-left"></i> Kembali ke Detail
                         </a>
                         <button type="submit" class="btn-submit">
-                            <i class="fas fa-save me-2"></i> Update Produk Music
+                            <i class="fas fa-save"></i> Simpan Perubahan
                         </button>
                     </div>
                 </form>
@@ -487,153 +595,155 @@ foreach ($combinations as $combination) {
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Data dari PHP -->
     <script>
+        const initialData = <?php echo json_encode($initialData); ?>;
+        const uploadPath = '../../uploads/';
+        
         let colorCount = 0;
         let tipeCount = 0;
         let konektivitasCount = 0;
         
-        // Initialize with existing data
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load existing colors
-            <?php foreach($color_images as $color): ?>
-                addExistingColor(
-                    '<?php echo htmlspecialchars($color['warna'], ENT_QUOTES); ?>',
-                    '<?php echo htmlspecialchars($color['foto_thumbnail']); ?>'
-                );
-            <?php endforeach; ?>
+        // Initialize Form
+        window.addEventListener('DOMContentLoaded', () => {
+            // Colors
+            if (initialData.colors && initialData.colors.length > 0) {
+                initialData.colors.forEach(color => addColor(color));
+            } else {
+                addColor(); // Default empty
+            }
             
-            // Load existing tipe
-            <?php foreach($unique_tipes as $tipe): ?>
-                addExistingTipe('<?php echo htmlspecialchars($tipe, ENT_QUOTES); ?>');
-            <?php endforeach; ?>
+            // Tipes
+            if (initialData.tipes && initialData.tipes.length > 0) {
+                initialData.tipes.forEach(tipe => addTipe(tipe));
+            } else {
+                addTipe();
+            }
             
-            // Load existing konektivitases
-            <?php foreach($unique_konektivitases as $konektivitas): ?>
-                addExistingKonektivitas('<?php echo htmlspecialchars($konektivitas, ENT_QUOTES); ?>');
-            <?php endforeach; ?>
+            // Konektivitases
+            if (initialData.konektivitases && initialData.konektivitases.length > 0) {
+                initialData.konektivitases.forEach(konektivitas => addKonektivitas(konektivitas));
+            } else {
+                addKonektivitas();
+            }
             
-            // Generate combinations
-            generateCombinations();
+            // Generate Combinations with slight delay to ensure DOM is ready
+            setTimeout(() => {
+                generateCombinations();
+            }, 100);
         });
-        
-        // Color functions
-        function addExistingColor(colorName, thumbnail) {
+
+        // Form Submission
+        document.getElementById('editMusicForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Berhasil: ' + data.message);
+                    window.location.href = 'view-music.php?id=<?php echo $product_id; ?>';
+                } else {
+                    alert('Gagal: ' + data.message);
+                    overlay.style.display = 'none';
+                }
+            })
+            .catch(err => {
+                alert('Error sistem');
+                console.error(err);
+                overlay.style.display = 'none';
+            });
+        });
+
+        // Warna
+        function addColor(data = null) {
             const container = document.getElementById('colorsContainer');
             const newIndex = colorCount;
             
             const newColor = document.createElement('div');
             newColor.className = 'color-option';
             newColor.dataset.colorIndex = newIndex;
-            newColor.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
-                               value="${colorName}" required>
+            
+            let thumbnailPreview = '';
+            let productImagesPreview = '';
+            let isExisting = false;
+            
+            if (data) {
+                isExisting = true;
+                if (data.thumbnail) {
+                    thumbnailPreview = `
+                        <div id="thumbnailPreview-${newIndex}" class="preview-item">
+                            <img id="thumbnailImg-${newIndex}" src="${uploadPath}${data.thumbnail}" alt="Thumbnail Preview">
+                        </div>
                         <input type="hidden" name="warna[${newIndex}][existing]" value="1">
-                    </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Thumbnail Warna</label>
-                                <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <p class="mb-1">Upload thumbnail baru (opsional)</p>
-                                    <small class="text-muted">Max: 2MB</small>
-                                    <input type="file" id="thumbnail-${newIndex}" 
-                                           name="warna[${newIndex}][thumbnail]" 
-                                           accept="image/*" style="display: none;" 
-                                           onchange="previewThumbnail(${newIndex}, this)">
-                                </div>
-                                <div class="preview-container">
-                                    ${thumbnail ? `
-                                        <div class="existing-data">
-                                            <strong>Thumbnail saat ini:</strong> ${thumbnail}<br>
-                                            <input type="hidden" name="warna[${newIndex}][old_thumbnail]" value="${thumbnail}">
-                                        </div>
-                                    ` : ''}
-                                    <div id="thumbnailPreview-${newIndex}" class="preview-item" style="display: none;">
-                                        <img id="thumbnailImg-${newIndex}" src="" alt="Thumbnail Preview">
-                                        <button type="button" class="remove-btn" onclick="removeThumbnail(${newIndex})">&times;</button>
-                                    </div>
-                                </div>
+                        <input type="hidden" name="warna[${newIndex}][old_thumbnail]" value="${data.thumbnail}">
+                    `;
+                }
+                
+                if (data.images && data.images.length > 0) {
+                    productImagesPreview = `<div class="preview-container">`;
+                    data.images.forEach(img => {
+                        productImagesPreview += `
+                            <div class="preview-item">
+                                <img src="${uploadPath}${img}" alt="Product Image">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Foto Produk Baru (opsional)</label>
-                                <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
-                                    <i class="fas fa-images"></i>
-                                    <p class="mb-1">Upload foto produk baru</p>
-                                    <small class="text-muted">Max: 2MB per gambar</small>
-                                    <input type="file" id="productImages-${newIndex}" 
-                                           name="warna[${newIndex}][product_images][]" 
-                                           accept="image/*" multiple style="display: none;" 
-                                           onchange="previewProductImages(${newIndex}, this)">
-                                </div>
-                                <div class="preview-container" id="productImagesPreview-${newIndex}"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
-                    &times;
-                </button>
-            `;
+                        `;
+                    });
+                    productImagesPreview += `</div>`;
+                }
+            }
             
-            container.appendChild(newColor);
-            colorCount++;
-        }
-        
-        function addColor() {
-            const container = document.getElementById('colorsContainer');
-            const newIndex = colorCount;
-            
-            const newColor = document.createElement('div');
-            newColor.className = 'color-option';
-            newColor.dataset.colorIndex = newIndex;
             newColor.innerHTML = `
-                <div class="row g-3 w-100">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
+                        <label class="form-label">Nama Warna</label>
                         <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
-                               placeholder="Nama Warna Baru" required>
+                               placeholder="Nama Warna (Contoh: White)" required value="${data ? data.nama : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-9">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <label class="form-label">Thumbnail Warna <span class="text-danger">*</span></label>
+                    <div class="form-col col-9">
+                        <div class="form-row">
+                            <div class="form-col col-6">
+                                <label class="form-label">Thumbnail Warna ${!isExisting ? '<span class="text-danger">*</span>' : ''}</label>
                                 <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
                                     <i class="fas fa-cloud-upload-alt"></i>
-                                    <p class="mb-1">Upload thumbnail</p>
-                                    <small class="text-muted">Max: 2MB</small>
+                                    <p>${isExisting ? 'Ubah thumbnail' : 'Upload thumbnail'}</p>
                                     <input type="file" id="thumbnail-${newIndex}" 
                                            name="warna[${newIndex}][thumbnail]" 
-                                           accept="image/*" style="display: none;" required 
+                                           accept="image/*" style="display: none;" ${!isExisting ? 'required' : ''} 
                                            onchange="previewThumbnail(${newIndex}, this)">
                                 </div>
                                 <div class="preview-container">
-                                    <div id="thumbnailPreview-${newIndex}" class="preview-item" style="display: none;">
-                                        <img id="thumbnailImg-${newIndex}" src="" alt="Thumbnail Preview">
-                                        <button type="button" class="remove-btn" onclick="removeThumbnail(${newIndex})">&times;</button>
+                                    ${thumbnailPreview}
+                                    <div id="thumbnailNewPreview-${newIndex}" class="preview-item" style="display: none;">
+                                        <img id="thumbnailNewImg-${newIndex}" src="" alt="New Thumbnail Preview">
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Foto Produk (Bisa Lebih dari Satu)</label>
+                            <div class="form-col col-6">
+                                <label class="form-label">Foto Produk</label>
                                 <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
                                     <i class="fas fa-images"></i>
-                                    <p class="mb-1">Upload foto produk</p>
-                                    <small class="text-muted">Max: 2MB per gambar</small>
+                                    <p>${isExisting ? 'Tambah foto' : 'Upload foto produk'}</p>
                                     <input type="file" id="productImages-${newIndex}" 
                                            name="warna[${newIndex}][product_images][]" 
                                            accept="image/*" multiple style="display: none;" 
                                            onchange="previewProductImages(${newIndex}, this)">
                                 </div>
-                                <div class="preview-container" id="productImagesPreview-${newIndex}"></div>
+                                <div class="preview-container" id="productImagesPreview-${newIndex}">
+                                    ${productImagesPreview}
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeColor(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -643,7 +753,8 @@ foreach ($combinations as $combination) {
         }
         
         function removeColor(index) {
-            if (colorCount <= 1) {
+            const colorElements = document.querySelectorAll('.color-option');
+            if (colorElements.length <= 1) {
                 alert('Minimal harus ada satu warna');
                 return;
             }
@@ -651,14 +762,12 @@ foreach ($combinations as $combination) {
             const colorElement = document.querySelector(`.color-option[data-color-index="${index}"]`);
             if (colorElement) {
                 colorElement.remove();
-                colorCount--;
-                reindexColors();
                 generateCombinations();
             }
         }
         
-        // Tipe functions
-        function addExistingTipe(tipe) {
+        // Tipe
+        function addTipe(data = null) {
             const container = document.getElementById('tipesContainer');
             const newIndex = tipeCount;
             
@@ -667,29 +776,9 @@ foreach ($combinations as $combination) {
             newTipe.dataset.tipeIndex = newIndex;
             newTipe.innerHTML = `
                 <input type="text" class="form-control" name="tipe[${newIndex}]" 
-                       value="${tipe}" required>
-                <input type="hidden" name="tipe[${newIndex}][existing]" value="1">
+                       placeholder="Tipe (Contoh: Pro, Max, Generation)" required value="${data ? data : ''}" onchange="generateCombinations()">
                 <button type="button" class="btn-danger-sm" onclick="removeTipe(${newIndex})">
-                    &times;
-                </button>
-            `;
-            
-            container.appendChild(newTipe);
-            tipeCount++;
-        }
-        
-        function addTipe() {
-            const container = document.getElementById('tipesContainer');
-            const newIndex = tipeCount;
-            
-            const newTipe = document.createElement('div');
-            newTipe.className = 'tipe-option';
-            newTipe.dataset.tipeIndex = newIndex;
-            newTipe.innerHTML = `
-                <input type="text" class="form-control" name="tipe[${newIndex}]" 
-                       placeholder="Tipe Baru (Contoh: Pro, Max, Generation)" required>
-                <button type="button" class="btn-danger-sm" onclick="removeTipe(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -699,7 +788,8 @@ foreach ($combinations as $combination) {
         }
         
         function removeTipe(index) {
-            if (tipeCount <= 1) {
+            const tipeElements = document.querySelectorAll('.tipe-option');
+            if (tipeElements.length <= 1) {
                 alert('Minimal harus ada satu tipe');
                 return;
             }
@@ -707,13 +797,12 @@ foreach ($combinations as $combination) {
             const tipeElement = document.querySelector(`.tipe-option[data-tipe-index="${index}"]`);
             if (tipeElement) {
                 tipeElement.remove();
-                tipeCount--;
                 generateCombinations();
             }
         }
         
-        // Konektivitas functions
-        function addExistingKonektivitas(konektivitas) {
+        // Konektivitas
+        function addKonektivitas(data = null) {
             const container = document.getElementById('konektivitasesContainer');
             const newIndex = konektivitasCount;
             
@@ -722,29 +811,9 @@ foreach ($combinations as $combination) {
             newKonektivitas.dataset.konektivitasIndex = newIndex;
             newKonektivitas.innerHTML = `
                 <input type="text" class="form-control" name="konektivitas[${newIndex}]" 
-                       value="${konektivitas}" required>
-                <input type="hidden" name="konektivitas[${newIndex}][existing]" value="1">
+                       placeholder="Konektivitas (Contoh: Bluetooth, Lightning, USB-C)" required value="${data ? data : ''}" onchange="generateCombinations()">
                 <button type="button" class="btn-danger-sm" onclick="removeKonektivitas(${newIndex})">
-                    &times;
-                </button>
-            `;
-            
-            container.appendChild(newKonektivitas);
-            konektivitasCount++;
-        }
-        
-        function addKonektivitas() {
-            const container = document.getElementById('konektivitasesContainer');
-            const newIndex = konektivitasCount;
-            
-            const newKonektivitas = document.createElement('div');
-            newKonektivitas.className = 'konektivitas-option';
-            newKonektivitas.dataset.konektivitasIndex = newIndex;
-            newKonektivitas.innerHTML = `
-                <input type="text" class="form-control" name="konektivitas[${newIndex}]" 
-                       placeholder="Konektivitas Baru (Contoh: Bluetooth, Lightning, USB-C)" required>
-                <button type="button" class="btn-danger-sm" onclick="removeKonektivitas(${newIndex})">
-                    &times;
+                    ×
                 </button>
             `;
             
@@ -754,7 +823,8 @@ foreach ($combinations as $combination) {
         }
         
         function removeKonektivitas(index) {
-            if (konektivitasCount <= 1) {
+            const konektivitasElements = document.querySelectorAll('.konektivitas-option');
+            if (konektivitasElements.length <= 1) {
                 alert('Minimal harus ada satu konektivitas');
                 return;
             }
@@ -762,37 +832,75 @@ foreach ($combinations as $combination) {
             const konektivitasElement = document.querySelector(`.konektivitas-option[data-konektivitas-index="${index}"]`);
             if (konektivitasElement) {
                 konektivitasElement.remove();
-                konektivitasCount--;
                 generateCombinations();
             }
         }
         
-        // Generate Combinations for edit
+        // Preview functions
+        function previewThumbnail(index, input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewNew = document.getElementById(`thumbnailNewPreview-${index}`);
+                    const imgNew = document.getElementById(`thumbnailNewImg-${index}`);
+                    if (previewNew && imgNew) {
+                        imgNew.src = e.target.result;
+                        previewNew.style.display = 'block';
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        
+        function previewProductImages(index, input) {
+            const container = document.getElementById(`productImagesPreview-${index}`);
+            
+            if (input.files) {
+                // Remove only previous newly added previews (with class 'new-preview')
+                const existingNew = container.querySelectorAll('.new-preview');
+                existingNew.forEach(el => el.remove());
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'preview-item new-preview';
+                        div.innerHTML = `<img src="${e.target.result}" alt="New Image">`;
+                        container.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        }
+        
+        // Generate Combinations
         function generateCombinations() {
             const container = document.getElementById('combinationsContainer');
+            const totalContainer = document.getElementById('totalCombinations');
             
-            // Collect data
+            // Collect data from DOM inputs
             const colors = [];
-            document.querySelectorAll('.color-option input[name$="[nama]"]').forEach(input => {
-                colors.push(input.value);
+            document.querySelectorAll('.color-option input[name*="[nama]"]').forEach(input => {
+                if (input.value.trim()) colors.push(input.value.trim());
             });
             
             const tipes = [];
             document.querySelectorAll('.tipe-option input').forEach(input => {
-                tipes.push(input.value);
+                const val = input.value.trim();
+                if (val) tipes.push(val);
             });
             
             const konektivitases = [];
             document.querySelectorAll('.konektivitas-option input').forEach(input => {
-                konektivitases.push(input.value);
+                const val = input.value.trim();
+                if (val) konektivitases.push(val);
             });
             
-            // Calculate total combinations
+            // Generate table
             const totalCombinations = colors.length * tipes.length * konektivitases.length;
-            document.getElementById('totalCombinations').innerHTML = 
+            totalContainer.innerHTML = 
                 `Total Kombinasi: <strong>${totalCombinations}</strong> (${colors.length} warna × ${tipes.length} tipe × ${konektivitases.length} konektivitas)`;
             
-            // Generate table
             if (totalCombinations > 0) {
                 let tableHTML = `
                     <table class="combination-table">
@@ -802,7 +910,7 @@ foreach ($combinations as $combination) {
                                 <th>Warna</th>
                                 <th>Tipe</th>
                                 <th>Konektivitas</th>
-                                <th>Harga</th>
+                                <th>Harga Normal</th>
                                 <th>Harga Diskon</th>
                                 <th>Jumlah Stok</th>
                             </tr>
@@ -811,53 +919,41 @@ foreach ($combinations as $combination) {
                 `;
                 
                 let counter = 1;
-                colors.forEach((color, colorIndex) => {
-                    tipes.forEach((tipe, tipeIndex) => {
-                        konektivitases.forEach((konektivitas, konektivitasIndex) => {
-                            const combinationId = `${colorIndex}-${tipeIndex}-${konektivitasIndex}`;
+                colors.forEach((color, cIdx) => {
+                    tipes.forEach((tipe, tIdx) => {
+                        konektivitases.forEach((konektivitas, kIdx) => {
+                            const uniqueId = `${cIdx}_${tIdx}_${kIdx}`; // Just for DOM uniqueness
                             
-                            // Find existing data for this combination
-                            let existingHarga = 0;
-                            let existingHargaDiskon = null;
-                            let existingStock = 0;
-                            
-                            <?php foreach($combinations as $combination): ?>
-                                if ('<?php echo $combination['warna']; ?>' === color &&
-                                    '<?php echo $combination['tipe']; ?>' === tipe &&
-                                    '<?php echo $combination['konektivitas']; ?>' === konektivitas) {
-                                    existingHarga = <?php echo $combination['harga']; ?>;
-                                    existingHargaDiskon = <?php echo $combination['harga_diskon'] ?: 'null'; ?>;
-                                    existingStock = <?php echo $combination['jumlah_stok']; ?>;
-                                }
-                            <?php endforeach; ?>
+                            // Try to find existing data
+                            const stockKey = `${color}|${tipe}|${konektivitas}`;
+                            const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
+                            const existingPrice = initialData.prices[stockKey] !== undefined ? initialData.prices[stockKey] : { harga: '', harga_diskon: '' };
                             
                             tableHTML += `
                                 <tr>
                                     <td>${counter}</td>
-                                    <td><strong>${color}</strong></td>
+                                    <td>${color}</td>
                                     <td>${tipe}</td>
                                     <td>${konektivitas}</td>
                                     <td>
-                                        <input type="hidden" name="combinations[${combinationId}][warna]" value="${color}">
-                                        <input type="hidden" name="combinations[${combinationId}][tipe]" value="${tipe}">
-                                        <input type="hidden" name="combinations[${combinationId}][konektivitas]" value="${konektivitas}">
-                                        <input type="number" class="form-control" 
-                                               name="combinations[${combinationId}][harga]" 
-                                               value="${existingHarga}" min="0" required 
-                                               style="width: 150px;">
+                                        <input type="number" class="form-control" style="width: 120px;" 
+                                               name="combinations[${uniqueId}][harga]" 
+                                               value="${existingPrice.harga}" min="0" required>
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" 
-                                               name="combinations[${combinationId}][harga_diskon]" 
-                                               value="${existingHargaDiskon || ''}" min="0" 
-                                               style="width: 150px;">
+                                        <input type="number" class="form-control" style="width: 120px;" 
+                                               name="combinations[${uniqueId}][harga_diskon]" 
+                                               value="${existingPrice.harga_diskon}" min="0">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" 
-                                               name="combinations[${combinationId}][jumlah_stok]" 
-                                               value="${existingStock}" min="0" required 
-                                               style="width: 100px;">
+                                        <input type="number" class="form-control" style="width: 100px;" 
+                                               name="combinations[${uniqueId}][jumlah_stok]" 
+                                               value="${existingStock}" min="0" required>
                                     </td>
+                                    <!-- Hidden Inputs -->
+                                    <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">
+                                    <input type="hidden" name="combinations[${uniqueId}][tipe]" value="${tipe}">
+                                    <input type="hidden" name="combinations[${uniqueId}][konektivitas]" value="${konektivitas}">
                                 </tr>
                             `;
                             counter++;
@@ -865,194 +961,21 @@ foreach ($combinations as $combination) {
                     });
                 });
                 
-                tableHTML += `
-                        </tbody>
-                    </table>
-                `;
-                
+                tableHTML += `</tbody></table>`;
                 container.innerHTML = tableHTML;
             } else {
-                container.innerHTML = '<p class="text-muted">Tambahkan minimal satu warna, tipe, dan konektivitas untuk melihat kombinasi.</p>';
+                container.innerHTML = '<div class="text-center p-4 text-muted">Lengkapi data warna, tipe, dan konektivitas untuk melihat tabel kombinasi</div>';
             }
         }
         
-        // Preview functions (same as edit-mac.php)
-        function previewThumbnail(index, input) {
-            const file = input.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = document.getElementById(`thumbnailImg-${index}`);
-                    const preview = document.getElementById(`thumbnailPreview-${index}`);
-                    if (img) img.src = e.target.result;
-                    if (preview) preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
+        // Listen for input changes to update combinations
+        document.addEventListener('input', function(e) {
+            if (e.target.matches('input[name*="[nama]"], input[name*="tipe"], input[name*="konektivitas"]')) {
+               if (!e.target.name.includes('jumlah_stok') && !e.target.name.includes('harga') && !e.target.name.includes('harga_diskon')) {
+                   generateCombinations();
+               }
             }
-        }
-        
-        function removeThumbnail(index) {
-            const input = document.getElementById(`thumbnail-${index}`);
-            const preview = document.getElementById(`thumbnailPreview-${index}`);
-            if (input) input.value = '';
-            if (preview) preview.style.display = 'none';
-        }
-        
-        function previewProductImages(index, input) {
-            const files = input.files;
-            const previewContainer = document.getElementById(`productImagesPreview-${index}`);
-            
-            // Clear existing previews
-            previewContainer.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'preview-item';
-                    previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="Product Image">
-                        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">&times;</button>
-                    `;
-                    previewContainer.appendChild(previewItem);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        }
-        
-        // Form validation and submission
-        document.getElementById('editMusicForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Validate product name
-            const productName = document.querySelector('input[name="nama_produk"]').value;
-            if (!productName.trim()) {
-                alert('Nama produk harus diisi');
-                return;
-            }
-            
-            // Validate colors
-            const colorInputs = document.querySelectorAll('.color-option input[name$="[nama]"]');
-            const validColors = Array.from(colorInputs).filter(input => input.value.trim()).length;
-            if (validColors === 0) {
-                alert('Minimal satu warna harus diisi');
-                return;
-            }
-            
-            // Validate tipe
-            const tipeInputs = document.querySelectorAll('.tipe-option input');
-            const validTipes = Array.from(tipeInputs).filter(input => input.value.trim()).length;
-            if (validTipes === 0) {
-                alert('Minimal satu tipe harus diisi');
-                return;
-            }
-            
-            // Validate konektivitas
-            const konektivitasInputs = document.querySelectorAll('.konektivitas-option input');
-            const validKonektivitases = Array.from(konektivitasInputs).filter(input => input.value.trim()).length;
-            if (validKonektivitases === 0) {
-                alert('Minimal satu konektivitas harus diisi');
-                return;
-            }
-            
-            // Validate combination prices
-            const priceInputs = document.querySelectorAll('input[name$="[harga]"]');
-            let invalidPrice = false;
-            priceInputs.forEach(input => {
-                if (parseFloat(input.value) <= 0) {
-                    invalidPrice = true;
-                    input.style.borderColor = 'red';
-                } else {
-                    input.style.borderColor = '';
-                }
-            });
-            
-            if (invalidPrice) {
-                alert('Semua harga harus lebih dari 0');
-                return;
-            }
-            
-            // Validate discount prices
-            const discountInputs = document.querySelectorAll('input[name$="[harga_diskon]"]');
-            discountInputs.forEach(input => {
-                if (input.value) {
-                    const row = input.closest('tr');
-                    const hargaInput = row.querySelector('input[name$="[harga]"]');
-                    const harga = parseFloat(hargaInput.value);
-                    const diskon = parseFloat(input.value);
-                    
-                    if (diskon >= harga) {
-                        alert('Harga diskon harus lebih rendah dari harga normal');
-                        invalidPrice = true;
-                        input.style.borderColor = 'red';
-                    } else {
-                        input.style.borderColor = '';
-                    }
-                }
-            });
-            
-            if (invalidPrice) {
-                return;
-            }
-            
-            // Show loading
-            const submitBtn = document.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
-            submitBtn.disabled = true;
-            
-            // Submit form
-            const formData = new FormData(this);
-            
-            fetch('api/api-edit-music.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Produk Music berhasil diperbarui!');
-                    window.location.href = 'view-music.php?id=<?php echo $product_id; ?>';
-                } else {
-                    alert('Error: ' + data.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menyimpan data');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
         });
-        
-        function reindexColors() {
-            const colorOptions = document.querySelectorAll('.color-option');
-            colorOptions.forEach((option, index) => {
-                option.dataset.colorIndex = index;
-                
-                // Update input names
-                const colorNameInput = option.querySelector('input[name$="[nama]"]');
-                const thumbnailInput = option.querySelector('input[name$="[thumbnail]"]');
-                const productImagesInput = option.querySelector('input[name$="[product_images][]"]');
-                
-                if (colorNameInput) {
-                    colorNameInput.name = `warna[${index}][nama]`;
-                }
-                if (thumbnailInput) {
-                    thumbnailInput.name = `warna[${index}][thumbnail]`;
-                    thumbnailInput.id = `thumbnail-${index}`;
-                }
-                if (productImagesInput) {
-                    productImagesInput.name = `warna[${index}][product_images][]`;
-                    productImagesInput.id = `productImages-${index}`;
-                }
-            });
-        }
     </script>
 </body>
 </html>

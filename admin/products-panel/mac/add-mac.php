@@ -26,7 +26,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 20px;
         }
