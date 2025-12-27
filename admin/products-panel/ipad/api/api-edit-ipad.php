@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 session_start();
 require_once '../../../db.php';
 
@@ -170,4 +170,4 @@ try {
 
 header('Content-Type: application/json');
 echo json_encode($response);
-?> -->
+?>
