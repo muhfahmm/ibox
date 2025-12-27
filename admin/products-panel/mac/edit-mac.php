@@ -384,16 +384,6 @@ foreach ($combinations as $combination) {
                         </div>
                         
                         <div class="mb-3">
-                            <label class="form-label">Tipe Mac</label>
-                            <select class="form-select" name="tipe">
-                                <option value="macbook" <?php echo $product['tipe'] == 'macbook' ? 'selected' : ''; ?>>MacBook</option>
-                                <option value="imac" <?php echo $product['tipe'] == 'imac' ? 'selected' : ''; ?>>iMac</option>
-                                <option value="mac-mini" <?php echo $product['tipe'] == 'mac-mini' ? 'selected' : ''; ?>>Mac Mini</option>
-                                <option value="mac-studio" <?php echo $product['tipe'] == 'mac-studio' ? 'selected' : ''; ?>>Mac Studio</option>
-                            </select>
-                        </div>
-                        
-                        <div class="mb-3">
                             <label class="form-label">Deskripsi Produk</label>
                             <textarea class="form-control" name="deskripsi_produk" rows="4"><?php echo htmlspecialchars($product['deskripsi_produk']); ?></textarea>
                         </div>
