@@ -1,4 +1,4 @@
-<!-- <?php
+<?php
 session_start();
 require_once '../../db.php';
 
@@ -868,4 +868,4 @@ $initialData = [
         });
     </script>
 </body>
-</html> -->
+</html>
