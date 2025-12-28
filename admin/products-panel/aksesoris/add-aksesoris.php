@@ -16,7 +16,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Produk Apple Watch</title>
+    <title>Tambah Produk Aksesoris</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -228,18 +228,18 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <a href="watch.php" class="btn btn-outline-secondary">
+            <a href="aksesoris.php" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i> Kembali
             </a>
             <div class="text-muted">
-                Admin Panel / Apple Watch / Tambah Produk
+                Admin Panel / Aksesoris / Tambah Produk
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <h2><i class="fas fa-plus-circle me-2"></i> Tambah Produk Apple Watch Baru</h2>
-                <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk Apple Watch baru</p>
+                <h2><i class="fas fa-plus-circle me-2"></i> Tambah Produk Aksesoris Baru</h2>
+                <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk aksesoris baru</p>
             </div>
             
             <form id="addProductForm" enctype="multipart/form-data">
@@ -249,7 +249,26 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         <div class="col-md-8">
                             <div class="mb-3">
                                 <label for="nama_produk" class="form-label">Nama Produk</label>
-                                <input type="text" class="form-control" id="nama_produk" name="nama_produk" placeholder="Contoh: Apple Watch Series 9" required>
+                                <input type="text" class="form-control" id="nama_produk" name="nama_produk" placeholder="Contoh: Case iPhone 15 Pro Silicon" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="kategori" class="form-label">Kategori</label>
+                                        <select class="form-select" id="kategori" name="kategori" required>
+                                            <option value="">Pilih Kategori</option>
+                                            <option value="case">Case</option>
+                                            <option value="charger">Charger</option>
+                                            <option value="headphone">Headphone</option>
+                                            <option value="keyboard">Keyboard</option>
+                                            <option value="mouse">Mouse</option>
+                                            <option value="trackpad">Trackpad</option>
+                                            <option value="adapter">Adapter</option>
+                                            <option value="other">Lainnya</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="mb-3">
@@ -257,20 +276,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                 <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="5" placeholder="Tuliskan deskripsi lengkap produk..."></textarea>
                             </div>
                             
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="seri" class="form-label">Seri</label>
-                                        <input type="text" class="form-control" id="seri" name="seri" placeholder="Contoh: Series 9, Ultra 2">
-                                    </div>
-                                </div>
+                            <div class="mb-3">
+                                <label for="kompatibel_dengan" class="form-label">Kompatibel Dengan (Opsional)</label>
+                                <input type="text" class="form-control" id="kompatibel_dengan" name="kompatibel_dengan" placeholder="Contoh: iPhone 15, iPhone 14, iPad Pro">
+                                <small class="text-muted">Pisahkan dengan koma untuk multiple devices</small>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Pilihan Warna Case & Gambar -->
+                    <!-- Pilihan Warna & Gambar -->
                     <div class="section-title">
-                        <i class="fas fa-palette me-2"></i> Pilihan Warna Case & Gambar
+                        <i class="fas fa-palette me-2"></i> Pilihan Warna & Gambar
                     </div>
                     
                     <div id="colors-container">
@@ -278,12 +294,25 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                     </div>
                     
                     <button type="button" class="btn-add-option" onclick="addColorOption()">
-                        <i class="fas fa-plus me-1"></i> Tambah Pilihan Warna Case Lain
+                        <i class="fas fa-plus me-1"></i> Tambah Pilihan Warna Lain
                     </button>
 
-                    <!-- Pilihan Ukuran Case -->
+                    <!-- Pilihan Tipe -->
                     <div class="section-title">
-                        <i class="fas fa-expand-alt me-2"></i> Pilihan Ukuran Case
+                        <i class="fas fa-cogs me-2"></i> Pilihan Tipe
+                    </div>
+                    
+                    <div id="type-container">
+                        <!-- Default Type Added by JS -->
+                    </div>
+                    
+                    <button type="button" class="btn-add-option" onclick="addTypeOption()">
+                        <i class="fas fa-plus me-1"></i> Tambah Opsi Tipe Lain
+                    </button>
+
+                    <!-- Pilihan Ukuran -->
+                    <div class="section-title">
+                        <i class="fas fa-expand-alt me-2"></i> Pilihan Ukuran (Opsional)
                     </div>
                     
                     <div id="size-container">
@@ -292,30 +321,6 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                     
                     <button type="button" class="btn-add-option" onclick="addSizeOption()">
                         <i class="fas fa-plus me-1"></i> Tambah Opsi Ukuran Lain
-                    </button>
-
-                    <!-- Pilihan Tipe Koneksi -->
-                    <div class="section-title">
-                        <i class="fas fa-wifi me-2"></i> Pilihan Tipe Koneksi
-                    </div>
-                    
-                    <div id="connectivity-container">
-                        <!-- Default Conn -->
-                    </div>
-                    <button type="button" class="btn-add-option" onclick="addConnectivityOption()">
-                        <i class="fas fa-plus me-1"></i> Tambah Opsi Koneksi Lain
-                    </button>
-
-                    <!-- Pilihan Material -->
-                    <div class="section-title">
-                        <i class="fas fa-gem me-2"></i> Pilihan Material
-                    </div>
-                    
-                    <div id="material-container">
-                        <!-- Default Material -->
-                    </div>
-                    <button type="button" class="btn-add-option" onclick="addMaterialOption()">
-                        <i class="fas fa-plus me-1"></i> Tambah Opsi Material Lain
                     </button>
 
                     <!-- Tabel Kombinasi -->
@@ -330,10 +335,9 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         <table class="table-combinations" id="combinations-table">
                             <thead>
                                 <tr>
-                                    <th>Warna Case</th>
-                                    <th>Ukuran Case</th>
-                                    <th>Tipe Koneksi</th>
-                                    <th>Material</th>
+                                    <th>Warna</th>
+                                    <th>Tipe</th>
+                                    <th>Ukuran</th>
                                     <th>Harga (Rp)</th>
                                     <th>Diskon (Rp)</th>
                                     <th>Stok</th>
@@ -342,7 +346,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             </thead>
                             <tbody id="combinations-body">
                                 <tr>
-                                    <td colspan="8" class="text-center text-muted py-4">
+                                    <td colspan="7" class="text-center text-muted py-4">
                                         Lengkapi data di atas untuk melihat kombinasi
                                     </td>
                                 </tr>
@@ -364,9 +368,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let colorIndex = 0;
+        let typeIndex = 0;
         let sizeIndex = 0;
-        let connectivityIndex = 0;
-        let materialIndex = 0;
         
         // --- Add Color ---
         function addColorOption() {
@@ -377,26 +380,48 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                     <div class="row">
                         <div class="col-md-4">
                             <div class="mb-3">
-                                <label class="form-label">Nama Warna Case</label>
-                                <input type="text" class="form-control color-name" name="warna_case[${colorIndex}][nama]" placeholder="Contoh: Midnight, Starlight" required onkeyup="updateCombinations()">
+                                <label class="form-label">Nama Warna</label>
+                                <input type="text" class="form-control color-name" name="warna[${colorIndex}][nama]" placeholder="Contoh: Midnight Blue, Silver" required onkeyup="updateCombinations()">
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Foto Thumbnail (Utama)</label>
-                                <input type="file" class="form-control" name="warna_case[${colorIndex}][thumbnail]" accept="image/*" required>
+                                <input type="file" class="form-control" name="warna[${colorIndex}][thumbnail]" accept="image/*" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Foto Produk (Galeri)</label>
-                                <input type="file" class="form-control" name="warna_case[${colorIndex}][product_images][]" accept="image/*" multiple>
+                                <input type="file" class="form-control" name="warna[${colorIndex}][product_images][]" accept="image/*" multiple>
                             </div>
                         </div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
             colorIndex++;
+            updateCombinations();
+        }
+
+        // --- Add Type ---
+        function addTypeOption() {
+            const container = document.getElementById('type-container');
+            const html = `
+                <div class="option-card type-option position-relative">
+                    <button type="button" class="btn-remove" onclick="removeOption(this, 'type')"><i class="fas fa-times"></i></button>
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <label class="form-label">Tipe</label>
+                            <input type="text" class="form-control type-value" name="tipe[${typeIndex}][nama]" placeholder="Contoh: Silicon, Leather" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Harga Dasar (Rp)</label>
+                            <input type="number" class="form-control base-price" name="tipe[${typeIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            typeIndex++;
             updateCombinations();
         }
 
@@ -407,62 +432,14 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="option-card size-option position-relative">
                     <button type="button" class="btn-remove" onclick="removeOption(this, 'size')"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <label class="form-label">Ukuran Case</label>
-                            <input type="text" class="form-control size-value" name="ukuran_case[${sizeIndex}][size]" placeholder="Contoh: 41mm, 45mm" required onkeyup="updateCombinations()">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Harga Dasar (Rp)</label>
-                            <input type="number" class="form-control base-price" name="ukuran_case[${sizeIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        <div class="col-md-12">
+                            <label class="form-label">Ukuran (Opsional)</label>
+                            <input type="text" class="form-control size-value" name="ukuran[${sizeIndex}][size]" placeholder="Contoh: S, M, L atau 10 inch" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
             sizeIndex++;
-            updateCombinations();
-        }
-
-        // --- Add Connectivity ---
-        function addConnectivityOption() {
-            const container = document.getElementById('connectivity-container');
-            const html = `
-                <div class="option-card connectivity-option position-relative">
-                    <button type="button" class="btn-remove" onclick="removeOption(this, 'conn')"><i class="fas fa-times"></i></button>
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <label class="form-label">Tipe Koneksi</label>
-                            <input type="text" class="form-control connectivity-value" name="tipe_koneksi[]" value="GPS" placeholder="Contoh: GPS, GPS + Cellular" onkeyup="updateCombinations()">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Harga Tambahan (Rp)</label>
-                            <input type="number" class="form-control connectivity-price" name="tipe_koneksi_harga[]" value="0" placeholder="0" onkeyup="updateCombinations()">
-                        </div>
-                    </div>
-                </div>`;
-            container.insertAdjacentHTML('beforeend', html);
-            connectivityIndex++;
-            updateCombinations();
-        }
-
-        // --- Add Material ---
-        function addMaterialOption() {
-            const container = document.getElementById('material-container');
-            const html = `
-                <div class="option-card material-option position-relative">
-                    <button type="button" class="btn-remove" onclick="removeOption(this, 'material')"><i class="fas fa-times"></i></button>
-                    <div class="row align-items-center">
-                        <div class="col-md-6">
-                            <label class="form-label">Material</label>
-                            <input type="text" class="form-control material-value" name="material[]" value="Aluminum" placeholder="Contoh: Aluminum, Stainless Steel" onkeyup="updateCombinations()">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Harga Tambahan (Rp)</label>
-                            <input type="number" class="form-control material-price" name="material_harga[]" value="0" placeholder="0" onkeyup="updateCombinations()">
-                        </div>
-                    </div>
-                </div>`;
-            container.insertAdjacentHTML('beforeend', html);
-            materialIndex++;
             updateCombinations();
         }
 
@@ -473,53 +450,41 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
         function generateCombinations() {
             const colors = Array.from(document.querySelectorAll('.color-name')).map(i => i.value).filter(v => v);
-            const sizes = Array.from(document.querySelectorAll('.size-option')).map(row => {
+            const types = Array.from(document.querySelectorAll('.type-option')).map(row => {
                 return {
-                    size: row.querySelector('input[name*="[size]"]').value,
+                    name: row.querySelector('input[name*="[nama]"]').value,
                     price: row.querySelector('input[name*="[harga]"]').value
                 };
-            }).filter(s => s.size);
+            }).filter(t => t.name);
             
-            let conns = Array.from(document.querySelectorAll('.connectivity-value')).map(i => i.value).filter(v => v);
-            let connPrices = Array.from(document.querySelectorAll('.connectivity-price')).map(i => parseInt(i.value) || 0);
-            if(conns.length === 0) conns = ['-'];
-            
-            let materials = Array.from(document.querySelectorAll('.material-value')).map(i => i.value).filter(v => v);
-            let materialPrices = Array.from(document.querySelectorAll('.material-price')).map(i => parseInt(i.value) || 0);
-            if(materials.length === 0) materials = ['-'];
+            const sizes = Array.from(document.querySelectorAll('.size-value')).map(i => i.value).filter(v => v);
+            // Jika tidak ada ukuran, gunakan array dengan satu elemen kosong
+            const sizeList = sizes.length > 0 ? sizes : ['-'];
 
             const tbody = document.getElementById('combinations-body');
             tbody.innerHTML = '';
 
-            if (colors.length === 0 || sizes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted py-4">Data belum lengkap</td></tr>';
+            if (colors.length === 0 || types.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Data belum lengkap</td></tr>';
                 return;
             }
 
             let idx = 0;
             colors.forEach(c => {
-                sizes.forEach(s => {
-                    conns.forEach((conn, connIdx) => {
-                        materials.forEach((material, matIdx) => {
-                            const basePrice = parseInt(s.price) || 0;
-                            const connPrice = parseInt(connPrices[connIdx]) || 0;
-                            const materialPrice = parseInt(materialPrices[matIdx]) || 0;
-                            const totalPrice = basePrice + connPrice + materialPrice;
-                            
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td>${c}<input type="hidden" name="combinations[${idx}][warna_case]" value="${c}"></td>
-                                <td>${s.size}<input type="hidden" name="combinations[${idx}][ukuran_case]" value="${s.size}"></td>
-                                <td>${conn}<input type="hidden" name="combinations[${idx}][tipe_koneksi]" value="${conn}"></td>
-                                <td>${material}<input type="hidden" name="combinations[${idx}][material]" value="${material}"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice}" required readonly></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0" required></td>
-                                <td><span class="badge bg-secondary">Draft</span></td>
-                            `;
-                            tbody.appendChild(tr);
-                            idx++;
-                        });
+                types.forEach(t => {
+                    sizeList.forEach(s => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${c}<input type="hidden" name="combinations[${idx}][warna]" value="${c}"></td>
+                            <td>${t.name}<input type="hidden" name="combinations[${idx}][tipe]" value="${t.name}"></td>
+                            <td>${s}<input type="hidden" name="combinations[${idx}][ukuran]" value="${s}"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${t.price}" required></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0" required></td>
+                            <td><span class="badge bg-secondary">Draft</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                        idx++;
                     });
                 });
             });
@@ -534,9 +499,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         // --- Init ---
         window.addEventListener('DOMContentLoaded', () => {
             addColorOption();
+            addTypeOption();
             addSizeOption();
-            addConnectivityOption();
-            addMaterialOption();
         });
 
         // --- Submit ---
@@ -546,7 +510,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             const formData = new FormData(this);
             document.getElementById('loadingOverlay').classList.add('show');
 
-            fetch('api/api-add-watch.php', {
+            fetch('api/api-add-aksesoris.php', {
                 method: 'POST',
                 body: formData
             })
@@ -555,7 +519,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 document.getElementById('loadingOverlay').classList.remove('show');
                 if (data.success) {
                     showFeedback(data.message, 'success');
-                    setTimeout(() => window.location.href = 'watch.php', 1500);
+                    setTimeout(() => window.location.href = 'aksesoris.php', 1500);
                 } else {
                     showFeedback(data.message, 'error');
                 }
