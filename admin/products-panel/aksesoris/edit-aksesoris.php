@@ -104,7 +104,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .card-header {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border-radius: 15px 15px 0 0;
             padding: 25px;
@@ -128,7 +128,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .form-section h4 {
-            color: #27ae60;
+            color: #4a6cf7;
             border-bottom: 2px solid #eaeaea;
             padding-bottom: 10px;
             margin: 0 0 20px 0;
@@ -162,13 +162,13 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .form-control:focus, textarea.form-control:focus, select.form-control:focus {
-            border-color: #27ae60;
+            border-color: #4a6cf7;
             outline: none;
             box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.25);
         }
         
         .btn-submit {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -259,8 +259,8 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         
         .add-option-btn {
             background-color: transparent;
-            border: 2px solid #27ae60;
-            color: #27ae60;
+            border: 2px solid #4a6cf7;
+            color: #4a6cf7;
             padding: 10px 20px;
             border-radius: 8px;
             font-weight: 500;
@@ -274,7 +274,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .add-option-btn:hover {
-            background-color: #27ae60;
+            background-color: #4a6cf7;
             color: white;
         }
         
@@ -288,7 +288,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .combination-table th {
-            background: #27ae60;
+            background: #4a6cf7;
             color: white;
             padding: 12px;
             text-align: left;
@@ -344,13 +344,13 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
         }
         
         .file-upload:hover {
-            border-color: #27ae60;
+            border-color: #4a6cf7;
             background-color: #f0f4ff;
         }
         
         .file-upload i {
             font-size: 24px;
-            color: #27ae60;
+            color: #4a6cf7;
             margin-bottom: 10px;
         }
         
@@ -381,7 +381,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
             border-right-color: transparent;
             border-radius: 50%;
             animation: spinner-border 0.75s linear infinite;
-            color: #27ae60;
+            color: #4a6cf7;
         }
         
         @keyframes spinner-border {

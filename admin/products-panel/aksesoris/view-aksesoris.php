@@ -120,7 +120,7 @@ $kategori_labels = [
         }
         
         .card-header {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border-radius: 15px 15px 0 0 !important;
             padding: 25px;
@@ -173,7 +173,7 @@ $kategori_labels = [
         .stat-number {
             font-size: 24px;
             font-weight: 700;
-            color: #27ae60;
+            color: #4a6cf7;
             margin-bottom: 5px;
         }
         
@@ -240,7 +240,7 @@ $kategori_labels = [
             height: 120px;
             border-radius: 10px;
             overflow: hidden;
-            border: 3px solid #27ae60;
+            border: 3px solid #4a6cf7;
             margin-bottom: 10px;
         }
         
@@ -269,7 +269,7 @@ $kategori_labels = [
         }
         
         .btn-edit {
-            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -323,7 +323,7 @@ $kategori_labels = [
         }
 
         .section-title {
-            border-left: 4px solid #27ae60;
+            border-left: 4px solid #4a6cf7;
             padding-left: 15px;
             margin-bottom: 20px;
             color: #333;
@@ -342,7 +342,7 @@ $kategori_labels = [
         
         .kompatibel-tag {
             background-color: #e8f5e8;
-            color: #27ae60;
+            color: #4a6cf7;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
@@ -352,7 +352,7 @@ $kategori_labels = [
         }
         
         .kategori-badge {
-            background-color: #27ae60;
+            background-color: #4a6cf7;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;

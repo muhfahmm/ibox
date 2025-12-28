@@ -109,7 +109,7 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
         }
         
         .card-header {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border-radius: 15px 15px 0 0 !important;
             padding: 25px;
@@ -162,7 +162,7 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
         .stat-number {
             font-size: 24px;
             font-weight: 700;
-            color: #3498db;
+            color: #4a6cf7;
             margin-bottom: 5px;
         }
         
@@ -229,7 +229,7 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
             height: 120px;
             border-radius: 10px;
             overflow: hidden;
-            border: 3px solid #3498db;
+            border: 3px solid #4a6cf7;
             margin-bottom: 10px;
         }
         
@@ -258,7 +258,7 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
         }
         
         .btn-edit {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -312,7 +312,7 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
         }
 
         .section-title {
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #4a6cf7;
             padding-left: 15px;
             margin-bottom: 20px;
             color: #333;

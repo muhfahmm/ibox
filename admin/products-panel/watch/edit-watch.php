@@ -98,7 +98,7 @@ $initialData = [
         }
         
         .card-header {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border-radius: 15px 15px 0 0;
             padding: 25px;
@@ -122,7 +122,7 @@ $initialData = [
         }
         
         .form-section h4 {
-            color: #3498db;
+            color: #4a6cf7;
             border-bottom: 2px solid #eaeaea;
             padding-bottom: 10px;
             margin: 0 0 20px 0;
@@ -156,13 +156,13 @@ $initialData = [
         }
         
         .form-control:focus, textarea.form-control:focus {
-            border-color: #3498db;
+            border-color: #4a6cf7;
             outline: none;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.25);
         }
         
         .btn-submit {
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -253,8 +253,8 @@ $initialData = [
         
         .add-option-btn {
             background-color: transparent;
-            border: 2px solid #3498db;
-            color: #3498db;
+            border: 2px solid #4a6cf7;
+            color: #4a6cf7;
             padding: 10px 20px;
             border-radius: 8px;
             font-weight: 500;
@@ -268,7 +268,7 @@ $initialData = [
         }
         
         .add-option-btn:hover {
-            background-color: #3498db;
+            background-color: #4a6cf7;
             color: white;
         }
         
@@ -282,7 +282,7 @@ $initialData = [
         }
         
         .combination-table th {
-            background: #3498db;
+            background: #4a6cf7;
             color: white;
             padding: 12px;
             text-align: left;
@@ -338,13 +338,13 @@ $initialData = [
         }
         
         .file-upload:hover {
-            border-color: #3498db;
+            border-color: #4a6cf7;
             background-color: #f0f4ff;
         }
         
         .file-upload i {
             font-size: 24px;
-            color: #3498db;
+            color: #4a6cf7;
             margin-bottom: 10px;
         }
         
@@ -375,7 +375,7 @@ $initialData = [
             border-right-color: transparent;
             border-radius: 50%;
             animation: spinner-border 0.75s linear infinite;
-            color: #3498db;
+            color: #4a6cf7;
         }
         
         @keyframes spinner-border {
