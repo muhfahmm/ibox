@@ -38,6 +38,7 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -383,7 +384,9 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             gap: 8px;
         }
 
-        .btn-edit, .btn-delete, .btn-view {
+        .btn-edit,
+        .btn-delete,
+        .btn-view {
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
@@ -476,11 +479,11 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             .action-buttons {
                 flex-direction: column;
             }
-            
+
             .product-info {
                 flex-direction: column;
             }
-            
+
             .product-stats {
                 flex-direction: column;
                 gap: 5px;
@@ -488,6 +491,7 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -566,6 +570,79 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                         </li>
                     </ul>
                 </div>
+
+                <div class="menu-section">
+                    <h3 class="section-title">Homepage Panel</h3>
+                    <ul>
+                        <li>
+                            <a href="../../homepage-panel/image-slider/image-slider.php">
+                                <i class="fas fa-images"></i>
+                                <span>Image slider</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
+                                <i class="fas fa-fire"></i>
+                                <span>Produk Apple Populer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
+                                <i class="fas fa-bolt"></i>
+                                <span>Produk Terbaru</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/image-grid/image-grid.php">
+                                <i class="fas fa-th"></i>
+                                <span>Image grid</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/trade-in/trade-in.php">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>Trade in</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
+                                <i class="fas fa-gem"></i>
+                                <span>Aksesori unggulan</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Checkout sekarang</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="menu-section">
+                    <h3 class="section-title">Lainnya</h3>
+                    <ul>
+                        <li>
+                            <a href="../../other/users/users.php">
+                                <i class="fas fa-users"></i>
+                                <span>Pengguna</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/orders/order.php">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Pesanan</span>
+                                <span class="badge badge-warning">5</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/settings/settings.php">
+                                <i class="fas fa-cog"></i>
+                                <span>Pengaturan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class="sidebar-footer">
@@ -597,7 +674,7 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                 </div>
                 <div class="card-body">
                     <div class="table-container">
-                        <?php if(mysqli_num_rows($result) > 0): ?>
+                        <?php if (mysqli_num_rows($result) > 0): ?>
                             <table>
                                 <thead>
                                     <tr>
@@ -611,115 +688,115 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                                 </thead>
                                 <tbody>
                                     <?php $no = 1; ?>
-                                    <?php while($product = mysqli_fetch_assoc($result)): 
+                                    <?php while ($product = mysqli_fetch_assoc($result)):
                                         // Ambil thumbnail pertama untuk produk
                                         $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_mac_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
                                         $result_thumbnail = mysqli_query($db, $query_thumbnail);
                                         $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-                                        
+
                                         // Ambil semua warna untuk produk ini
                                         $query_warna = "SELECT DISTINCT warna FROM admin_produk_mac_kombinasi WHERE produk_id = '{$product['id']}'";
                                         $result_warna = mysqli_query($db, $query_warna);
                                         $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-                                        
+
                                         // Check if product has stock
                                         $has_stock = $product['total_stok'] > 0;
                                     ?>
-                                    <tr>
-                                        <td><?php echo $no++; ?></td>
-                                        <td>
-                                            <div class="product-info">
-                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
-                                                         alt="Thumbnail" class="thumbnail-img">
-                                                <?php else: ?>
-                                                    <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                                                        <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                        <tr>
+                                            <td><?php echo $no++; ?></td>
+                                            <td>
+                                                <div class="product-info">
+                                                    <?php if (!empty($thumbnail['foto_thumbnail'])): ?>
+                                                        <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>"
+                                                            alt="Thumbnail" class="thumbnail-img">
+                                                    <?php else: ?>
+                                                        <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="product-details">
+                                                        <div class="product-title">
+                                                            <?php echo htmlspecialchars($product['nama_produk']); ?>
+                                                        </div>
+                                                        <div class="product-desc">
+                                                            <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
+                                                        </div>
+                                                        <div class="product-stats">
+                                                            <span class="stat-badge">
+                                                                <i class="fas fa-palette"></i>
+                                                                <?php echo $product['total_warna']; ?> Warna
+                                                            </span>
+                                                            <span class="stat-badge">
+                                                                <i class="fas fa-layer-group"></i>
+                                                                <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                            </span>
+                                                            <?php if (count($warna_list) > 0): ?>
+                                                                <span class="stat-badge">
+                                                                    <i class="fas fa-tags"></i>
+                                                                    <?php
+                                                                    $warna_names = array_column($warna_list, 'warna');
+                                                                    echo implode(', ', array_slice($warna_names, 0, 2));
+                                                                    if (count($warna_names) > 2) echo '...';
+                                                                    ?>
+                                                                </span>
+                                                            <?php endif; ?>
+                                                        </div>
                                                     </div>
-                                                <?php endif; ?>
-                                                <div class="product-details">
-                                                    <div class="product-title">
-                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                                                    </div>
-                                                    <div class="product-desc">
-                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                                                    </div>
-                                                    <div class="product-stats">
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-palette"></i>
-                                                            <?php echo $product['total_warna']; ?> Warna
-                                                        </span>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-layer-group"></i>
-                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                        </span>
-                                                        <?php if(count($warna_list) > 0): ?>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-tags"></i>
-                                                            <?php 
-                                                            $warna_names = array_column($warna_list, 'warna');
-                                                            echo implode(', ', array_slice($warna_names, 0, 2));
-                                                            if(count($warna_names) > 2) echo '...';
-                                                            ?>
-                                                        </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="product-stats">
+                                                    <span class="stat-badge">
+                                                        <i class="fas fa-boxes"></i>
+                                                        <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                    </span>
+                                                    <span class="stat-badge">
+                                                        <i class="fas fa-palette"></i>
+                                                        <?php echo $product['total_warna']; ?> Warna
+                                                    </span>
+                                                    <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
+                                                        <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php if ($product['harga_terendah']): ?>
+                                                    <div class="price-range">
+                                                        Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
+                                                        <?php if ($product['harga_tertinggi'] > $product['harga_terendah']): ?>
+                                                            - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
                                                         <?php endif; ?>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="product-stats">
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-boxes"></i>
-                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                </span>
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-palette"></i>
-                                                    <?php echo $product['total_warna']; ?> Warna
-                                                </span>
-                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php if($product['harga_terendah']): ?>
-                                                <div class="price-range">
-                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
-                                                    <?php endif; ?>
+                                                    <small class="text-muted">
+                                                        Mulai dari
+                                                    </small>
+                                                <?php else: ?>
+                                                    <span class="text-muted">Belum ada harga</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
+                                                    <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
                                                 </div>
                                                 <small class="text-muted">
-                                                    Mulai dari
+                                                    Stok total semua kombinasi
                                                 </small>
-                                            <?php else: ?>
-                                                <span class="text-muted">Belum ada harga</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-                                            </div>
-                                            <small class="text-muted">
-                                                Stok total semua kombinasi
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <a href="view-mac.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                                                    <i class="fas fa-eye"></i> Lihat
-                                                </a>
-                                                <a href="edit-mac.php?id=<?php echo $product['id']; ?>" class="btn-edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete-mac.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="view-mac.php?id=<?php echo $product['id']; ?>" class="btn-view">
+                                                        <i class="fas fa-eye"></i> Lihat
+                                                    </a>
+                                                    <a href="edit-mac.php?id=<?php echo $product['id']; ?>" class="btn-edit">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="delete-mac.php?id=<?php echo $product['id']; ?>" class="btn-delete"
+                                                        onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
@@ -751,4 +828,5 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
         }, 30 * 60 * 1000);
     </script>
 </body>
+
 </html>

@@ -576,7 +576,78 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                     </ul>
                 </div>
 
-                <!-- Other menu sections... -->
+                                <div class="menu-section">
+                    <h3 class="section-title">Homepage Panel</h3>
+                    <ul>
+                        <li>
+                            <a href="../../homepage-panel/image-slider/image-slider.php">
+                                <i class="fas fa-images"></i>
+                                <span>Image slider</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
+                                <i class="fas fa-fire"></i>
+                                <span>Produk Apple Populer</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
+                                <i class="fas fa-bolt"></i>
+                                <span>Produk Terbaru</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/image-grid/image-grid.php">
+                                <i class="fas fa-th"></i>
+                                <span>Image grid</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/trade-in/trade-in.php">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>Trade in</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
+                                <i class="fas fa-gem"></i>
+                                <span>Aksesori unggulan</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Checkout sekarang</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="menu-section">
+                    <h3 class="section-title">Lainnya</h3>
+                    <ul>
+                        <li>
+                            <a href="../../other/users/users.php">
+                                <i class="fas fa-users"></i>
+                                <span>Pengguna</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/orders/order.php">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Pesanan</span>
+                                <span class="badge badge-warning">5</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/settings/settings.php">
+                                <i class="fas fa-cog"></i>
+                                <span>Pengaturan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
             <div class="sidebar-footer">

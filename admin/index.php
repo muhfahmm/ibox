@@ -1,4 +1,5 @@
 <?php
+require 'db.php';
 session_start();
 
 // Jika belum login, redirect ke login
@@ -8,6 +9,29 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Ambil data produk Aksesoris dengan kombinasi
+$query = "SELECT p.*, 
+                 COUNT(DISTINCT k.id) as total_kombinasi,
+                 COUNT(DISTINCT g.id) as total_warna,
+                 MIN(k.harga) as harga_terendah,
+                 MAX(k.harga) as harga_tertinggi,
+                 SUM(k.jumlah_stok) as total_stok
+          FROM admin_produk_aksesoris p
+          LEFT JOIN admin_produk_aksesoris_kombinasi k ON p.id = k.produk_id
+          LEFT JOIN admin_produk_aksesoris_gambar g ON p.id = g.produk_id
+          GROUP BY p.id
+          ORDER BY p.id DESC";
+$result = mysqli_query($db, $query);
+
+// Hitung jumlah produk untuk sidebar
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -309,21 +333,21 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <a href="products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
-                                <span class="badge">8</span>
+                                <span class="badge"><?php echo $ipad_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
-                                <span class="badge">24</span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
-                                <span class="badge">12</span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
 
@@ -331,14 +355,14 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <a href="products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
-                                <span class="badge">10</span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
 
@@ -346,14 +370,14 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <a href="products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $airtag_count; ?></span>
                             </a>
                         </li>
                     </ul>
