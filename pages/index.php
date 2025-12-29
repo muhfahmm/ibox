@@ -24,16 +24,17 @@
 <body>
     <?php require 'include/1-navbar-header.php'; ?>
     <?php require 'include/2-img-slider-header.php'; ?>
-    <?php require 'include/3-all-products.php'; ?>
-    <?php require 'include/4-product-grid.php'; ?>
-    <?php require 'include/5-trade-in.php'; ?>
-    <?php require 'include/6-layanan-dan-penawaran.php'; ?>
-    <?php require 'include/7-aksesori.php';?>
-    <?php require 'include/8-kelas-dan-layanan.php'; ?>
-    <?php require 'include/9-layanan-lengkap-untuk-anda.php'; ?>
-    <?php require 'include/10-apple-care.php'; ?>
-    <?php require 'include/11-checkout-now.php'; ?>
-    <?php require 'include/12-footer.php'; ?>
+    <?php require 'include/3-category-products.php'; ?>
+    <?php require 'include/4-all-products.php'; ?>
+    <?php require 'include/5-product-grid.php'; ?>
+    <?php require 'include/6-trade-in.php'; ?>
+    <?php require 'include/7-layanan-dan-penawaran.php'; ?>
+    <?php require 'include/8-aksesori.php'; ?>
+    <?php require 'include/9-kelas-dan-layanan.php'; ?>
+    <?php require 'include/10-layanan-lengkap-untuk-anda.php'; ?>
+    <?php require 'include/11-apple-care.php'; ?>
+    <?php require 'include/12-checkout-now.php'; ?>
+    <?php require 'include/13-footer.php'; ?>
 </body>
 
 </html>
