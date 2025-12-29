@@ -11,25 +11,25 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 // Handle delete action
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    
+
     // Ambil data slider untuk mendapatkan nama file gambar
     $query = "SELECT * FROM admin_homepage_slider WHERE id = $id";
     $result = mysqli_query($db, $query);
-    
+
     if ($result && mysqli_num_rows($result) > 0) {
         $slider = mysqli_fetch_assoc($result);
         $image_file = $slider['gambar'];
-        
+
         // Hapus file gambar jika ada
         if ($image_file) {
             $upload_dir = '../../../uploads/slider/';
             $image_path = $upload_dir . $image_file;
-            
+
             if (file_exists($image_path)) {
                 unlink($image_path);
             }
         }
-        
+
         // Hapus dari database
         $delete_query = "DELETE FROM admin_homepage_slider WHERE id = $id";
         if (mysqli_query($db, $delete_query)) {
@@ -38,7 +38,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
             $_SESSION['error_message'] = "Gagal menghapus slider: " . mysqli_error($db);
         }
     }
-    
+
     header("Location: image-slider.php");
     exit();
 }
@@ -46,15 +46,15 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
 // Handle status toggle
 if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-    
+
     // Get current status
     $query = "SELECT status FROM admin_homepage_slider WHERE id = $id";
     $result = mysqli_query($db, $query);
-    
+
     if ($result && mysqli_num_rows($result) > 0) {
         $slider = mysqli_fetch_assoc($result);
         $new_status = $slider['status'] == 'active' ? 'inactive' : 'active';
-        
+
         $update_query = "UPDATE admin_homepage_slider SET status = '$new_status', updated_at = NOW() WHERE id = $id";
         if (mysqli_query($db, $update_query)) {
             $_SESSION['success_message'] = "Status slider berhasil diubah!";
@@ -62,13 +62,39 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
             $_SESSION['error_message'] = "Gagal mengubah status: " . mysqli_error($db);
         }
     }
-    
+
     header("Location: image-slider.php");
     exit();
 }
+
+// Ambil data produk Mac dengan kombinasi
+$query = "SELECT p.*, 
+                 COUNT(DISTINCT k.id) as total_kombinasi,
+                 COUNT(DISTINCT g.id) as total_warna,
+                 MIN(k.harga) as harga_terendah,
+                 MAX(k.harga) as harga_tertinggi,
+                 SUM(k.jumlah_stok) as total_stok
+          FROM admin_produk_mac p
+          LEFT JOIN admin_produk_mac_kombinasi k ON p.id = k.produk_id
+          LEFT JOIN admin_produk_mac_gambar g ON p.id = g.produk_id
+          GROUP BY p.id
+          ORDER BY p.id DESC";
+$result = mysqli_query($db, $query);
+
+// Hitung jumlah produk Mac
+$mac_count = mysqli_num_rows($result);
+
+// Hitung jumlah produk kategori lain untuk sidebar
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -411,12 +437,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
         }
 
         /* Table Styles */
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            margin-top: 20px;
+                .table-container {
+            overflow-x: auto;
         }
 
         table {
@@ -424,25 +446,33 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
             border-collapse: collapse;
         }
 
-        thead {
-            background-color: #f8f9fa;
+        table thead {
+            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
+            color: white;
         }
 
-        th {
+        table thead th {
             padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: #2c3e50;
-            border-bottom: 2px solid #e0e0e0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        td {
-            padding: 15px;
+        table tbody tr {
             border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s ease;
         }
 
-        tr:hover {
-            background-color: #f9f9f9;
+        table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        table tbody td {
+            padding: 15px;
+            font-size: 15px;
+            vertical-align: top;
         }
 
         /* Image Preview */
@@ -561,6 +591,31 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
             margin-bottom: 20px;
         }
 
+        .badge {
+            background-color: #4a6cf7;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .badge-warning {
+            background-color: #ff9800;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+        }
+
         /* Responsive Styles */
         @media (max-width: 768px) {
             .admin-container {
@@ -590,13 +645,14 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                 display: block;
                 overflow-x: auto;
             }
-            
+
             .action-buttons-cell {
                 flex-wrap: wrap;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <aside class="sidebar">
@@ -612,57 +668,64 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                     <h3 class="section-title">Panel Produk</h3>
                     <ul>
                         <li>
-                            <a href="../../../index.php">
+                            <a href="../../index.php">
                                 <i class="fas fa-tachometer-alt"></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/categories/kategori.php">
+                            <a href="../../products-panel/categories/kategori.php">
                                 <i class="fas fa-tags"></i>
                                 <span>Kategori</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/ipad/ipad.php">
+                            <a href="../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
+                                <span class="badge"><?php echo $ipad_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/iphone/iphone.php">
+                            <a href="../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/mac/mac.php">
+                            <a href="mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/music/music.php">
+                            <a href="../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/watch/watch.php">
+                            <a href="../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/aksesoris/aksesoris.php">
+                            <a href="../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/airtag/airtag.php">
+                            <a href="../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
+                                <span class="badge"><?php echo $airtag_count; ?></span>
                             </a>
                         </li>
                     </ul>
@@ -672,45 +735,45 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                     <h3 class="section-title">Homepage Panel</h3>
                     <ul>
                         <li class="active">
-                            <a href="#">
+                            <a href="../../homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../produk-populer/produk-populer.php">
+                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
-                                <span>Produk Populer</span>
+                                <span>Produk Apple Populer</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../produk-terbaru/produk-terbaru.php">
+                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../image-grid/image-grid.php">
+                            <a href="../../homepage-panel/image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../trade-in/trade-in.php">
+                            <a href="../../homepage-panel/trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../aksesori-unggulan/aksesori-unggulan.php">
+                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
-                                <span>Aksesori Unggulan</span>
+                                <span>Aksesori unggulan</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../chekout-sekarang/chekout-sekarang.php">
+                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
-                                <span>Checkout Sekarang</span>
+                                <span>Checkout sekarang</span>
                             </a>
                         </li>
                     </ul>
@@ -720,19 +783,20 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                     <h3 class="section-title">Lainnya</h3>
                     <ul>
                         <li>
-                            <a href="../../../other/users/users.php">
+                            <a href="../../other/users/users.php">
                                 <i class="fas fa-users"></i>
                                 <span>Pengguna</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../other/orders/order.php">
+                            <a href="../../other/orders/order.php">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Pesanan</span>
+                                <span class="badge badge-warning">5</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../../other/settings/settings.php">
+                            <a href="../../other/settings/settings.php">
                                 <i class="fas fa-cog"></i>
                                 <span>Pengaturan</span>
                             </a>
@@ -777,8 +841,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    <?php 
-                    echo $_SESSION['success_message']; 
+                    <?php
+                    echo $_SESSION['success_message'];
                     unset($_SESSION['success_message']);
                     ?>
                 </div>
@@ -787,8 +851,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
             <?php if (isset($_SESSION['error_message'])): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
-                    <?php 
-                    echo $_SESSION['error_message']; 
+                    <?php
+                    echo $_SESSION['error_message'];
                     unset($_SESSION['error_message']);
                     ?>
                 </div>
@@ -801,11 +865,11 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                 $total_query = "SELECT COUNT(*) as total FROM admin_homepage_slider";
                 $active_query = "SELECT COUNT(*) as active FROM admin_homepage_slider WHERE status = 'active'";
                 $inactive_query = "SELECT COUNT(*) as inactive FROM admin_homepage_slider WHERE status = 'inactive'";
-                
+
                 $total_result = mysqli_query($db, $total_query);
                 $active_result = mysqli_query($db, $active_query);
                 $inactive_result = mysqli_query($db, $inactive_query);
-                
+
                 $total = mysqli_fetch_assoc($total_result)['total'];
                 $active = mysqli_fetch_assoc($active_result)['active'];
                 $inactive = mysqli_fetch_assoc($inactive_result)['inactive'];
@@ -844,7 +908,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                 <?php
                 $query = "SELECT * FROM admin_homepage_slider ORDER BY urutan ASC, created_at DESC";
                 $result = mysqli_query($db, $query);
-                
+
                 if (mysqli_num_rows($result) > 0) {
                 ?>
                     <table>
@@ -870,17 +934,17 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                                 <tr>
                                     <td><?php echo $no++; ?></td>
                                     <td>
-                                        <img src="<?php echo $image_exists; ?>" 
-                                             class="slider-image" 
-                                             alt="<?php echo htmlspecialchars($row['judul']); ?>"
-                                             title="Klik untuk memperbesar">
+                                        <img src="<?php echo $image_exists; ?>"
+                                            class="slider-image"
+                                            alt="<?php echo htmlspecialchars($row['judul']); ?>"
+                                            title="Klik untuk memperbesar">
                                     </td>
                                     <td><?php echo htmlspecialchars($row['judul']); ?></td>
                                     <td>
-                                        <?php 
+                                        <?php
                                         if (!empty($row['deskripsi'])) {
-                                            echo strlen($row['deskripsi']) > 50 
-                                                ? substr(htmlspecialchars($row['deskripsi']), 0, 50) . '...' 
+                                            echo strlen($row['deskripsi']) > 50
+                                                ? substr(htmlspecialchars($row['deskripsi']), 0, 50) . '...'
                                                 : htmlspecialchars($row['deskripsi']);
                                         } else {
                                             echo '-';
@@ -889,9 +953,9 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                                     </td>
                                     <td>
                                         <?php if (!empty($row['link'])): ?>
-                                            <a href="<?php echo htmlspecialchars($row['link']); ?>" 
-                                               target="_blank" 
-                                               style="color: #4a6cf7; text-decoration: none;">
+                                            <a href="<?php echo htmlspecialchars($row['link']); ?>"
+                                                target="_blank"
+                                                style="color: #4a6cf7; text-decoration: none;">
                                                 <i class="fas fa-external-link-alt"></i> Link
                                             </a>
                                         <?php else: ?>
@@ -906,26 +970,26 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                                     </td>
                                     <td>
                                         <div class="action-buttons-cell">
-                                            <a href="view-image-slider.php?id=<?php echo $row['id']; ?>" 
-                                               class="btn-icon btn-view" 
-                                               title="Lihat Detail">
+                                            <a href="view-image-slider.php?id=<?php echo $row['id']; ?>"
+                                                class="btn-icon btn-view"
+                                                title="Lihat Detail">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="edit-image-slider.php?id=<?php echo $row['id']; ?>" 
-                                               class="btn-icon btn-edit" 
-                                               title="Edit">
+                                            <a href="edit-image-slider.php?id=<?php echo $row['id']; ?>"
+                                                class="btn-icon btn-edit"
+                                                title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="image-slider.php?action=toggle_status&id=<?php echo $row['id']; ?>" 
-                                               class="btn-icon btn-toggle" 
-                                               title="<?php echo $row['status'] == 'active' ? 'Nonaktifkan' : 'Aktifkan'; ?>"
-                                               onclick="return confirm('Yakin ingin mengubah status slider ini?')">
+                                            <a href="image-slider.php?action=toggle_status&id=<?php echo $row['id']; ?>"
+                                                class="btn-icon btn-toggle"
+                                                title="<?php echo $row['status'] == 'active' ? 'Nonaktifkan' : 'Aktifkan'; ?>"
+                                                onclick="return confirm('Yakin ingin mengubah status slider ini?')">
                                                 <i class="fas fa-power-off"></i>
                                             </a>
-                                            <a href="image-slider.php?action=delete&id=<?php echo $row['id']; ?>" 
-                                               class="btn-icon btn-delete" 
-                                               title="Hapus"
-                                               onclick="return confirm('Yakin ingin menghapus slider ini? Tindakan ini tidak dapat dibatalkan.')">
+                                            <a href="image-slider.php?action=delete&id=<?php echo $row['id']; ?>"
+                                                class="btn-icon btn-delete"
+                                                title="Hapus"
+                                                onclick="return confirm('Yakin ingin menghapus slider ini? Tindakan ini tidak dapat dibatalkan.')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -973,7 +1037,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
                     this.style.zIndex = '100';
                     this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
                 });
-                
+
                 img.addEventListener('mouseleave', function() {
                     this.style.zIndex = '';
                     this.style.boxShadow = '';
@@ -982,4 +1046,5 @@ if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET[
         });
     </script>
 </body>
+
 </html>
