@@ -27,13 +27,35 @@ $result = mysqli_query($db, $query);
 // Hitung jumlah produk AirTag
 $airtag_count = mysqli_num_rows($result);
 
-// Hitung jumlah produk kategori lain untuk sidebar
-$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
-$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
-$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
-$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
-$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
-$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+// Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
+$tables = [
+    'iphone' => 'admin_produk_iphone',
+    'ipad' => 'admin_produk_ipad',
+    'mac' => 'admin_produk_mac',
+    'watch' => 'admin_produk_watch',
+    'music' => 'admin_produk_music',
+    'aksesoris' => 'admin_produk_aksesoris'
+];
+
+// Array untuk menyimpan jumlah dan ID pertama setiap kategori
+$category_data = [];
+
+foreach ($tables as $key => $table_name) {
+    $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
+    $count_result = mysqli_query($db, $count_query);
+    $data = mysqli_fetch_assoc($count_result);
+    
+    $category_data[$key] = [
+        'count' => $data['total'],
+        'first_id' => $data['first_id']
+    ];
+}
+
+// Dapatkan ID pertama untuk AirTag
+$airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
+$airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
+$airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
+$airtag_first_id = $airtag_first_id_data['first_id'];
 ?>
 
 <!DOCTYPE html>
@@ -500,49 +522,49 @@ $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as tota
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/ipad/ipad.php">
+                            <a href="../../products-panel/ipad/ipad.php<?php echo $category_data['ipad']['first_id'] ? '?id=' . $category_data['ipad']['first_id'] : ''; ?>">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
-                                <span class="badge"><?php echo $ipad_count; ?></span>
+                                <span class="badge"><?php echo $category_data['ipad']['count']; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/iphone/iphone.php">
+                            <a href="../../products-panel/iphone/iphone.php<?php echo $category_data['iphone']['first_id'] ? '?id=' . $category_data['iphone']['first_id'] : ''; ?>">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
-                                <span class="badge"><?php echo $iphone_count; ?></span>
+                                <span class="badge"><?php echo $category_data['iphone']['count']; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/mac/mac.php">
+                            <a href="../../products-panel/mac/mac.php<?php echo $category_data['mac']['first_id'] ? '?id=' . $category_data['mac']['first_id'] : ''; ?>">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
-                                <span class="badge"><?php echo $mac_count; ?></span>
+                                <span class="badge"><?php echo $category_data['mac']['count']; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/music/music.php">
+                            <a href="../../products-panel/music/music.php<?php echo $category_data['music']['first_id'] ? '?id=' . $category_data['music']['first_id'] : ''; ?>">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
-                                <span class="badge"><?php echo $music_count; ?></span>
+                                <span class="badge"><?php echo $category_data['music']['count']; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/watch/watch.php">
+                            <a href="../../products-panel/watch/watch.php<?php echo $category_data['watch']['first_id'] ? '?id=' . $category_data['watch']['first_id'] : ''; ?>">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
-                                <span class="badge"><?php echo $watch_count; ?></span>
+                                <span class="badge"><?php echo $category_data['watch']['count']; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/aksesoris/aksesoris.php">
+                            <a href="../../products-panel/aksesoris/aksesoris.php<?php echo $category_data['aksesoris']['first_id'] ? '?id=' . $category_data['aksesoris']['first_id'] : ''; ?>">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
-                                <span class="badge"><?php echo $aksesoris_count; ?></span>
+                                <span class="badge"><?php echo $category_data['aksesoris']['count']; ?></span>
                             </a>
                         </li>
                         <li class="active">
-                            <a href="airtag.php">
+                            <a href="airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
                                 <span class="badge"><?php echo $airtag_count; ?></span>
@@ -551,7 +573,7 @@ $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as tota
                     </ul>
                 </div>
 
-                                <div class="menu-section">
+                <div class="menu-section">
                     <h3 class="section-title">Homepage Panel</h3>
                     <ul>
                         <li>
@@ -658,7 +680,7 @@ $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as tota
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>No</th>
+                                        <th>ID</th>
                                         <th>Produk</th>
                                         <th>Statistik</th>
                                         <th>Harga Range</th>
@@ -667,7 +689,6 @@ $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as tota
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php $no = 1; ?>
                                     <?php while($product = mysqli_fetch_assoc($result)): 
                                         // Ambil thumbnail pertama untuk produk
                                         $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
@@ -683,7 +704,7 @@ $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as tota
                                         $has_stock = $product['total_stok'] > 0;
                                     ?>
                                     <tr>
-                                        <td><?php echo $no++; ?></td>
+                                        <td><strong>#<?php echo $product['id']; ?></strong></td>
                                         <td>
                                             <div class="product-info">
                                                 <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
