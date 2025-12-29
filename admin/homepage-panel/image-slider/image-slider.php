@@ -8,93 +8,55 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
+// Ambil data admin untuk sidebar
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Hitung jumlah produk kategori lain untuk sidebar
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
+
 // Handle delete action
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
     $id = intval($_GET['id']);
-
+    
     // Ambil data slider untuk mendapatkan nama file gambar
-    $query = "SELECT * FROM admin_homepage_slider WHERE id = $id";
+    $query = "SELECT * FROM home_image_slider WHERE id = $id";
     $result = mysqli_query($db, $query);
-
+    
     if ($result && mysqli_num_rows($result) > 0) {
         $slider = mysqli_fetch_assoc($result);
-        $image_file = $slider['gambar'];
-
+        $image_file = $slider['gambar_produk'];
+        
         // Hapus file gambar jika ada
         if ($image_file) {
             $upload_dir = '../../../uploads/slider/';
             $image_path = $upload_dir . $image_file;
-
+            
             if (file_exists($image_path)) {
                 unlink($image_path);
             }
         }
-
+        
         // Hapus dari database
-        $delete_query = "DELETE FROM admin_homepage_slider WHERE id = $id";
+        $delete_query = "DELETE FROM home_image_slider WHERE id = $id";
         if (mysqli_query($db, $delete_query)) {
             $_SESSION['success_message'] = "Slider berhasil dihapus!";
         } else {
             $_SESSION['error_message'] = "Gagal menghapus slider: " . mysqli_error($db);
         }
     }
-
+    
     header("Location: image-slider.php");
     exit();
 }
-
-// Handle status toggle
-if (isset($_GET['action']) && $_GET['action'] == 'toggle_status' && isset($_GET['id'])) {
-    $id = intval($_GET['id']);
-
-    // Get current status
-    $query = "SELECT status FROM admin_homepage_slider WHERE id = $id";
-    $result = mysqli_query($db, $query);
-
-    if ($result && mysqli_num_rows($result) > 0) {
-        $slider = mysqli_fetch_assoc($result);
-        $new_status = $slider['status'] == 'active' ? 'inactive' : 'active';
-
-        $update_query = "UPDATE admin_homepage_slider SET status = '$new_status', updated_at = NOW() WHERE id = $id";
-        if (mysqli_query($db, $update_query)) {
-            $_SESSION['success_message'] = "Status slider berhasil diubah!";
-        } else {
-            $_SESSION['error_message'] = "Gagal mengubah status: " . mysqli_error($db);
-        }
-    }
-
-    header("Location: image-slider.php");
-    exit();
-}
-
-// Ambil data produk Mac dengan kombinasi
-$query = "SELECT p.*, 
-                 COUNT(DISTINCT k.id) as total_kombinasi,
-                 COUNT(DISTINCT g.id) as total_warna,
-                 MIN(k.harga) as harga_terendah,
-                 MAX(k.harga) as harga_tertinggi,
-                 SUM(k.jumlah_stok) as total_stok
-          FROM admin_produk_mac p
-          LEFT JOIN admin_produk_mac_kombinasi k ON p.id = k.produk_id
-          LEFT JOIN admin_produk_mac_gambar g ON p.id = g.produk_id
-          GROUP BY p.id
-          ORDER BY p.id DESC";
-$result = mysqli_query($db, $query);
-
-// Hitung jumlah produk Mac
-$mac_count = mysqli_num_rows($result);
-
-// Hitung jumlah produk kategori lain untuk sidebar
-$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
-$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
-$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
-$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
-$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
-$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -213,6 +175,31 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             font-weight: 400;
         }
 
+        .badge {
+            background-color: #4a6cf7;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        .badge-warning {
+            background-color: #ff9800;
+        }
+
+        .badge-success {
+            background-color: #28a745;
+        }
+
+        .badge-danger {
+            background-color: #dc3545;
+        }
+
+        .badge-info {
+            background-color: #17a2b8;
+        }
+
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -247,6 +234,7 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             color: rgba(255, 255, 255, 0.6);
             font-size: 18px;
             transition: color 0.3s;
+            text-decoration: none;
         }
 
         .logout-btn:hover {
@@ -333,33 +321,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             background-color: #c82333;
         }
 
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-        .btn-info {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .btn-info:hover {
-            background-color: #138496;
-        }
-
         /* Alert Messages */
         .alert {
             padding: 15px;
@@ -415,16 +376,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             color: #4a6cf7;
         }
 
-        .stat-icon.active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-
-        .stat-icon.inactive {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
-        }
-
         .stat-info h3 {
             font-size: 24px;
             font-weight: 600;
@@ -437,8 +388,12 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
         }
 
         /* Table Styles */
-                .table-container {
-            overflow-x: auto;
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
         }
 
         table {
@@ -446,33 +401,25 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             border-collapse: collapse;
         }
 
-        table thead {
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-        }
-
-        table thead th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
-        }
-
-        table tbody tr:hover {
+        thead {
             background-color: #f8f9fa;
         }
 
-        table tbody td {
+        th {
             padding: 15px;
-            font-size: 15px;
-            vertical-align: top;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
         }
 
         /* Image Preview */
@@ -489,25 +436,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             transform: scale(1.5);
             z-index: 10;
             position: relative;
-        }
-
-        /* Status Badge */
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-active {
-            background-color: rgba(76, 175, 80, 0.1);
-            color: #4caf50;
-        }
-
-        .status-inactive {
-            background-color: rgba(244, 67, 54, 0.1);
-            color: #f44336;
         }
 
         /* Action Buttons in Table */
@@ -559,16 +487,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             color: white;
         }
 
-        .btn-toggle {
-            background-color: rgba(255, 193, 7, 0.1);
-            color: #ffc107;
-        }
-
-        .btn-toggle:hover {
-            background-color: #ffc107;
-            color: #212529;
-        }
-
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -589,31 +507,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
         .empty-state p {
             color: #95a5a6;
             margin-bottom: 20px;
-        }
-
-        .badge {
-            background-color: #4a6cf7;
-            color: white;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-left: auto;
-        }
-
-        .badge-warning {
-            background-color: #ff9800;
-        }
-
-        .badge-success {
-            background-color: #28a745;
-        }
-
-        .badge-danger {
-            background-color: #dc3545;
-        }
-
-        .badge-info {
-            background-color: #17a2b8;
         }
 
         /* Responsive Styles */
@@ -645,14 +538,13 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                 display: block;
                 overflow-x: auto;
             }
-
+            
             .action-buttons-cell {
                 flex-wrap: wrap;
             }
         }
     </style>
 </head>
-
 <body>
     <div class="admin-container">
         <aside class="sidebar">
@@ -694,7 +586,7 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                             </a>
                         </li>
                         <li>
-                            <a href="mac.php">
+                            <a href="../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
                                 <span class="badge"><?php echo $mac_count; ?></span>
@@ -735,45 +627,45 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                     <h3 class="section-title">Homepage Panel</h3>
                     <ul>
                         <li class="active">
-                            <a href="../../homepage-panel/image-slider/image-slider.php">
+                            <a href="#">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
+                            <a href="../produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
-                                <span>Produk Apple Populer</span>
+                                <span>Produk Populer</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
+                            <a href="../produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/image-grid/image-grid.php">
+                            <a href="../image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/trade-in/trade-in.php">
+                            <a href="../trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
+                            <a href="../aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
-                                <span>Aksesori unggulan</span>
+                                <span>Aksesori Unggulan</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
+                            <a href="../chekout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
-                                <span>Checkout sekarang</span>
+                                <span>Checkout Sekarang</span>
                             </a>
                         </li>
                     </ul>
@@ -783,20 +675,20 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                     <h3 class="section-title">Lainnya</h3>
                     <ul>
                         <li>
-                            <a href="../../other/users/users.php">
+                            <a href="../../../other/users/users.php">
                                 <i class="fas fa-users"></i>
                                 <span>Pengguna</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../other/orders/order.php">
+                            <a href="../../../other/orders/order.php">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Pesanan</span>
                                 <span class="badge badge-warning">5</span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../other/settings/settings.php">
+                            <a href="../../../other/settings/settings.php">
                                 <i class="fas fa-cog"></i>
                                 <span>Pengaturan</span>
                             </a>
@@ -807,12 +699,12 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin+iBox&background=4a6cf7&color=fff" alt="Admin">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_username); ?>&background=4a6cf7&color=fff" alt="Admin">
                     <div class="user-info">
-                        <h4>Admin iBox</h4>
-                        <p>admin@ibox.co.id</p>
+                        <h4><?php echo htmlspecialchars($admin_username); ?></h4>
+                        <p>Admin iBox</p>
                     </div>
-                    <a href="../../../auth/logout.php" class="logout-btn">
+                    <a href="../../auth/logout.php" class="logout-btn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
@@ -841,8 +733,8 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             <?php if (isset($_SESSION['success_message'])): ?>
                 <div class="alert alert-success">
                     <i class="fas fa-check-circle"></i>
-                    <?php
-                    echo $_SESSION['success_message'];
+                    <?php 
+                    echo $_SESSION['success_message']; 
                     unset($_SESSION['success_message']);
                     ?>
                 </div>
@@ -851,8 +743,8 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             <?php if (isset($_SESSION['error_message'])): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
-                    <?php
-                    echo $_SESSION['error_message'];
+                    <?php 
+                    echo $_SESSION['error_message']; 
                     unset($_SESSION['error_message']);
                     ?>
                 </div>
@@ -862,17 +754,11 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             <div class="stats-container">
                 <?php
                 // Hitung statistik slider
-                $total_query = "SELECT COUNT(*) as total FROM admin_homepage_slider";
-                $active_query = "SELECT COUNT(*) as active FROM admin_homepage_slider WHERE status = 'active'";
-                $inactive_query = "SELECT COUNT(*) as inactive FROM admin_homepage_slider WHERE status = 'inactive'";
-
+                $total_query = "SELECT COUNT(*) as total FROM home_image_slider";
+                
                 $total_result = mysqli_query($db, $total_query);
-                $active_result = mysqli_query($db, $active_query);
-                $inactive_result = mysqli_query($db, $inactive_query);
-
+                
                 $total = mysqli_fetch_assoc($total_result)['total'];
-                $active = mysqli_fetch_assoc($active_result)['active'];
-                $inactive = mysqli_fetch_assoc($inactive_result)['inactive'];
                 ?>
                 <div class="stat-card">
                     <div class="stat-icon total">
@@ -883,32 +769,14 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                         <p>Total Slider</p>
                     </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon active">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo $active; ?></h3>
-                        <p>Slider Aktif</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon inactive">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3><?php echo $inactive; ?></h3>
-                        <p>Slider Nonaktif</p>
-                    </div>
-                </div>
             </div>
 
             <!-- Table Container -->
             <div class="table-container">
                 <?php
-                $query = "SELECT * FROM admin_homepage_slider ORDER BY urutan ASC, created_at DESC";
+                $query = "SELECT * FROM home_image_slider ORDER BY id DESC";
                 $result = mysqli_query($db, $query);
-
+                
                 if (mysqli_num_rows($result) > 0) {
                 ?>
                     <table>
@@ -916,11 +784,8 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                             <tr>
                                 <th>No</th>
                                 <th>Gambar</th>
-                                <th>Judul</th>
-                                <th>Deskripsi</th>
-                                <th>Link</th>
-                                <th>Urutan</th>
-                                <th>Status</th>
+                                <th>Nama Produk</th>
+                                <th>Deskripsi Produk</th>
                                 <th>Aksi</th>
                             </tr>
                         </thead>
@@ -928,68 +793,45 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                             <?php
                             $no = 1;
                             while ($row = mysqli_fetch_assoc($result)) {
-                                $image_path = '../../../uploads/slider/' . $row['gambar'];
+                                $image_path = '../../../uploads/slider/' . $row['gambar_produk'];
                                 $image_exists = file_exists($image_path) ? $image_path : '../../../uploads/default-slider.jpg';
                             ?>
                                 <tr>
                                     <td><?php echo $no++; ?></td>
                                     <td>
-                                        <img src="<?php echo $image_exists; ?>"
-                                            class="slider-image"
-                                            alt="<?php echo htmlspecialchars($row['judul']); ?>"
-                                            title="Klik untuk memperbesar">
+                                        <img src="<?php echo $image_exists; ?>" 
+                                             class="slider-image" 
+                                             alt="<?php echo htmlspecialchars($row['nama_produk']); ?>"
+                                             title="Klik untuk memperbesar">
                                     </td>
-                                    <td><?php echo htmlspecialchars($row['judul']); ?></td>
+                                    <td><?php echo htmlspecialchars($row['nama_produk']); ?></td>
                                     <td>
-                                        <?php
-                                        if (!empty($row['deskripsi'])) {
-                                            echo strlen($row['deskripsi']) > 50
-                                                ? substr(htmlspecialchars($row['deskripsi']), 0, 50) . '...'
-                                                : htmlspecialchars($row['deskripsi']);
+                                        <?php 
+                                        if (!empty($row['deskripsi_produk'])) {
+                                            echo strlen($row['deskripsi_produk']) > 50 
+                                                ? substr(htmlspecialchars($row['deskripsi_produk']), 0, 50) . '...' 
+                                                : htmlspecialchars($row['deskripsi_produk']);
                                         } else {
                                             echo '-';
                                         }
                                         ?>
                                     </td>
                                     <td>
-                                        <?php if (!empty($row['link'])): ?>
-                                            <a href="<?php echo htmlspecialchars($row['link']); ?>"
-                                                target="_blank"
-                                                style="color: #4a6cf7; text-decoration: none;">
-                                                <i class="fas fa-external-link-alt"></i> Link
-                                            </a>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?php echo $row['urutan']; ?></td>
-                                    <td>
-                                        <span class="status-badge status-<?php echo $row['status']; ?>">
-                                            <?php echo $row['status'] == 'active' ? 'Aktif' : 'Nonaktif'; ?>
-                                        </span>
-                                    </td>
-                                    <td>
                                         <div class="action-buttons-cell">
-                                            <a href="view-image-slider.php?id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-view"
-                                                title="Lihat Detail">
+                                            <a href="view-image-slider.php?id=<?php echo $row['id']; ?>" 
+                                               class="btn-icon btn-view" 
+                                               title="Lihat Detail">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="edit-image-slider.php?id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-edit"
-                                                title="Edit">
+                                            <a href="edit-image-slider.php?id=<?php echo $row['id']; ?>" 
+                                               class="btn-icon btn-edit" 
+                                               title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <a href="image-slider.php?action=toggle_status&id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-toggle"
-                                                title="<?php echo $row['status'] == 'active' ? 'Nonaktifkan' : 'Aktifkan'; ?>"
-                                                onclick="return confirm('Yakin ingin mengubah status slider ini?')">
-                                                <i class="fas fa-power-off"></i>
-                                            </a>
-                                            <a href="image-slider.php?action=delete&id=<?php echo $row['id']; ?>"
-                                                class="btn-icon btn-delete"
-                                                title="Hapus"
-                                                onclick="return confirm('Yakin ingin menghapus slider ini? Tindakan ini tidak dapat dibatalkan.')">
+                                            <a href="image-slider.php?action=delete&id=<?php echo $row['id']; ?>" 
+                                               class="btn-icon btn-delete" 
+                                               title="Hapus"
+                                               onclick="return confirm('Yakin ingin menghapus slider ini? Tindakan ini tidak dapat dibatalkan.')">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -1022,13 +864,6 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
             }
         }
 
-        // Confirm before toggle status
-        function confirmToggle(event) {
-            if (!confirm('Yakin ingin mengubah status slider ini?')) {
-                event.preventDefault();
-            }
-        }
-
         // Image zoom on hover
         document.addEventListener('DOMContentLoaded', function() {
             const images = document.querySelectorAll('.slider-image');
@@ -1037,14 +872,23 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                     this.style.zIndex = '100';
                     this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
                 });
-
+                
                 img.addEventListener('mouseleave', function() {
                     this.style.zIndex = '';
                     this.style.boxShadow = '';
                 });
             });
         });
+
+        // Session timeout warning (30 minutes)
+        setTimeout(function() {
+            alert('Session akan segera berakhir. Silakan login kembali.');
+        }, 25 * 60 * 1000);
+
+        // Auto logout after 30 minutes
+        setTimeout(function() {
+            window.location.href = '../../auth/logout.php';
+        }, 30 * 60 * 1000);
     </script>
 </body>
-
 </html>

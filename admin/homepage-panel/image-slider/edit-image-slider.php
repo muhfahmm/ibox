@@ -8,98 +8,87 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
-// Check if ID is provided
-if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
-    $_SESSION['error_message'] = "ID slider tidak valid";
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Hitung jumlah produk untuk sidebar
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
+
+// Get slider data by ID
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$slider = null;
+$error = '';
+$success = false;
+
+if ($id > 0) {
+    $query = "SELECT * FROM home_image_slider WHERE id = $id";
+    $result = mysqli_query($db, $query);
+    
+    if ($result && mysqli_num_rows($result) > 0) {
+        $slider = mysqli_fetch_assoc($result);
+    } else {
+        $error = "Slider tidak ditemukan.";
+        header("Location: image-slider.php");
+        exit();
+    }
+} else {
     header("Location: image-slider.php");
     exit();
 }
-
-$id = intval($_GET['id']);
-
-// Fetch slider data
-$query = "SELECT * FROM admin_homepage_slider WHERE id = $id";
-$result = mysqli_query($db, $query);
-
-if (!$result || mysqli_num_rows($result) === 0) {
-    $_SESSION['error_message'] = "Slider tidak ditemukan";
-    header("Location: image-slider.php");
-    exit();
-}
-
-$slider = mysqli_fetch_assoc($result);
 
 // Handle form submission
-$error = '';
-$success = '';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Get current image
-    $current_image = $slider['gambar'];
-    $new_image = $current_image;
-
-    // Handle image upload if new image provided
-    if (isset($_FILES['gambar']) && $_FILES['gambar']['size'] > 0) {
-        $upload_dir = '../../../uploads/slider/';
-        if (!file_exists($upload_dir)) {
-            mkdir($upload_dir, 0777, true);
-        }
-
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        $max_size = 5 * 1024 * 1024; // 5MB
-
-        $file = $_FILES['gambar'];
+    $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
+    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk']);
+    $current_image = $slider['gambar_produk'];
+    
+    // Handle file upload if new file is provided
+    $gambar_produk = $current_image;
+    $target_dir = "../../../uploads/slider/";
+    
+    if (isset($_FILES['gambar_produk']) && $_FILES['gambar_produk']['error'] === 0) {
+        $file_name = basename($_FILES["gambar_produk"]["name"]);
+        $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+        $allowed_ext = array('jpg', 'jpeg', 'png', 'gif', 'webp');
         
-        // Validate file
-        if (!in_array($file['type'], $allowed_types)) {
-            $error = 'Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP';
-        } elseif ($file['size'] > $max_size) {
-            $error = 'Ukuran file terlalu besar. Maksimal 5MB';
-        } else {
-            // Generate nama file unik
-            $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $filename = uniqid() . '_' . time() . '.' . $extension;
-
-            // Upload new file
-            if (move_uploaded_file($file['tmp_name'], $upload_dir . $filename)) {
-                // Delete old image if exists
-                if ($current_image && file_exists($upload_dir . $current_image)) {
-                    unlink($upload_dir . $current_image);
+        if (in_array($file_ext, $allowed_ext)) {
+            // Generate unique filename
+            $new_filename = uniqid() . '_' . time() . '.' . $file_ext;
+            $target_file = $target_dir . $new_filename;
+            
+            if (move_uploaded_file($_FILES["gambar_produk"]["tmp_name"], $target_file)) {
+                // Delete old image if new one is uploaded
+                if ($current_image && file_exists($target_dir . $current_image)) {
+                    unlink($target_dir . $current_image);
                 }
-                $new_image = $filename;
+                $gambar_produk = $new_filename;
             } else {
-                $error = 'Gagal mengupload gambar baru';
+                $error = "Gagal mengupload gambar baru.";
             }
+        } else {
+            $error = "Format file tidak didukung. Gunakan JPG, JPEG, PNG, GIF, atau WebP.";
         }
     }
-
-    // Only proceed if no error
+    
     if (empty($error)) {
-        // Prepare data for update
-        $judul = mysqli_real_escape_string($db, $_POST['judul'] ?? '');
-        $deskripsi = mysqli_real_escape_string($db, $_POST['deskripsi'] ?? '');
-        $link = mysqli_real_escape_string($db, $_POST['link'] ?? '');
-        $urutan = intval($_POST['urutan'] ?? 1);
-        $status = mysqli_real_escape_string($db, $_POST['status'] ?? 'active');
-
-        // Update database
-        $query = "UPDATE admin_homepage_slider SET 
-                  judul = '$judul',
-                  deskripsi = '$deskripsi',
-                  gambar = '$new_image',
-                  link = '$link',
-                  urutan = $urutan,
-                  status = '$status',
-                  updated_at = NOW()
+        $query = "UPDATE home_image_slider 
+                  SET gambar_produk = '$gambar_produk', 
+                      nama_produk = '$nama_produk', 
+                      deskripsi_produk = '$deskripsi_produk'
                   WHERE id = $id";
-
+        
         if (mysqli_query($db, $query)) {
-            $success = 'Slider berhasil diperbarui!';
-            $_SESSION['success_message'] = $success;
+            $success = true;
+            $_SESSION['success_message'] = "Slider berhasil diperbarui!";
             header("Location: image-slider.php");
             exit();
         } else {
-            $error = 'Gagal update database: ' . mysqli_error($db);
+            $error = "Gagal memperbarui data: " . mysqli_error($db);
         }
     }
 }
@@ -109,11 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Slider - Admin iBox</title>
+    <title>Edit Image Slider - Admin iBox</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Sama dengan add-image-slider.php */
         * {
             margin: 0;
             padding: 0;
@@ -131,6 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             min-height: 100vh;
         }
 
+        /* Sidebar Styles (sama dengan add-image-slider.php) */
         .sidebar {
             width: 280px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
@@ -218,6 +207,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 400;
         }
 
+        .badge {
+            background-color: #4a6cf7;
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
         .sidebar-footer {
             padding: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -252,12 +250,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: rgba(255, 255, 255, 0.6);
             font-size: 18px;
             transition: color 0.3s;
+            text-decoration: none;
         }
 
         .logout-btn:hover {
             color: #fff;
         }
 
+        /* Main Content Styles */
         .main-content {
             flex: 1;
             padding: 30px;
@@ -265,6 +265,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             flex-direction: column;
         }
 
+        /* Page Header */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -286,6 +287,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-size: 14px;
         }
 
+        /* Form Styles */
         .form-container {
             background: white;
             border-radius: 10px;
@@ -293,29 +295,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .alert {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
@@ -331,79 +312,95 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #ddd;
             border-radius: 6px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            transition: border 0.3s;
         }
 
         .form-control:focus {
-            border-color: #4a6cf7;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+            border-color: #4a6cf7;
+            box-shadow: 0 0 0 2px rgba(74, 108, 247, 0.2);
         }
 
-        .form-textarea {
+        textarea.form-control {
             min-height: 120px;
             resize: vertical;
         }
 
-        .image-upload-container {
-            border: 2px dashed #ddd;
+        /* Image Preview Section */
+        .current-image {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
             border-radius: 6px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: border-color 0.3s;
-            background-color: #fafafa;
+            border: 1px solid #e9ecef;
         }
 
-        .image-upload-container:hover {
+        .current-image h4 {
+            margin-bottom: 10px;
+            color: #495057;
+            font-size: 14px;
+        }
+
+        .current-image img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 6px;
+            border: 2px solid #dee2e6;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 6px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-upload-label:hover {
             border-color: #4a6cf7;
             background-color: #f0f4ff;
         }
 
-        .image-upload-icon {
-            font-size: 40px;
-            color: #7f8c8d;
+        .file-upload-label i {
+            font-size: 24px;
+            color: #4a6cf7;
             margin-bottom: 10px;
         }
 
-        .image-upload-text {
-            color: #7f8c8d;
-            margin-bottom: 10px;
+        .file-upload-label span {
+            color: #666;
+            font-size: 14px;
         }
 
-        .image-preview {
-            margin-top: 15px;
-            text-align: center;
-        }
-
-        .preview-image {
-            max-width: 300px;
-            max-height: 200px;
-            border-radius: 6px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }
-
-        .current-image {
-            margin-bottom: 15px;
-        }
-
-        .form-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eaeaea;
-        }
-
+        /* Buttons */
         .btn {
-            padding: 12px 25px;
-            border-radius: 8px;
+            padding: 10px 20px;
+            border-radius: 6px;
             font-weight: 500;
             font-size: 14px;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 8px;
             text-decoration: none;
@@ -432,6 +429,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background-color: #e9ecef;
         }
 
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Responsive Styles */
         @media (max-width: 768px) {
             .admin-container {
                 flex-direction: column;
@@ -446,31 +466,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 padding: 20px;
             }
 
-            .form-container {
-                padding: 20px;
-            }
-
-            .page-header {
+            .button-group {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-
-            .form-actions {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
     <div class="admin-container">
-        <!-- Sidebar (sama dengan sebelumnya) -->
+        <!-- Sidebar (sama dengan add-image-slider.php) -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -499,42 +503,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <a href="../../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
+                                <span class="badge"><?php echo $ipad_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
+                                <span class="badge"><?php echo $airtag_count; ?></span>
                             </a>
                         </li>
                     </ul>
@@ -544,45 +555,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3 class="section-title">Homepage Panel</h3>
                     <ul>
                         <li>
-                            <a href="image-slider.php">
+                            <a href="../image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../produk-populer/produk-populer.php">
-                                <i class="fas fa-fire"></i>
-                                <span>Produk Populer</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../produk-terbaru/produk-terbaru.php">
-                                <i class="fas fa-bolt"></i>
-                                <span>Produk Terbaru</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../image-grid/image-grid.php">
-                                <i class="fas fa-th"></i>
-                                <span>Image grid</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../trade-in/trade-in.php">
-                                <i class="fas fa-exchange-alt"></i>
-                                <span>Trade in</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../aksesori-unggulan/aksesori-unggulan.php">
-                                <i class="fas fa-gem"></i>
-                                <span>Aksesori Unggulan</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../chekout-sekarang/chekout-sekarang.php">
-                                <i class="fas fa-shopping-bag"></i>
-                                <span>Checkout Sekarang</span>
                             </a>
                         </li>
                     </ul>
@@ -601,6 +576,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <a href="../../../other/orders/order.php">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Pesanan</span>
+                                <span class="badge badge-warning">5</span>
                             </a>
                         </li>
                         <li>
@@ -615,12 +591,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="sidebar-footer">
                 <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin+iBox&background=4a6cf7&color=fff" alt="Admin">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_username); ?>&background=4a6cf7&color=fff" alt="Admin">
                     <div class="user-info">
-                        <h4>Admin iBox</h4>
-                        <p>admin@ibox.co.id</p>
+                        <h4><?php echo htmlspecialchars($admin_username); ?></h4>
+                        <p>Admin iBox</p>
                     </div>
-                    <a href="../../../auth/logout.php" class="logout-btn">
+                    <a href="../../../auth/logout.php" class="logout-btn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
                     </a>
                 </div>
@@ -632,8 +608,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- Page Header -->
             <div class="page-header">
                 <div class="page-title">
-                    <h1><i class="fas fa-edit"></i> Edit Slider</h1>
-                    <p>Edit slider "<?php echo htmlspecialchars($slider['judul']); ?>"</p>
+                    <h1><i class="fas fa-edit"></i> Edit Image Slider</h1>
+                    <p>Perbarui data slider yang ditampilkan di halaman utama</p>
                 </div>
                 <div class="action-buttons">
                     <a href="image-slider.php" class="btn btn-secondary">
@@ -643,7 +619,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <!-- Alert Messages -->
-            <?php if (!empty($error)): ?>
+            <?php if ($error): ?>
                 <div class="alert alert-error">
                     <i class="fas fa-exclamation-circle"></i>
                     <?php echo $error; ?>
@@ -652,77 +628,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Form Container -->
             <div class="form-container">
-                <form method="POST" enctype="multipart/form-data">
+                <form method="POST" action="" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label for="judul">Judul Slider</label>
-                        <input type="text" id="judul" name="judul" class="form-control" 
-                               value="<?php echo htmlspecialchars($slider['judul']); ?>" 
-                               placeholder="Masukkan judul slider" required>
+                        <label for="nama_produk">Nama Produk <span style="color: red;">*</span></label>
+                        <input type="text" 
+                               id="nama_produk" 
+                               name="nama_produk" 
+                               class="form-control" 
+                               required
+                               value="<?php echo htmlspecialchars($slider['nama_produk']); ?>"
+                               placeholder="Masukkan nama produk">
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea id="deskripsi" name="deskripsi" class="form-control form-textarea" 
-                                  placeholder="Masukkan deskripsi slider"><?php echo htmlspecialchars($slider['deskripsi']); ?></textarea>
+                        <label for="deskripsi_produk">Deskripsi Produk</label>
+                        <textarea id="deskripsi_produk" 
+                                  name="deskripsi_produk" 
+                                  class="form-control" 
+                                  rows="4"
+                                  placeholder="Masukkan deskripsi produk"><?php echo htmlspecialchars($slider['deskripsi_produk']); ?></textarea>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="gambar">Gambar Slider</label>
-                        <?php if ($slider['gambar']): ?>
-                            <div class="current-image">
-                                <p><strong>Gambar saat ini:</strong></p>
-                                <img src="../../../uploads/slider/<?php echo htmlspecialchars($slider['gambar']); ?>" 
-                                     class="preview-image" alt="Current Image"
-                                     onclick="window.open(this.src, '_blank')">
-                                <p style="font-size: 12px; color: #666; margin-top: 5px;">
-                                    <i class="fas fa-info-circle"></i> Klik gambar untuk melihat ukuran penuh
+                        <label>Gambar Saat Ini</label>
+                        <div class="current-image">
+                            <h4>Gambar yang sedang digunakan:</h4>
+                            <?php if ($slider['gambar_produk']): ?>
+                                <img src="../../../uploads/slider/<?php echo htmlspecialchars($slider['gambar_produk']); ?>" 
+                                     alt="<?php echo htmlspecialchars($slider['nama_produk']); ?>">
+                                <p style="margin-top: 10px; color: #666; font-size: 12px;">
+                                    <?php echo htmlspecialchars($slider['gambar_produk']); ?>
                                 </p>
-                            </div>
-                        <?php endif; ?>
-                        
-                        <div class="image-upload-container" onclick="document.getElementById('gambar').click()">
-                            <div class="image-upload-icon">
-                                <i class="fas fa-cloud-upload-alt"></i>
-                            </div>
-                            <div class="image-upload-text">
-                                Klik untuk upload gambar baru (opsional)
-                            </div>
-                            <small>Biarkan kosong jika tidak ingin mengubah gambar</small>
-                            <input type="file" id="gambar" name="gambar" accept="image/*" 
-                                   style="display: none;" onchange="previewNewImage(this)">
+                            <?php else: ?>
+                                <p style="color: #999;">Tidak ada gambar</p>
+                            <?php endif; ?>
                         </div>
-                        <div id="previewNewImage" class="image-preview"></div>
                     </div>
-                    
+
                     <div class="form-group">
-                        <label for="link">Link (URL)</label>
-                        <input type="url" id="link" name="link" class="form-control" 
-                               value="<?php echo htmlspecialchars($slider['link']); ?>" 
-                               placeholder="https://example.com">
+                        <label for="gambar_produk">Ganti Gambar (Opsional)</label>
+                        <div class="file-upload">
+                            <input type="file" 
+                                   id="gambar_produk" 
+                                   name="gambar_produk" 
+                                   accept="image/*"
+                                   onchange="previewNewImage(event)">
+                            <label for="gambar_produk" class="file-upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <span>Klik untuk memilih gambar baru</span>
+                                <small style="color: #999; margin-top: 5px;">Biarkan kosong jika tidak ingin mengganti</small>
+                            </label>
+                        </div>
+                        <div class="file-preview" id="newFilePreview" style="display: none;">
+                            <h4 style="margin: 10px 0 5px 0; color: #495057; font-size: 14px;">Preview Gambar Baru:</h4>
+                            <img id="newPreviewImage" src="#" alt="Preview">
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="urutan">Urutan Tampilan</label>
-                        <input type="number" id="urutan" name="urutan" class="form-control" 
-                               value="<?php echo $slider['urutan']; ?>" min="1">
-                        <small style="color: #666; font-size: 12px;">Semakin kecil angkanya, semakin awal ditampilkan</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select id="status" name="status" class="form-control">
-                            <option value="active" <?php echo $slider['status'] == 'active' ? 'selected' : ''; ?>>Aktif</option>
-                            <option value="inactive" <?php echo $slider['status'] == 'inactive' ? 'selected' : ''; ?>>Nonaktif</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-actions">
-                        <a href="image-slider.php" class="btn btn-secondary">
-                            <i class="fas fa-times"></i> Batal
-                        </a>
+
+                    <div class="button-group">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save"></i> Update Slider
                         </button>
+                        <button type="reset" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                        <a href="image-slider.php?action=delete&id=<?php echo $id; ?>" 
+                           class="btn btn-secondary"
+                           onclick="return confirm('Yakin ingin menghapus slider ini?')"
+                           style="background-color: #dc3545; color: white;">
+                            <i class="fas fa-trash"></i> Hapus
+                        </a>
                     </div>
                 </form>
             </div>
@@ -730,82 +705,79 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-        // Preview new image
-        function previewNewImage(input) {
-            const preview = document.getElementById('previewNewImage');
-            preview.innerHTML = '';
+        // Preview new image function
+        function previewNewImage(event) {
+            const preview = document.getElementById('newPreviewImage');
+            const previewContainer = document.getElementById('newFilePreview');
+            const file = event.target.files[0];
             
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                
-                // Validate file size (5MB max)
-                if (file.size > 5 * 1024 * 1024) {
-                    alert('Ukuran file terlalu besar. Maksimal 5MB');
-                    input.value = '';
+            if (file) {
+                // Check file size (max 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+                if (file.size > maxSize) {
+                    alert('Ukuran gambar terlalu besar! Maksimal 5MB.');
+                    event.target.value = '';
+                    previewContainer.style.display = 'none';
                     return;
                 }
                 
-                // Validate file type
-                const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-                if (!validTypes.includes(file.type)) {
-                    alert('Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WebP');
-                    input.value = '';
+                // Check file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Format file tidak didukung. Gunakan JPG, JPEG, PNG, GIF, atau WebP.');
+                    event.target.value = '';
+                    previewContainer.style.display = 'none';
                     return;
                 }
                 
                 const reader = new FileReader();
+                
                 reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.className = 'preview-image';
-                    img.style.cursor = 'pointer';
-                    img.onclick = function() {
-                        window.open(this.src, '_blank');
-                    };
-                    
-                    const info = document.createElement('p');
-                    info.style.fontSize = '12px';
-                    info.style.color = '#666';
-                    info.style.marginTop = '5px';
-                    info.innerHTML = '<i class="fas fa-info-circle"></i> Klik gambar untuk melihat ukuran penuh';
-                    
-                    preview.appendChild(img);
-                    preview.appendChild(info);
+                    preview.src = e.target.result;
+                    previewContainer.style.display = 'block';
                 }
+                
                 reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none';
+                preview.src = '#';
             }
         }
 
-        // Auto-resize textarea
-        document.addEventListener('DOMContentLoaded', function() {
-            const textarea = document.getElementById('deskripsi');
-            if (textarea) {
-                textarea.addEventListener('input', function() {
-                    this.style.height = 'auto';
-                    this.style.height = (this.scrollHeight) + 'px';
-                });
-                // Trigger initial resize
-                textarea.dispatchEvent(new Event('input'));
-            }
-        });
-
-        // Confirm before leaving page if changes were made
-        let formChanged = false;
-        document.querySelector('form').addEventListener('input', function() {
-            formChanged = true;
-        });
-
-        window.addEventListener('beforeunload', function(e) {
-            if (formChanged) {
+        // Form validation
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const nameInput = document.getElementById('nama_produk');
+            const fileInput = document.getElementById('gambar_produk');
+            
+            if (!nameInput.value.trim()) {
                 e.preventDefault();
-                e.returnValue = 'Anda memiliki perubahan yang belum disimpan. Yakin ingin meninggalkan halaman?';
+                alert('Nama produk harus diisi!');
+                nameInput.focus();
+                return false;
+            }
+            
+            // Validate file if selected
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (file.size > maxSize) {
+                    e.preventDefault();
+                    alert('Ukuran gambar terlalu besar! Maksimal 5MB.');
+                    return false;
+                }
             }
         });
 
-        // Reset formChanged when form is submitted
-        document.querySelector('form').addEventListener('submit', function() {
-            formChanged = false;
-        });
+        // Session timeout warning
+        setTimeout(function() {
+            alert('Session akan segera berakhir. Silakan login kembali.');
+        }, 25 * 60 * 1000);
+
+        // Auto logout after 30 minutes
+        setTimeout(function() {
+            window.location.href = '../../../auth/logout.php';
+        }, 30 * 60 * 1000);
     </script>
 </body>
 </html>
