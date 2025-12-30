@@ -1,430 +1,3 @@
-<?php
-// ============================================
-// KONEKSI DATABASE
-// ============================================
-require 'db.php';
-
-// Base path untuk gambar
-$baseImagePath = '../../admin/uploads/';
-
-// ============================================
-// FUNGSI UNTUK MENGAMBIL DATA PRODUK
-// ============================================
-
-// Fungsi untuk mengambil data produk Mac
-function getMacProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_mac p
-            LEFT JOIN admin_produk_mac_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_mac_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'mac',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.5 // Default rating
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk iPhone
-function getiPhoneProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_iphone p
-            LEFT JOIN admin_produk_iphone_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_iphone_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'iphone',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.7
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk iPad
-function getiPadProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_ipad p
-            LEFT JOIN admin_produk_ipad_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_ipad_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'ipad',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.6
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk Apple Watch
-function getWatchProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                g.foto_thumbnail,
-                g.warna_case as warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_watch p
-            LEFT JOIN admin_produk_watch_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_watch_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'watch',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.8
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk Aksesori
-function getAccessoriesProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                p.kategori,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_aksesoris p
-            LEFT JOIN admin_produk_aksesoris_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_aksesoris_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'accessories',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'accessory_type' => $row['kategori'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.4
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk Airtag
-function getAirtagProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_airtag p
-            LEFT JOIN admin_produk_airtag_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_airtag_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'airtag',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.3
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// Fungsi untuk mengambil data produk Music (AirPods)
-function getMusicProducts($db, $limit = 10)
-{
-    $products = [];
-
-    $sql = "SELECT 
-                p.id,
-                p.nama_produk,
-                p.deskripsi_produk,
-                p.kategori,
-                g.foto_thumbnail,
-                g.warna,
-                MIN(k.harga) as harga,
-                MIN(k.harga_diskon) as harga_diskon,
-                k.jumlah_stok,
-                k.status_stok
-            FROM admin_produk_music p
-            LEFT JOIN admin_produk_music_gambar g ON p.id = g.produk_id
-            LEFT JOIN admin_produk_music_kombinasi k ON p.id = k.produk_id
-            WHERE g.foto_thumbnail IS NOT NULL
-            GROUP BY p.id, g.foto_thumbnail
-            ORDER BY p.id DESC
-            LIMIT ?";
-
-    $stmt = $db->prepare($sql);
-    $stmt->bind_param("i", $limit);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($row = $result->fetch_assoc()) {
-        $products[] = [
-            'id' => $row['id'],
-            'name' => $row['nama_produk'],
-            'category' => 'music',
-            'price' => 'Rp ' . number_format($row['harga'], 0, ',', '.'),
-            'original_price' => $row['harga'],
-            'discount_price' => $row['harga_diskon'] ? 'Rp ' . number_format($row['harga_diskon'], 0, ',', '.') : null,
-            'image' => $row['foto_thumbnail'] ? '../../admin/uploads/' . $row['foto_thumbnail'] : '',
-            'color' => $row['warna'],
-            'stock' => $row['jumlah_stok'],
-            'stock_status' => $row['status_stok'],
-            'badge' => [
-                'text' => $row['status_stok'] == 'tersedia' ? 'Tersedia' : 'Habis',
-                'type' => $row['status_stok'] == 'tersedia' ? 'available' : 'soldout'
-            ],
-            'rating' => 4.9
-        ];
-    }
-
-    $stmt->close();
-    return $products;
-}
-
-// ============================================
-// AMBIL DATA DARI DATABASE
-// ============================================
-$macProducts = getMacProducts($db, 12);
-$iphoneProducts = getiPhoneProducts($db, 12);
-$ipadProducts = getiPadProducts($db, 12);
-$watchProducts = getWatchProducts($db, 12);
-$accessoriesProducts = getAccessoriesProducts($db, 12);
-$airtagProducts = getAirtagProducts($db, 12);
-$musicProducts = getMusicProducts($db, 12);
-
-// Gabungkan semua produk untuk tab "Semua Produk"
-$allProducts = array_merge(
-    $macProducts,
-    $iphoneProducts,
-    $ipadProducts,
-    $watchProducts,
-    $accessoriesProducts,
-    $airtagProducts,
-    $musicProducts
-);
-
-// Ambil 12 produk terbaru (berdasarkan ID terbesar)
-usort($allProducts, function ($a, $b) {
-    return $b['id'] - $a['id'];
-});
-$latestProducts = array_slice($allProducts, 0, 12);
-
-// Convert data ke JSON untuk digunakan di JavaScript
-$popularProductsByCategory = [
-    'all' => $allProducts,
-    'mac' => $macProducts,
-    'iphone' => $iphoneProducts,
-    'ipad' => $ipadProducts,
-    'watch' => $watchProducts,
-    'accessories' => $accessoriesProducts,
-    'airtag' => $airtagProducts,
-    'music' => $musicProducts
-];
-
-$latestProductsByCategory = [
-    'all' => $latestProducts
-];
-
-$db->close();
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -548,26 +121,12 @@ $db->close();
             font-size: 14px;
         }
 
-        @keyframes pulse {
-            0% {
-                opacity: 0.5;
-            }
-
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
-        }
-
         /* Responsif untuk tabs slider */
         @media (max-width: 992px) {
             .category-tabs-wrapper {
                 overflow: hidden;
             }
-
+            
             .category-tabs-container {
                 gap: 12px;
                 padding: 5px 20px;
@@ -608,7 +167,7 @@ $db->close();
                 overflow: visible;
                 padding: 0;
             }
-
+            
             .category-tabs-container {
                 flex-wrap: wrap;
                 justify-content: center;
@@ -617,11 +176,11 @@ $db->close();
                 padding: 0;
                 cursor: default;
             }
-
+            
             .category-tab {
                 padding: 12px 25px;
             }
-
+            
             .tabs-swipe-hint {
                 display: none;
             }
@@ -716,18 +275,6 @@ $db->close();
             background-color: #34c759;
         }
 
-        .product-badge.hot {
-            background-color: #ff9500;
-        }
-
-        .product-badge.available {
-            background-color: #34c759;
-        }
-
-        .product-badge.soldout {
-            background-color: #8e8e93;
-        }
-
         .product-name {
             font-size: 16px;
             font-weight: 600;
@@ -758,13 +305,6 @@ $db->close();
             font-size: 16px;
             color: #007aff;
             font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .product-original-price {
-            font-size: 14px;
-            color: #8e8e93;
-            text-decoration: line-through;
             margin-bottom: 15px;
         }
 
@@ -787,15 +327,6 @@ $db->close();
         .product-btn:hover {
             background-color: #0056cc;
             transform: scale(1.05);
-        }
-
-        .product-btn:disabled {
-            background-color: #8e8e93;
-            cursor: not-allowed;
-        }
-
-        .product-btn:disabled:hover {
-            transform: none;
         }
 
         /* Navigation Buttons untuk semua slider */
@@ -894,7 +425,8 @@ $db->close();
             background-color: rgba(0, 122, 255, 0.4);
         }
 
-        /* Responsive untuk semua slider */
+        /* Responsive untuk semua slider - MODIFIKASI UTAMA */
+        /* Desktop besar: 4 produk per slide */
         @media (min-width: 1200px) {
             .all-products-slide-inner .product-card {
                 width: calc(25% - 20px);
@@ -903,81 +435,84 @@ $db->close();
             }
         }
 
+        /* Tablet landscape: 3 produk per slide */
         @media (min-width: 900px) and (max-width: 1199px) {
             .all-products-slide-inner .product-card {
                 width: calc(33.333% - 20px);
                 max-width: calc(33.333% - 20px);
                 min-width: 0;
             }
-
+            
             .product-image {
                 max-width: 180px;
                 height: 160px;
             }
-
+            
             .product-name {
                 font-size: 15px;
                 height: 36px;
             }
         }
 
+        /* Tablet portrait: 2 produk per slide */
         @media (min-width: 576px) and (max-width: 899px) {
             .all-products-slide-inner .product-card {
                 width: calc(50% - 20px);
                 max-width: calc(50% - 20px);
                 min-width: 0;
             }
-
+            
             .product-image {
                 max-width: 160px;
                 height: 140px;
             }
-
+            
             .product-name {
                 font-size: 15px;
                 height: 36px;
             }
-
+            
             .all-products-slider-container {
                 padding: 25px 15px 50px;
             }
-
+            
             .all-products-slider-nav {
                 width: calc(100% - 30px);
                 left: 15px;
             }
         }
 
+        /* Mobile kecil: 1 produk per slide */
         @media (max-width: 575px) {
             .all-products-slide-inner .product-card {
                 width: calc(100% - 20px);
                 max-width: 300px;
                 min-width: 0;
             }
-
+            
             .product-image {
                 max-width: 140px;
                 height: 120px;
             }
-
+            
             .product-name {
                 font-size: 15px;
                 height: 36px;
             }
-
+            
             .product-price {
                 font-size: 15px;
             }
-
+            
             .all-products-slider-container {
                 padding: 20px 10px 50px;
             }
-
+            
             .all-products-slider-nav {
                 width: calc(100% - 20px);
                 left: 10px;
             }
-
+            
             .all-products-nav-btn {
                 width: 40px;
                 height: 40px;
@@ -985,42 +520,43 @@ $db->close();
             }
         }
 
+        /* Mobile sangat kecil */
         @media (max-width: 300px) {
             .all-products-slide-inner .product-card {
                 width: 100%;
                 max-width: 100%;
                 padding: 15px;
             }
-
+            
             .product-image {
                 max-width: 120px;
                 height: 100px;
                 padding: 10px;
             }
-
+            
             .product-name {
                 font-size: 14px;
                 height: 32px;
             }
-
+            
             .product-price {
                 font-size: 14px;
             }
-
+            
             .product-btn {
                 padding: 8px 16px;
                 font-size: 13px;
             }
-
+            
             .all-products-slider-container {
                 padding: 15px 5px 40px;
             }
-
+            
             .all-products-slider-nav {
                 width: calc(100% - 10px);
                 left: 5px;
             }
-
+            
             .all-products-nav-btn {
                 width: 35px;
                 height: 35px;
@@ -1030,7 +566,7 @@ $db->close();
             .all-products-slider-dots {
                 bottom: 20px;
             }
-
+            
             .all-products-dot {
                 width: 10px;
                 height: 10px;
@@ -1066,22 +602,22 @@ $db->close();
         h3 {
             font-size: 24px;
         }
-
+        
         @media (max-width: 768px) {
             h3 {
                 font-size: 22px;
             }
-
+            
             .product-header h1 {
                 font-size: 28px;
             }
         }
-
+        
         @media (max-width: 480px) {
             h3 {
                 font-size: 20px;
             }
-
+            
             .product-header h1 {
                 font-size: 24px;
             }
@@ -1108,10 +644,8 @@ $db->close();
                     <button class="category-tab" data-category="ipad">iPad</button>
                     <button class="category-tab" data-category="watch">Apple Watch</button>
                     <button class="category-tab" data-category="accessories">Aksesori</button>
-                    <button class="category-tab" data-category="airtag">AirTag</button>
-                    <button class="category-tab" data-category="music">AirPods</button>
                 </div>
-
+                
                 <!-- SWIPE HINT UNTUK MOBILE -->
                 <div class="tabs-swipe-hint" id="tabsSwipeHint">
                     <i class="bi bi-arrow-left-right"></i> Geser untuk melihat lebih banyak
@@ -1124,7 +658,7 @@ $db->close();
             </div>
 
             <h3>Produk Terbaru</h3>
-
+            
             <!-- Container untuk slider produk terbaru -->
             <div id="latest-products-container">
                 <!-- Slider untuk produk terbaru akan dimuat di sini -->
@@ -1140,67 +674,113 @@ $db->close();
             const categoryTabsSlider = document.getElementById('categoryTabsSlider');
             const tabsSwipeHint = document.getElementById('tabsSwipeHint');
 
-            // Data dari PHP (dikonversi ke JavaScript)
-            const popularProductsByCategory = <?php echo json_encode($popularProductsByCategory); ?>;
-            const latestProductsByCategory = <?php echo json_encode($latestProductsByCategory); ?>;
-
-            // Fungsi untuk mengambil data produk populer berdasarkan kategori
-            function getPopularProductsByCategory(category) {
-                return popularProductsByCategory[category] || [];
+            // ===== LOAD CATEGORY PRODUCTS DARI FILE TERPISAH =====
+            function loadCategoryProducts() {
+                fetch('4-category-products.php')
+                    .then(response => response.text())
+                    .then(html => {
+                        categoryProductsSection.innerHTML = html;
+                        
+                        // Setelah konten dimuat, inisialisasi event listener
+                        setTimeout(() => {
+                            // Mendengarkan event custom dari kategori produk
+                            document.addEventListener('categoryProductSelected', function(e) {
+                                const category = e.detail.category;
+                                console.log(`Kategori dipilih dari komponen terpisah: ${category}`);
+                                
+                                // Filter produk populer berdasarkan kategori
+                                filterPopularProducts(category);
+                                
+                                // Update tab kategori yang aktif
+                                updateCategoryTab(category);
+                            });
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Error loading category products:', error);
+                        categoryProductsSection.innerHTML = '<p>Gagal memuat kategori produk.</p>';
+                    });
             }
 
-            // Fungsi untuk mengambil data produk terbaru berdasarkan kategori
-            function getLatestProductsByCategory() {
-                return latestProductsByCategory['all'] || [];
-            }
+            // Data produk populer
+            const popularProducts = [{
+                    id: 1,
+                    name: 'MacBook Pro 14"',
+                    category: 'mac',
+                    price: 'Rp 24.999.000',
+                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mbp14-spacegray-select-202310?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1697230830030',
+                    badge: {
+                        text: 'Terlaris',
+                        type: 'hot'
+                    },
+                    rating: 4.7
+                },
+                // ... (data produk populer lainnya, sama seperti sebelumnya)
+            ];
+
+            // Data produk terbaru
+            const latestProducts = [{
+                    id: 9,
+                    name: 'MacBook Air 13" M3',
+                    category: 'mac',
+                    price: 'Rp 15.999.000',
+                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/macbook-air-spacegray-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1653084303665',
+                    badge: {
+                        text: 'Terbaru',
+                        type: 'new'
+                    },
+                    rating: 4.8
+                },
+                // ... (data produk terbaru lainnya, sama seperti sebelumnya)
+            ];
 
             // ===== FUNGSI UNTUK TABS KATEGORI SLIDER =====
             let isTabsDragging = false;
             let tabsStartX = 0;
             let tabsCurrentTranslate = 0;
             let tabsPrevTranslate = 0;
-
+            
             // Inisialisasi Category Tabs Slider
             function initTabsSlider() {
                 // Hitung total lebar konten
                 const containerWidth = categoryTabsSlider.parentElement.clientWidth;
                 const tabs = categoryTabsSlider.children;
                 let totalWidth = 0;
-
+                
                 // Hitung total lebar semua tab termasuk gap
                 const style = window.getComputedStyle(categoryTabsSlider);
                 const gap = parseFloat(style.gap) || 12;
-
+                
                 for (let i = 0; i < tabs.length; i++) {
                     totalWidth += tabs[i].offsetWidth;
                     if (i < tabs.length - 1) {
                         totalWidth += gap;
                     }
                 }
-
+                
                 // Reset posisi slider jika konten lebih kecil dari container
                 if (totalWidth <= containerWidth) {
                     categoryTabsSlider.style.transform = 'translateX(0)';
                     tabsCurrentTranslate = 0;
                     tabsPrevTranslate = 0;
                 }
-
+                
                 setupTabsDragEvents();
             }
-
+            
             function setupTabsDragEvents() {
                 categoryTabsSlider.addEventListener('touchstart', tabsTouchStart);
                 categoryTabsSlider.addEventListener('touchmove', tabsTouchMove);
                 categoryTabsSlider.addEventListener('touchend', tabsTouchEnd);
-
+                
                 categoryTabsSlider.addEventListener('mousedown', tabsMouseDown);
                 categoryTabsSlider.addEventListener('mousemove', tabsMouseMove);
                 categoryTabsSlider.addEventListener('mouseup', tabsMouseUp);
                 categoryTabsSlider.addEventListener('mouseleave', tabsMouseLeave);
-
+                
                 categoryTabsSlider.style.cursor = 'grab';
             }
-
+            
             // Event handlers untuk Category Tabs Slider
             function tabsTouchStart(e) {
                 isTabsDragging = true;
@@ -1208,23 +788,23 @@ $db->close();
                 tabsPrevTranslate = tabsCurrentTranslate;
                 categoryTabsSlider.classList.add('grabbing');
             }
-
+            
             function tabsTouchMove(e) {
                 if (!isTabsDragging) return;
-
+                
                 const currentX = e.touches[0].clientX;
                 const diffX = currentX - tabsStartX;
                 const newTranslate = tabsPrevTranslate + diffX;
-
+                
                 setTabsSliderPosition(newTranslate);
             }
-
+            
             function tabsTouchEnd() {
                 isTabsDragging = false;
                 categoryTabsSlider.classList.remove('grabbing');
                 snapTabsSlider();
             }
-
+            
             function tabsMouseDown(e) {
                 isTabsDragging = true;
                 tabsStartX = e.clientX;
@@ -1232,23 +812,23 @@ $db->close();
                 categoryTabsSlider.classList.add('grabbing');
                 e.preventDefault();
             }
-
+            
             function tabsMouseMove(e) {
                 if (!isTabsDragging) return;
-
+                
                 const currentX = e.clientX;
                 const diffX = currentX - tabsStartX;
                 const newTranslate = tabsPrevTranslate + diffX;
-
+                
                 setTabsSliderPosition(newTranslate);
             }
-
+            
             function tabsMouseUp() {
                 isTabsDragging = false;
                 categoryTabsSlider.classList.remove('grabbing');
                 snapTabsSlider();
             }
-
+            
             function tabsMouseLeave() {
                 if (isTabsDragging) {
                     isTabsDragging = false;
@@ -1256,68 +836,71 @@ $db->close();
                     snapTabsSlider();
                 }
             }
-
+            
             // Fungsi untuk mengatur posisi tabs slider dengan batasan
             function setTabsSliderPosition(position) {
                 const container = categoryTabsSlider.parentElement;
                 const containerWidth = container.clientWidth;
                 const tabs = categoryTabsSlider.children;
-
+                
                 // Hitung total lebar semua tab termasuk gap
                 const style = window.getComputedStyle(categoryTabsSlider);
                 const gap = parseFloat(style.gap) || 12;
                 let totalWidth = 0;
-
+                
                 for (let i = 0; i < tabs.length; i++) {
                     totalWidth += tabs[i].offsetWidth;
                     if (i < tabs.length - 1) {
                         totalWidth += gap;
                     }
                 }
-
+                
                 // Batasi pergerakan slider
+                // Posisi maksimal (ke kiri): 0 (tidak bergerak dari posisi awal)
+                // Posisi minimal (ke kanan): containerWidth - totalWidth
+                // Jika totalWidth <= containerWidth, maka posisi harus 0
                 if (totalWidth <= containerWidth) {
                     position = 0;
                 } else {
-                    const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
+                    const minTranslate = Math.min(0, containerWidth - totalWidth - 20); // 20px padding untuk estetika
                     const maxTranslate = 0;
                     position = Math.max(minTranslate, Math.min(maxTranslate, position));
                 }
-
+                
                 categoryTabsSlider.style.transform = `translateX(${position}px)`;
                 tabsCurrentTranslate = position;
             }
-
+            
             // Fungsi untuk snap tabs slider ke posisi yang tepat
             function snapTabsSlider() {
                 const container = categoryTabsSlider.parentElement;
                 const containerWidth = container.clientWidth;
                 const tabs = categoryTabsSlider.children;
-
+                
                 // Hitung total lebar semua tab termasuk gap
                 const style = window.getComputedStyle(categoryTabsSlider);
                 const gap = parseFloat(style.gap) || 12;
                 let totalWidth = 0;
-
+                
                 for (let i = 0; i < tabs.length; i++) {
                     totalWidth += tabs[i].offsetWidth;
                     if (i < tabs.length - 1) {
                         totalWidth += gap;
                     }
                 }
-
+                
                 // Jika totalWidth <= containerWidth, snap ke 0
                 if (totalWidth <= containerWidth) {
                     animateTabsSlider(0);
                     return;
                 }
-
+                
                 // Snap ke posisi terdekat yang valid
                 const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
                 const maxTranslate = 0;
-
+                
                 let snapPosition = tabsCurrentTranslate;
-
+                
                 // Jika posisi saat ini dekat dengan batas kiri (0), snap ke 0
                 if (snapPosition > -50) {
                     snapPosition = 0;
@@ -1326,50 +909,38 @@ $db->close();
                 else if (snapPosition < minTranslate + 50) {
                     snapPosition = minTranslate;
                 }
-
+                
                 animateTabsSlider(snapPosition);
             }
-
+            
             // Fungsi animasi untuk tabs slider
             function animateTabsSlider(targetPosition) {
                 const startPosition = tabsCurrentTranslate;
                 const duration = 300;
                 const startTime = performance.now();
-
+                
                 function animate(currentTime) {
                     const elapsed = currentTime - startTime;
                     const progress = Math.min(elapsed / duration, 1);
-
+                    
                     // Easing function (easeOutCubic)
                     const ease = 1 - Math.pow(1 - progress, 3);
-
+                    
                     const currentPosition = startPosition + (targetPosition - startPosition) * ease;
-
+                    
                     categoryTabsSlider.style.transform = `translateX(${currentPosition}px)`;
                     tabsCurrentTranslate = currentPosition;
-
+                    
                     if (progress < 1) {
                         requestAnimationFrame(animate);
                     }
                 }
-
+                
                 requestAnimationFrame(animate);
             }
 
             // ===== FUNGSI UNTUK PRODUK SLIDER =====
             function renderProductsSlider(products, containerId, title = '') {
-                if (products.length === 0) {
-                    document.getElementById(containerId).innerHTML = `
-                        <div class="all-products-slider-container single-slide">
-                            <div style="text-align: center; padding: 40px; color: #666;">
-                                <i class="bi bi-box" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
-                                <p>Tidak ada produk tersedia</p>
-                            </div>
-                        </div>
-                    `;
-                    return;
-                }
-
                 // Hitung jumlah produk per slide berdasarkan lebar layar
                 const productsPerSlide = getProductsPerSlide();
                 const slideCount = Math.ceil(products.length / productsPerSlide);
@@ -1396,7 +967,7 @@ $db->close();
                     // Tambahkan produk ke slide ini
                     const startIndex = slideIndex * productsPerSlide;
                     const endIndex = Math.min(startIndex + productsPerSlide, products.length);
-
+                    
                     for (let i = startIndex; i < endIndex; i++) {
                         html += createProductCard(products[i]);
                     }
@@ -1420,50 +991,32 @@ $db->close();
             // Fungsi untuk menentukan jumlah produk per slide berdasarkan lebar layar
             function getProductsPerSlide() {
                 const screenWidth = window.innerWidth;
-
-                if (screenWidth >= 1200) return 4; // 4 produk per slide
-                if (screenWidth >= 900) return 3; // 3 produk per slide
-                if (screenWidth >= 576) return 2; // 2 produk per slide
-                return 1; // 1 produk per slide (untuk layar kecil)
+                
+                if (screenWidth >= 1200) return 4;    // 4 produk per slide
+                if (screenWidth >= 900) return 3;     // 3 produk per slide
+                if (screenWidth >= 576) return 2;     // 2 produk per slide
+                return 1;                             // 1 produk per slide (untuk layar kecil)
             }
 
             function createProductCard(product) {
-                // Tentukan badge berdasarkan status stok
-                let badgeHTML = '';
-                if (product.badge) {
-                    const badgeClass = `product-badge ${product.badge.type}`;
-                    badgeHTML = `<div class="${badgeClass}">${product.badge.text}</div>`;
-                }
-
-                // Tambahkan badge "Diskon" jika ada harga diskon
-                if (product.discount_price) {
-                    badgeHTML += `<div class="product-badge discount">Diskon</div>`;
-                }
+                const badgeClass = product.badge ? `product-badge ${product.badge.type}` : '';
+                const badgeHTML = product.badge ?
+                    `<div class="${badgeClass}">${product.badge.text}</div>` : '';
 
                 const stars = getProductStarRating(product.rating);
 
-                // Tentukan apakah produk tersedia
-                const isAvailable = product.stock_status === 'tersedia' && product.stock > 0;
-                const buttonText = isAvailable ? 'Beli Sekarang' : 'Stok Habis';
-                const buttonDisabled = !isAvailable;
-
                 return `
-                    <div class="product-card" data-category="${product.category}" data-id="${product.id}">
-                        <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
+                    <div class="product-card" data-category="${product.category}">
+                        <img src="${product.image}" alt="${product.name}" class="product-image">
                         ${badgeHTML}
                         <div class="product-name">${product.name}</div>
                         <div class="product-rating">
                             ${stars}
                             <span>(${product.rating})</span>
                         </div>
-                        ${product.discount_price ? `
-                            <div class="product-original-price">${product.price}</div>
-                            <div class="product-price">${product.discount_price}</div>
-                        ` : `
-                            <div class="product-price">${product.price}</div>
-                        `}
-                        <button class="product-btn" data-product-id="${product.id}" ${buttonDisabled ? 'disabled' : ''}>
-                            <i class="bi bi-bag"></i> ${buttonText}
+                        <div class="product-price">${product.price}</div>
+                        <button class="product-btn" data-product-id="${product.id}">
+                            <i class="bi bi-bag"></i> Beli Sekarang
                         </button>
                     </div>
                 `;
@@ -1556,7 +1109,7 @@ $db->close();
 
                 function updateDots() {
                     if (slideCount <= 1 || !dotsContainer) return;
-
+                    
                     const dots = document.querySelectorAll(`#${containerId}-dots .all-products-dot`);
                     dots.forEach((dot, index) => {
                         dot.classList.toggle('active', index === currentSlide);
@@ -1581,7 +1134,7 @@ $db->close();
                 // Keyboard navigation
                 document.addEventListener('keydown', (e) => {
                     if (slideCount <= 1) return;
-
+                    
                     if (e.ctrlKey && e.key === 'ArrowLeft') {
                         prevSlide();
                     } else if (e.ctrlKey && e.key === 'ArrowRight') {
@@ -1622,14 +1175,15 @@ $db->close();
 
             // ===== FILTER PRODUK POPULER =====
             function filterPopularProducts(category) {
-                const products = getPopularProductsByCategory(category);
-                renderProductsSlider(products, 'popular-products-container', 'Produk Populer');
-            }
+                let filteredProducts;
 
-            // ===== RENDER PRODUK TERBARU =====
-            function renderLatestProducts() {
-                const products = getLatestProductsByCategory();
-                renderProductsSlider(products, 'latest-products-container', 'Produk Terbaru');
+                if (category === 'all') {
+                    filteredProducts = popularProducts;
+                } else {
+                    filteredProducts = popularProducts.filter(product => product.category === category);
+                }
+
+                renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer');
             }
 
             // ===== UPDATE TAB KATEGORI =====
@@ -1646,15 +1200,15 @@ $db->close();
             // ===== FUNGSI UNTUK RESPONSIF =====
             function handleResize() {
                 initTabsSlider();
-
+                
                 // Render ulang slider produk saat resize untuk update layout
                 const activeTab = document.querySelector('#categoryTabsSlider .category-tab.active');
                 if (activeTab) {
                     filterPopularProducts(activeTab.dataset.category);
                 }
-
+                
                 // Render ulang slider produk terbaru
-                renderLatestProducts();
+                renderProductsSlider(latestProducts, 'latest-products-container', 'Produk Terbaru');
             }
 
             // ===== EVENT LISTENERS =====
@@ -1686,15 +1240,7 @@ $db->close();
                 if (e.target.classList.contains('product-btn') || e.target.closest('.product-btn')) {
                     const productCard = e.target.closest('.product-card');
                     const productName = productCard.querySelector('.product-name').textContent;
-                    const productId = productCard.dataset.id;
-                    const productCategory = productCard.dataset.category;
-
-                    if (e.target.disabled) {
-                        alert(`Maaf, produk "${productName}" sedang tidak tersedia.`);
-                    } else {
-                        alert(`Terima kasih! Anda akan membeli: ${productName}\nID: ${productId}\nKategori: ${productCategory}`);
-                        // Di sini Anda bisa menambahkan logika untuk menambahkan ke keranjang belanja
-                    }
+                    alert(`Terima kasih! Anda akan membeli: ${productName}`);
                 }
             });
 
@@ -1712,9 +1258,10 @@ $db->close();
             }
 
             // ===== INISIALISASI =====
+            loadCategoryProducts(); // Load kategori produk dari file terpisah
             initTabsSlider();
             filterPopularProducts('all'); // Render produk populer awal
-            renderLatestProducts(); // Render produk terbaru
+            renderProductsSlider(latestProducts, 'latest-products-container', 'Produk Terbaru'); // Render produk terbaru
         });
     </script>
 </body>
