@@ -588,13 +588,13 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                                 <span>Produk Apple Populer</span>
                             </a>
                         </li>
-                        <li class="active">
+                        <li>
                             <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
                             </a>
                         </li>
-                        <li>
+                        <li class="active">
                             <a href="../../homepage-panel/image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
