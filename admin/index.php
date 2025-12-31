@@ -32,6 +32,9 @@ $mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM
 $music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
 $watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
 $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -390,18 +393,21 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
                             <a href="homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li>

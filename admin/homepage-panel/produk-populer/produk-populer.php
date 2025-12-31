@@ -12,6 +12,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 // Ambil data produk populer yang sudah ada
 $query_populer = "SELECT * FROM home_produk_populer ORDER BY urutan, created_at DESC";
 $result_populer = mysqli_query($db, $query_populer);
+$populer_count = mysqli_num_rows($result_populer);
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
 
 // Fungsi untuk mengambil detail produk berdasarkan tipe
 function getProductDetail($db, $tipe, $produk_id)
@@ -93,6 +95,96 @@ foreach ($tables as $key => $table_name) {
     ];
 }
 
+$airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
+$airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
+$airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
+$airtag_first_id = $airtag_first_id_data['first_id'];
+
+// Ambil data produk terbaru dari tabel home_produk_terbaru
+$query = "SELECT 
+            hpt.*,
+            CASE 
+                WHEN hpt.tipe_produk = 'iphone' THEN iphone.nama_produk
+                WHEN hpt.tipe_produk = 'ipad' THEN ipad.nama_produk
+                WHEN hpt.tipe_produk = 'mac' THEN mac.nama_produk
+                WHEN hpt.tipe_produk = 'music' THEN music.nama_produk
+                WHEN hpt.tipe_produk = 'watch' THEN watch.nama_produk
+                WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
+                WHEN hpt.tipe_produk = 'airtag' THEN airtag.nama_produk
+            END as nama_produk,
+            CASE 
+                WHEN hpt.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
+                WHEN hpt.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
+            END as foto_thumbnail,
+            CASE 
+                WHEN hpt.tipe_produk = 'iphone' THEN MIN(iphone_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'ipad' THEN MIN(ipad_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'mac' THEN MIN(mac_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'music' THEN MIN(music_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'watch' THEN MIN(watch_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'aksesoris' THEN MIN(aksesoris_kombinasi.harga)
+                WHEN hpt.tipe_produk = 'airtag' THEN MIN(airtag_kombinasi.harga)
+            END as harga_terendah
+          FROM home_produk_terbaru hpt
+          LEFT JOIN admin_produk_iphone iphone ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone.id
+          LEFT JOIN admin_produk_ipad ipad ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad.id
+          LEFT JOIN admin_produk_mac mac ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac.id
+          LEFT JOIN admin_produk_music music ON hpt.tipe_produk = 'music' AND hpt.produk_id = music.id
+          LEFT JOIN admin_produk_watch watch ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch.id
+          LEFT JOIN admin_produk_aksesoris aksesoris ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris.id
+          LEFT JOIN admin_produk_airtag airtag ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag.id
+          LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_gambar.produk_id
+          LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_gambar.produk_id
+          LEFT JOIN admin_produk_mac_gambar mac_gambar ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_gambar.produk_id
+          LEFT JOIN admin_produk_music_gambar music_gambar ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_gambar.produk_id
+          LEFT JOIN admin_produk_watch_gambar watch_gambar ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_gambar.produk_id
+          LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_gambar.produk_id
+          LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_gambar.produk_id
+          LEFT JOIN admin_produk_iphone_kombinasi iphone_kombinasi ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_kombinasi.produk_id
+          LEFT JOIN admin_produk_ipad_kombinasi ipad_kombinasi ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_kombinasi.produk_id
+          LEFT JOIN admin_produk_mac_kombinasi mac_kombinasi ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_kombinasi.produk_id
+          LEFT JOIN admin_produk_music_kombinasi music_kombinasi ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_kombinasi.produk_id
+          LEFT JOIN admin_produk_watch_kombinasi watch_kombinasi ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_kombinasi.produk_id
+          LEFT JOIN admin_produk_aksesoris_kombinasi aksesoris_kombinasi ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_kombinasi.produk_id
+          LEFT JOIN admin_produk_airtag_kombinasi airtag_kombinasi ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_kombinasi.produk_id
+          GROUP BY hpt.id, hpt.produk_id, hpt.tipe_produk
+          ORDER BY hpt.urutan ASC, hpt.created_at DESC";
+$result = mysqli_query($db, $query);
+
+// Hitung jumlah produk terbaru
+$terbaru_count = mysqli_num_rows($result);
+
+// Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
+$tables = [
+    'iphone' => 'admin_produk_iphone',
+    'ipad' => 'admin_produk_ipad',
+    'mac' => 'admin_produk_mac',
+    'watch' => 'admin_produk_watch',
+    'music' => 'admin_produk_music',
+    'aksesoris' => 'admin_produk_aksesoris',
+    'airtag' => 'admin_produk_airtag'
+];
+
+// Array untuk menyimpan jumlah dan ID pertama setiap kategori
+$category_data = [];
+
+foreach ($tables as $key => $table_name) {
+    $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
+    $count_result = mysqli_query($db, $count_query);
+    $data = mysqli_fetch_assoc($count_result);
+    
+    $category_data[$key] = [
+        'count' => $data['total'],
+        'first_id' => $data['first_id']
+    ];
+}
+
+// Dapatkan ID pertama untuk AirTag
 $airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
 $airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
 $airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
@@ -552,9 +644,62 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                 <div class="menu-section">
                     <h3 class="section-title">Panel Produk</h3>
                     <ul>
-                        <!-- ... (Menu sama dengan airtag.php) ... -->
                         <li>
-                            <a href="../../products-panel/airtag/airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
+                            <a href="../../index.php">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/categories/kategori.php">
+                                <i class="fas fa-tags"></i>
+                                <span>Kategori</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/ipad/ipad.php<?php echo $category_data['ipad']['first_id'] ? '?id=' . $category_data['ipad']['first_id'] : ''; ?>">
+                                <i class="fas fa-tablet-alt"></i>
+                                <span>iPad</span>
+                                <span class="badge"><?php echo $category_data['ipad']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/iphone/iphone.php<?php echo $category_data['iphone']['first_id'] ? '?id=' . $category_data['iphone']['first_id'] : ''; ?>">
+                                <i class="fas fa-mobile-alt"></i>
+                                <span>iPhone</span>
+                                <span class="badge"><?php echo $category_data['iphone']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/mac/mac.php<?php echo $category_data['mac']['first_id'] ? '?id=' . $category_data['mac']['first_id'] : ''; ?>">
+                                <i class="fas fa-laptop"></i>
+                                <span>Mac</span>
+                                <span class="badge"><?php echo $category_data['mac']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/music/music.php<?php echo $category_data['music']['first_id'] ? '?id=' . $category_data['music']['first_id'] : ''; ?>">
+                                <i class="fas fa-headphones-alt"></i>
+                                <span>Music</span>
+                                <span class="badge"><?php echo $category_data['music']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/watch/watch.php<?php echo $category_data['watch']['first_id'] ? '?id=' . $category_data['watch']['first_id'] : ''; ?>">
+                                <i class="fas fa-clock"></i>
+                                <span>Watch</span>
+                                <span class="badge"><?php echo $category_data['watch']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../products-panel/aksesoris/aksesoris.php<?php echo $category_data['aksesoris']['first_id'] ? '?id=' . $category_data['aksesoris']['first_id'] : ''; ?>">
+                                <i class="fas fa-toolbox"></i>
+                                <span>Aksesoris</span>
+                                <span class="badge"><?php echo $category_data['aksesoris']['count']; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
                                 <span class="badge"><?php echo $category_data['airtag']['count']; ?></span>
@@ -570,16 +715,86 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                             <a href="../../homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li class="active">
                             <a href="../../homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
-                        <!-- ... (Menu lainnya) ... -->
+                        <li>
+                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
+                                <i class="fas fa-bolt"></i>
+                                <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/image-grid/image-grid.php">
+                                <i class="fas fa-th"></i>
+                                <span>Image grid</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/trade-in/trade-in.php">
+                                <i class="fas fa-exchange-alt"></i>
+                                <span>Trade in</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
+                                <i class="fas fa-gem"></i>
+                                <span>Aksesori unggulan</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span>Checkout sekarang</span>
+                            </a>
+                        </li>
                     </ul>
+                </div>
+
+                <div class="menu-section">
+                    <h3 class="section-title">Lainnya</h3>
+                    <ul>
+                        <li>
+                            <a href="../../other/users/users.php">
+                                <i class="fas fa-users"></i>
+                                <span>Pengguna</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/orders/order.php">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Pesanan</span>
+                                <span class="badge badge-warning">5</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="../../other/settings/settings.php">
+                                <i class="fas fa-cog"></i>
+                                <span>Pengaturan</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_username); ?>&background=4a6cf7&color=fff" alt="Admin">
+                    <div class="user-info">
+                        <h4><?php echo htmlspecialchars($admin_username); ?></h4>
+                        <p>Admin iBox</p>
+                    </div>
+                    <a href="../../auth/logout.php" class="logout-btn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
                 </div>
             </div>
         </aside>

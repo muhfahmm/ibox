@@ -19,6 +19,9 @@ $watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FR
 $music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
 $aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
 $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
 
 // Handle delete action
 if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id'])) {
@@ -624,18 +627,21 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
                             <a href="#">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
-                                <span>Produk Populer</span>
+                                <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li>
