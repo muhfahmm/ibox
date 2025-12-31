@@ -432,12 +432,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
             transition: transform 0.3s;
         }
 
-        .slider-image:hover {
-            transform: scale(1.5);
-            z-index: 10;
-            position: relative;
-        }
-
         /* Action Buttons in Table */
         .action-buttons-cell {
             display: flex;
@@ -863,22 +857,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
                 event.preventDefault();
             }
         }
-
-        // Image zoom on hover
-        document.addEventListener('DOMContentLoaded', function() {
-            const images = document.querySelectorAll('.slider-image');
-            images.forEach(img => {
-                img.addEventListener('mouseenter', function() {
-                    this.style.zIndex = '100';
-                    this.style.boxShadow = '0 10px 20px rgba(0,0,0,0.3)';
-                });
-                
-                img.addEventListener('mouseleave', function() {
-                    this.style.zIndex = '';
-                    this.style.boxShadow = '';
-                });
-            });
-        });
 
         // Session timeout warning (30 minutes)
         setTimeout(function() {

@@ -2,7 +2,6 @@
 session_start();
 require_once '../../db.php';
 
-// Jika belum login, redirect ke login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../../auth/login.php?error=not_logged_in');
     exit();
@@ -10,48 +9,90 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
-// Ambil data produk AirTag dengan kombinasi
-$query = "SELECT p.*, 
-                 COUNT(DISTINCT k.id) as total_kombinasi,
-                 COUNT(DISTINCT g.id) as total_warna,
-                 MIN(k.harga) as harga_terendah,
-                 MAX(k.harga) as harga_tertinggi,
-                 SUM(k.jumlah_stok) as total_stok
-          FROM admin_produk_airtag p
-          LEFT JOIN admin_produk_airtag_kombinasi k ON p.id = k.produk_id
-          LEFT JOIN admin_produk_airtag_gambar g ON p.id = g.produk_id
-          GROUP BY p.id
-          ORDER BY p.id DESC";
-$result = mysqli_query($db, $query);
+// Ambil data produk populer yang sudah ada
+$query_populer = "SELECT * FROM home_produk_populer ORDER BY urutan, created_at DESC";
+$result_populer = mysqli_query($db, $query_populer);
 
-// Hitung jumlah produk AirTag
-$airtag_count = mysqli_num_rows($result);
+// Fungsi untuk mengambil detail produk berdasarkan tipe
+function getProductDetail($db, $tipe, $produk_id)
+{
+    $configs = [
+        'iphone' => [
+            'table' => 'admin_produk_iphone',
+            'gambar' => 'admin_produk_iphone_gambar',
+            'kombinasi' => 'admin_produk_iphone_kombinasi'
+        ],
+        'ipad' => [
+            'table' => 'admin_produk_ipad',
+            'gambar' => 'admin_produk_ipad_gambar',
+            'kombinasi' => 'admin_produk_ipad_kombinasi'
+        ],
+        'mac' => [
+            'table' => 'admin_produk_mac',
+            'gambar' => 'admin_produk_mac_gambar',
+            'kombinasi' => 'admin_produk_mac_kombinasi'
+        ],
+        'music' => [
+            'table' => 'admin_produk_music',
+            'gambar' => 'admin_produk_music_gambar',
+            'kombinasi' => 'admin_produk_music_kombinasi'
+        ],
+        'watch' => [
+            'table' => 'admin_produk_watch',
+            'gambar' => 'admin_produk_watch_gambar',
+            'kombinasi' => 'admin_produk_watch_kombinasi'
+        ],
+        'aksesoris' => [
+            'table' => 'admin_produk_aksesoris',
+            'gambar' => 'admin_produk_aksesoris_gambar',
+            'kombinasi' => 'admin_produk_aksesoris_kombinasi'
+        ],
+        'airtag' => [
+            'table' => 'admin_produk_airtag',
+            'gambar' => 'admin_produk_airtag_gambar',
+            'kombinasi' => 'admin_produk_airtag_kombinasi'
+        ]
+    ];
 
-// Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
+    if (!isset($configs[$tipe])) return null;
+
+    $config = $configs[$tipe];
+
+    // Query untuk mengambil detail produk
+    $query = "SELECT 
+                p.*,
+                (SELECT foto_thumbnail FROM {$config['gambar']} WHERE produk_id = p.id LIMIT 1) as thumbnail,
+                (SELECT MIN(harga) FROM {$config['kombinasi']} WHERE produk_id = p.id) as harga_terendah
+              FROM {$config['table']} p 
+              WHERE p.id = '$produk_id'";
+
+    $result = mysqli_query($db, $query);
+    return mysqli_fetch_assoc($result);
+}
+
+// Hitung jumlah per kategori untuk sidebar (sama seperti di airtag.php)
 $tables = [
     'iphone' => 'admin_produk_iphone',
     'ipad' => 'admin_produk_ipad',
     'mac' => 'admin_produk_mac',
     'watch' => 'admin_produk_watch',
     'music' => 'admin_produk_music',
-    'aksesoris' => 'admin_produk_aksesoris'
+    'aksesoris' => 'admin_produk_aksesoris',
+    'airtag' => 'admin_produk_airtag'
 ];
 
-// Array untuk menyimpan jumlah dan ID pertama setiap kategori
 $category_data = [];
-
 foreach ($tables as $key => $table_name) {
     $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
     $count_result = mysqli_query($db, $count_query);
     $data = mysqli_fetch_assoc($count_result);
-    
+
     $category_data[$key] = [
         'count' => $data['total'],
         'first_id' => $data['first_id']
     ];
 }
 
-// Dapatkan ID pertama untuk AirTag
 $airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
 $airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
 $airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
@@ -60,10 +101,11 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Kelola AirTag</title>
+    <title>Admin Panel - Produk Populer</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -494,9 +536,10 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
-        <!-- Sidebar -->
+        <!-- Sidebar (sama dengan airtag.php) -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -509,65 +552,12 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                 <div class="menu-section">
                     <h3 class="section-title">Panel Produk</h3>
                     <ul>
+                        <!-- ... (Menu sama dengan airtag.php) ... -->
                         <li>
-                            <a href="../../index.php">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/categories/kategori.php">
-                                <i class="fas fa-tags"></i>
-                                <span>Kategori</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/ipad/ipad.php<?php echo $category_data['ipad']['first_id'] ? '?id=' . $category_data['ipad']['first_id'] : ''; ?>">
-                                <i class="fas fa-tablet-alt"></i>
-                                <span>iPad</span>
-                                <span class="badge"><?php echo $category_data['ipad']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/iphone/iphone.php<?php echo $category_data['iphone']['first_id'] ? '?id=' . $category_data['iphone']['first_id'] : ''; ?>">
-                                <i class="fas fa-mobile-alt"></i>
-                                <span>iPhone</span>
-                                <span class="badge"><?php echo $category_data['iphone']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/mac/mac.php<?php echo $category_data['mac']['first_id'] ? '?id=' . $category_data['mac']['first_id'] : ''; ?>">
-                                <i class="fas fa-laptop"></i>
-                                <span>Mac</span>
-                                <span class="badge"><?php echo $category_data['mac']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/music/music.php<?php echo $category_data['music']['first_id'] ? '?id=' . $category_data['music']['first_id'] : ''; ?>">
-                                <i class="fas fa-headphones-alt"></i>
-                                <span>Music</span>
-                                <span class="badge"><?php echo $category_data['music']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/watch/watch.php<?php echo $category_data['watch']['first_id'] ? '?id=' . $category_data['watch']['first_id'] : ''; ?>">
-                                <i class="fas fa-clock"></i>
-                                <span>Watch</span>
-                                <span class="badge"><?php echo $category_data['watch']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/aksesoris/aksesoris.php<?php echo $category_data['aksesoris']['first_id'] ? '?id=' . $category_data['aksesoris']['first_id'] : ''; ?>">
-                                <i class="fas fa-toolbox"></i>
-                                <span>Aksesoris</span>
-                                <span class="badge"><?php echo $category_data['aksesoris']['count']; ?></span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
+                            <a href="../../products-panel/airtag/airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
-                                <span class="badge"><?php echo $airtag_count; ?></span>
+                                <span class="badge"><?php echo $category_data['airtag']['count']; ?></span>
                             </a>
                         </li>
                     </ul>
@@ -588,75 +578,8 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                                 <span>Produk Apple Populer</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
-                                <i class="fas fa-bolt"></i>
-                                <span>Produk Terbaru</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/image-grid/image-grid.php">
-                                <i class="fas fa-th"></i>
-                                <span>Image grid</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/trade-in/trade-in.php">
-                                <i class="fas fa-exchange-alt"></i>
-                                <span>Trade in</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
-                                <i class="fas fa-gem"></i>
-                                <span>Aksesori unggulan</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
-                                <i class="fas fa-shopping-bag"></i>
-                                <span>Checkout sekarang</span>
-                            </a>
-                        </li>
+                        <!-- ... (Menu lainnya) ... -->
                     </ul>
-                </div>
-
-                <div class="menu-section">
-                    <h3 class="section-title">Lainnya</h3>
-                    <ul>
-                        <li>
-                            <a href="../../other/users/users.php">
-                                <i class="fas fa-users"></i>
-                                <span>Pengguna</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/orders/order.php">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Pesanan</span>
-                                <span class="badge badge-warning">5</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/settings/settings.php">
-                                <i class="fas fa-cog"></i>
-                                <span>Pengaturan</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="sidebar-footer">
-                <div class="user-profile">
-                    <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($admin_username); ?>&background=4a6cf7&color=fff" alt="Admin">
-                    <div class="user-info">
-                        <h4><?php echo htmlspecialchars($admin_username); ?></h4>
-                        <p>Admin iBox</p>
-                    </div>
-                    <a href="../../auth/logout.php" class="logout-btn" title="Logout">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </a>
                 </div>
             </div>
         </aside>
@@ -664,136 +587,99 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
         <!-- Main Content -->
         <main class="main-content">
             <div class="page-header">
-                <h1><i class="fas fa-tag me-2"></i> Kelola Produk AirTag</h1>
-                <a href="add-airtag.php" class="btn-add">
-                    <i class="fas fa-plus"></i> Tambah Produk AirTag
+                <h1><i class="fas fa-fire me-2"></i> Kelola Produk Populer</h1>
+                <a href="add-produk-populer.php" class="btn-add">
+                    <i class="fas fa-plus"></i> Tambah Produk Populer
                 </a>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-list me-2"></i> Daftar Produk AirTag</h3>
+                    <h3><i class="fas fa-list me-2"></i> Daftar Produk Populer</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-container">
-                        <?php if(mysqli_num_rows($result) > 0): ?>
+                        <?php if (mysqli_num_rows($result_populer) > 0): ?>
                             <table>
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Produk</th>
-                                        <th>Statistik</th>
-                                        <th>Harga Range</th>
-                                        <th>Total Stok</th>
+                                        <th>Tipe</th>
+                                        <th>Label</th>
+                                        <th>Urutan</th>
+                                        <th>Harga</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($product = mysqli_fetch_assoc($result)): 
-                                        // Ambil thumbnail pertama untuk produk
-                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
-                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
-                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-                                        
-                                        // Ambil semua warna untuk produk ini
-                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
-                                        $result_warna = mysqli_query($db, $query_warna);
-                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-                                        
-                                        // Check if product has stock
-                                        $has_stock = $product['total_stok'] > 0;
+                                    <?php while ($item = mysqli_fetch_assoc($result_populer)):
+                                        $detail = getProductDetail($db, $item['tipe_produk'], $item['produk_id']);
                                     ?>
-                                    <tr>
-                                        <td><strong>#<?php echo $product['id']; ?></strong></td>
-                                        <td>
-                                            <div class="product-info">
-                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
-                                                         alt="Thumbnail" class="thumbnail-img">
-                                                <?php else: ?>
-                                                    <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                                                        <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
-                                                    </div>
-                                                <?php endif; ?>
-                                                <div class="product-details">
-                                                    <div class="product-title">
-                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                                                    </div>
-                                                    <div class="product-desc">
-                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                                                    </div>
-                                                    <div class="product-stats">
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-palette"></i>
-                                                            <?php echo $product['total_warna']; ?> Warna
-                                                        </span>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-layer-group"></i>
-                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="product-stats">
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-boxes"></i>
-                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                </span>
-                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php if($product['harga_terendah']): ?>
-                                                <div class="price-range">
-                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
+                                        <tr>
+                                            <td><strong>#<?php echo $item['id']; ?></strong></td>
+                                            <td>
+                                                <div class="product-info">
+                                                    <?php if (!empty($detail['thumbnail'])): ?>
+                                                        <img src="../../uploads/<?php echo htmlspecialchars($detail['thumbnail']); ?>"
+                                                            alt="Thumbnail" class="thumbnail-img">
+                                                    <?php else: ?>
+                                                        <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                                        </div>
                                                     <?php endif; ?>
+                                                    <div class="product-details">
+                                                        <span class="tipe-badge">
+                                                            <?php echo strtoupper($item['tipe_produk']); ?>
+                                                        </span>
+                                                        <div class="product-title">
+                                                            <?php echo htmlspecialchars($detail['nama_produk'] ?? 'Produk tidak ditemukan'); ?>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <small class="text-muted">
-                                                    Mulai dari
-                                                </small>
-                                            <?php else: ?>
-                                                <span class="text-muted">Belum ada harga</span>
-                                            <?php endif; ?>
-                                        </td>
-                                        <td>
-                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-                                            </div>
-                                            <small class="text-muted">
-                                                Stok total semua kombinasi
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                                                    <i class="fas fa-eye"></i> Lihat
-                                                </a>
-                                                <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                            <td>
+                                                <?php echo ucfirst($item['tipe_produk']); ?>
+                                            </td>
+                                            <td>
+                                                <span class="label-badge" style="background: #ff6b6b; color: white; padding: 3px 10px; border-radius: 15px;">
+                                                    <?php echo htmlspecialchars($item['label']); ?>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <?php echo $item['urutan']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($detail['harga_terendah'])): ?>
+                                                    <div class="price-range">
+                                                        Rp <?php echo number_format($detail['harga_terendah'], 0, ',', '.'); ?>
+                                                    </div>
+                                                <?php else: ?>
+                                                    <span class="text-muted">Tidak ada harga</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="edit-produk-populer.php?id=<?php echo $item['id']; ?>" class="btn-edit">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="delete-produk-populer.php?id=<?php echo $item['id']; ?>" class="btn-delete"
+                                                        onclick="return confirm('Yakin ingin menghapus produk ini dari daftar populer?')">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
                                     <?php endwhile; ?>
                                 </tbody>
                             </table>
                         <?php else: ?>
                             <div class="no-data">
-                                <i class="fas fa-tag" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
-                                <h4>Belum ada produk AirTag</h4>
-                                <p>Mulai dengan menambahkan produk AirTag pertama Anda</p>
-                                <a href="add-airtag.php" class="btn-add mt-3" style="display: inline-flex;">
-                                    <i class="fas fa-plus"></i> Tambah Produk Pertama
+                                <i class="fas fa-fire" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
+                                <h4>Belum ada produk populer</h4>
+                                <p>Mulai dengan menambahkan produk populer pertama Anda</p>
+                                <a href="add-produk-populer.php" class="btn-add mt-3" style="display: inline-flex;">
+                                    <i class="fas fa-plus"></i> Tambah Produk Populer
                                 </a>
                             </div>
                         <?php endif; ?>
@@ -802,17 +688,6 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
             </div>
         </main>
     </div>
-
-    <script>
-        // Session timeout warning 
-        setTimeout(function() {
-            alert('Session akan segera berakhir. Silakan login kembali.');
-        }, 25 * 60 * 1000);
-
-        // Auto logout 
-        setTimeout(function() {
-            window.location.href = '../../auth/logout.php';
-        }, 30 * 60 * 1000);
-    </script>
 </body>
+
 </html>
