@@ -2984,6 +2984,273 @@
         </script>
     </div>
 
+    <?php
+// Koneksi ke database
+require '../db/db.php';
+
+// Fungsi untuk mengambil data produk dari database
+function getPopularProducts($db, $limit = 12) {
+    $products = [];
+    
+    // 1. Ambil produk Mac
+    $query_mac = "SELECT 
+        m.id, 
+        m.nama_produk as name,
+        'mac' as category,
+        COALESCE(MIN(mk.harga), 0) as price,
+        mg.foto_thumbnail as image
+    FROM admin_produk_mac m
+    LEFT JOIN admin_produk_mac_kombinasi mk ON m.id = mk.produk_id
+    LEFT JOIN admin_produk_mac_gambar mg ON m.id = mg.produk_id
+    GROUP BY m.id, mg.foto_thumbnail
+    ORDER BY m.id DESC
+    LIMIT $limit";
+    
+    $result_mac = mysqli_query($db, $query_mac);
+    while($row = mysqli_fetch_assoc($result_mac)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 2. Ambil produk iPhone
+    $query_iphone = "SELECT 
+        p.id, 
+        p.nama_produk as name,
+        'iphone' as category,
+        COALESCE(MIN(pk.harga), 0) as price,
+        pg.foto_thumbnail as image
+    FROM admin_produk_iphone p
+    LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
+    LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
+    GROUP BY p.id, pg.foto_thumbnail
+    ORDER BY p.id DESC
+    LIMIT $limit";
+    
+    $result_iphone = mysqli_query($db, $query_iphone);
+    while($row = mysqli_fetch_assoc($result_iphone)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 3. Ambil produk iPad
+    $query_ipad = "SELECT 
+        p.id, 
+        p.nama_produk as name,
+        'ipad' as category,
+        COALESCE(MIN(pk.harga), 0) as price,
+        pg.foto_thumbnail as image
+    FROM admin_produk_ipad p
+    LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
+    LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
+    GROUP BY p.id, pg.foto_thumbnail
+    ORDER BY p.id DESC
+    LIMIT $limit";
+    
+    $result_ipad = mysqli_query($db, $query_ipad);
+    while($row = mysqli_fetch_assoc($result_ipad)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 4. Ambil produk Watch
+    $query_watch = "SELECT 
+        w.id, 
+        w.nama_produk as name,
+        'watch' as category,
+        COALESCE(MIN(wk.harga), 0) as price,
+        wg.foto_thumbnail as image
+    FROM admin_produk_watch w
+    LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
+    LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
+    GROUP BY w.id, wg.foto_thumbnail
+    ORDER BY w.id DESC
+    LIMIT $limit";
+    
+    $result_watch = mysqli_query($db, $query_watch);
+    while($row = mysqli_fetch_assoc($result_watch)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 5. Ambil produk Aksesori
+    $query_accessories = "SELECT 
+        a.id, 
+        a.nama_produk as name,
+        'aksesori' as category,
+        COALESCE(MIN(ak.harga), 0) as price,
+        ag.foto_thumbnail as image
+    FROM admin_produk_aksesoris a
+    LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
+    LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
+    GROUP BY a.id, ag.foto_thumbnail
+    ORDER BY a.id DESC
+    LIMIT $limit";
+    
+    $result_accessories = mysqli_query($db, $query_accessories);
+    while($row = mysqli_fetch_assoc($result_accessories)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 6. Ambil produk Music
+    $query_music = "SELECT 
+        m.id, 
+        m.nama_produk as name,
+        'music' as category,
+        COALESCE(MIN(mk.harga), 0) as price,
+        mg.foto_thumbnail as image
+    FROM admin_produk_music m
+    LEFT JOIN admin_produk_music_kombinasi mk ON m.id = mk.produk_id
+    LEFT JOIN admin_produk_music_gambar mg ON m.id = mg.produk_id
+    GROUP BY m.id, mg.foto_thumbnail
+    ORDER BY m.id DESC
+    LIMIT $limit";
+    
+    $result_music = mysqli_query($db, $query_music);
+    while($row = mysqli_fetch_assoc($result_music)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // 7. Ambil produk Airtag
+    $query_airtag = "SELECT 
+        a.id, 
+        a.nama_produk as name,
+        'airtag' as category,
+        COALESCE(MIN(ak.harga), 0) as price,
+        ag.foto_thumbnail as image
+    FROM admin_produk_airtag a
+    LEFT JOIN admin_produk_airtag_kombinasi ak ON a.id = ak.produk_id
+    LEFT JOIN admin_produk_airtag_gambar ag ON a.id = ag.produk_id
+    GROUP BY a.id, ag.foto_thumbnail
+    ORDER BY a.id DESC
+    LIMIT $limit";
+    
+    $result_airtag = mysqli_query($db, $query_airtag);
+    while($row = mysqli_fetch_assoc($result_airtag)) {
+        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+        $row['rating'] = 4.5;
+        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+        $products[] = $row;
+    }
+    
+    // Acak produk untuk variasi
+    shuffle($products);
+    
+    return $products;
+}
+
+function getLatestProducts($db, $limit = 12) {
+    $products = [];
+    
+    // Gabungkan semua produk terbaru dari berbagai kategori
+    $queries = [
+        "SELECT m.id, m.nama_produk as name, 'mac' as category, 
+                COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image,
+                'Mac' as type
+         FROM admin_produk_mac m
+         LEFT JOIN admin_produk_mac_kombinasi mk ON m.id = mk.produk_id
+         LEFT JOIN admin_produk_mac_gambar mg ON m.id = mg.produk_id
+         GROUP BY m.id, mg.foto_thumbnail
+         ORDER BY m.id DESC
+         LIMIT 3",
+         
+        "SELECT p.id, p.nama_produk as name, 'iphone' as category, 
+                COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image,
+                'iPhone' as type
+         FROM admin_produk_iphone p
+         LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
+         LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
+         GROUP BY p.id, pg.foto_thumbnail
+         ORDER BY p.id DESC
+         LIMIT 3",
+         
+        "SELECT p.id, p.nama_produk as name, 'ipad' as category, 
+                COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image,
+                'iPad' as type
+         FROM admin_produk_ipad p
+         LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
+         LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
+         GROUP BY p.id, pg.foto_thumbnail
+         ORDER BY p.id DESC
+         LIMIT 2",
+         
+        "SELECT w.id, w.nama_produk as name, 'watch' as category, 
+                COALESCE(MIN(wk.harga), 0) as price, wg.foto_thumbnail as image,
+                'Watch' as type
+         FROM admin_produk_watch w
+         LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
+         LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
+         GROUP BY w.id, wg.foto_thumbnail
+         ORDER BY w.id DESC
+         LIMIT 2",
+         
+        "SELECT a.id, a.nama_produk as name, 'aksesori' as category, 
+                COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image,
+                'Aksesori' as type
+         FROM admin_produk_aksesoris a
+         LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
+         LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
+         GROUP BY a.id, ag.foto_thumbnail
+         ORDER BY a.id DESC
+         LIMIT 2"
+    ];
+    
+    foreach ($queries as $query) {
+        $result = mysqli_query($db, $query);
+        while($row = mysqli_fetch_assoc($result)) {
+            $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+            $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+            $row['rating'] = 4.8;
+            $row['badge'] = ['text' => 'Terbaru', 'type' => 'new'];
+            $products[] = $row;
+        }
+    }
+    
+    // Acak produk untuk variasi
+    shuffle($products);
+    
+    return array_slice($products, 0, $limit);
+}
+
+// Ambil data dari database
+$popularProducts = getPopularProducts($db, 16);
+$latestProducts = getLatestProducts($db, 12);
+
+// Konversi ke JSON untuk JavaScript
+$popularProductsJSON = json_encode($popularProducts);
+$latestProductsJSON = json_encode($latestProducts);
+?>
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iBox Indonesia - Produk Apple</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
     <div class="all-products-container">
         <style>
             * {
@@ -3097,6 +3364,12 @@
             .tabs-swipe-hint i {
                 margin-right: 5px;
                 font-size: 14px;
+            }
+
+            @keyframes pulse {
+                0% { opacity: 0.5; }
+                50% { opacity: 1; }
+                100% { opacity: 0.5; }
             }
 
             /* Responsif untuk tabs slider */
@@ -3215,6 +3488,7 @@
                 flex-direction: column;
                 align-items: center;
                 text-align: center;
+                width: calc(25% - 20px);
             }
 
             .product-card:hover {
@@ -3249,8 +3523,8 @@
                 background-color: #007aff;
             }
 
-            .product-badge.discount {
-                background-color: #34c759;
+            .product-badge.hot {
+                background-color: #ff3b30;
             }
 
             .product-name {
@@ -3403,8 +3677,7 @@
                 background-color: rgba(0, 122, 255, 0.4);
             }
 
-            /* Responsive untuk semua slider - MODIFIKASI UTAMA */
-            /* Desktop besar: 4 produk per slide */
+            /* Responsive untuk semua slider */
             @media (min-width: 1200px) {
                 .all-products-slide-inner .product-card {
                     width: calc(25% - 20px);
@@ -3413,7 +3686,6 @@
                 }
             }
 
-            /* Tablet landscape: 3 produk per slide */
             @media (min-width: 900px) and (max-width: 1199px) {
                 .all-products-slide-inner .product-card {
                     width: calc(33.333% - 20px);
@@ -3432,7 +3704,6 @@
                 }
             }
 
-            /* Tablet portrait: 2 produk per slide */
             @media (min-width: 576px) and (max-width: 899px) {
                 .all-products-slide-inner .product-card {
                     width: calc(50% - 20px);
@@ -3460,7 +3731,6 @@
                 }
             }
 
-            /* Mobile kecil: 1 produk per slide */
             @media (max-width: 575px) {
                 .all-products-slide-inner .product-card {
                     width: calc(100% - 20px);
@@ -3498,7 +3768,6 @@
                 }
             }
 
-            /* Mobile sangat kecil */
             @media (max-width: 300px) {
                 .all-products-slide-inner .product-card {
                     width: 100%;
@@ -3577,10 +3846,6 @@
                 margin-top: 40px;
             }
 
-            h3 {
-                font-size: 24px;
-            }
-
             @media (max-width: 768px) {
                 h3 {
                     font-size: 22px;
@@ -3600,7 +3865,21 @@
                     font-size: 24px;
                 }
             }
+
+            /* Loading indicator */
+            .loading {
+                text-align: center;
+                padding: 40px;
+                font-size: 18px;
+                color: #666;
+            }
+
+            .loading i {
+                margin-right: 10px;
+                color: #007aff;
+            }
         </style>
+        
         <div class="all-products-wrapper">
             <div class="product-header">
                 <h1>Berbagai produk Apple</h1>
@@ -3617,7 +3896,9 @@
                     <button class="category-tab" data-category="iphone">iPhone</button>
                     <button class="category-tab" data-category="ipad">iPad</button>
                     <button class="category-tab" data-category="watch">Apple Watch</button>
-                    <button class="category-tab" data-category="accessories">Aksesori</button>
+                    <button class="category-tab" data-category="aksesori">Aksesori</button>
+                    <button class="category-tab" data-category="music">Music</button>
+                    <button class="category-tab" data-category="airtag">Airtag</button>
                 </div>
 
                 <!-- SWIPE HINT UNTUK MOBILE -->
@@ -3628,83 +3909,32 @@
 
             <!-- Container untuk slider produk populer -->
             <div id="popular-products-container">
-                <!-- Slider untuk produk populer akan dimuat di sini -->
+                <div class="loading">
+                    <i class="bi bi-arrow-clockwise"></i> Memuat produk populer...
+                </div>
             </div>
 
             <h3>Produk Terbaru</h3>
 
             <!-- Container untuk slider produk terbaru -->
             <div id="latest-products-container">
-                <!-- Slider untuk produk terbaru akan dimuat di sini -->
+                <div class="loading">
+                    <i class="bi bi-arrow-clockwise"></i> Memuat produk terbaru...
+                </div>
             </div>
         </div>
+        
         <script>
             document.addEventListener('DOMContentLoaded', function() {
+                // Data produk dari PHP (dikonversi ke JavaScript)
+                const popularProductsFromDB = <?php echo $popularProductsJSON; ?>;
+                const latestProductsFromDB = <?php echo $latestProductsJSON; ?>;
+                
                 const popularProductsContainer = document.getElementById('popular-products-container');
                 const latestProductsContainer = document.getElementById('latest-products-container');
                 const categoryTabs = document.querySelectorAll('#categoryTabsSlider .category-tab');
                 const categoryTabsSlider = document.getElementById('categoryTabsSlider');
                 const tabsSwipeHint = document.getElementById('tabsSwipeHint');
-
-                // ===== LOAD CATEGORY PRODUCTS DARI FILE TERPISAH =====
-                function loadCategoryProducts() {
-                    fetch('4-category-products.php')
-                        .then(response => response.text())
-                        .then(html => {
-                            categoryProductsSection.innerHTML = html;
-
-                            // Setelah konten dimuat, inisialisasi event listener
-                            setTimeout(() => {
-                                // Mendengarkan event custom dari kategori produk
-                                document.addEventListener('categoryProductSelected', function(e) {
-                                    const category = e.detail.category;
-                                    console.log(`Kategori dipilih dari komponen terpisah: ${category}`);
-
-                                    // Filter produk populer berdasarkan kategori
-                                    filterPopularProducts(category);
-
-                                    // Update tab kategori yang aktif
-                                    updateCategoryTab(category);
-                                });
-                            }, 100);
-                        })
-                        .catch(error => {
-                            console.error('Error loading category products:', error);
-                            categoryProductsSection.innerHTML = '<p>Gagal memuat kategori produk.</p>';
-                        });
-                }
-
-                // Data produk populer
-                const popularProducts = [{
-                        id: 1,
-                        name: 'MacBook Pro 14"',
-                        category: 'mac',
-                        price: 'Rp 24.999.000',
-                        image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mbp14-spacegray-select-202310?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1697230830030',
-                        badge: {
-                            text: 'Terlaris',
-                            type: 'hot'
-                        },
-                        rating: 4.7
-                    },
-                    // ... (data produk populer lainnya, sama seperti sebelumnya)
-                ];
-
-                // Data produk terbaru
-                const latestProducts = [{
-                        id: 9,
-                        name: 'MacBook Air 13" M3',
-                        category: 'mac',
-                        price: 'Rp 15.999.000',
-                        image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/macbook-air-spacegray-select-20220606?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1653084303665',
-                        badge: {
-                            text: 'Terbaru',
-                            type: 'new'
-                        },
-                        rating: 4.8
-                    },
-                    // ... (data produk terbaru lainnya, sama seperti sebelumnya)
-                ];
 
                 // ===== FUNGSI UNTUK TABS KATEGORI SLIDER =====
                 let isTabsDragging = false;
@@ -3828,13 +4058,10 @@
                     }
 
                     // Batasi pergerakan slider
-                    // Posisi maksimal (ke kiri): 0 (tidak bergerak dari posisi awal)
-                    // Posisi minimal (ke kanan): containerWidth - totalWidth
-                    // Jika totalWidth <= containerWidth, maka posisi harus 0
                     if (totalWidth <= containerWidth) {
                         position = 0;
                     } else {
-                        const minTranslate = Math.min(0, containerWidth - totalWidth - 20); // 20px padding untuk estetika
+                        const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
                         const maxTranslate = 0;
                         position = Math.max(minTranslate, Math.min(maxTranslate, position));
                     }
@@ -3849,7 +4076,6 @@
                     const containerWidth = container.clientWidth;
                     const tabs = categoryTabsSlider.children;
 
-                    // Hitung total lebar semua tab termasuk gap
                     const style = window.getComputedStyle(categoryTabsSlider);
                     const gap = parseFloat(style.gap) || 12;
                     let totalWidth = 0;
@@ -3861,24 +4087,19 @@
                         }
                     }
 
-                    // Jika totalWidth <= containerWidth, snap ke 0
                     if (totalWidth <= containerWidth) {
                         animateTabsSlider(0);
                         return;
                     }
 
-                    // Snap ke posisi terdekat yang valid
                     const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
                     const maxTranslate = 0;
 
                     let snapPosition = tabsCurrentTranslate;
 
-                    // Jika posisi saat ini dekat dengan batas kiri (0), snap ke 0
                     if (snapPosition > -50) {
                         snapPosition = 0;
-                    }
-                    // Jika posisi saat ini dekat dengan batas kanan, snap ke batas kanan
-                    else if (snapPosition < minTranslate + 50) {
+                    } else if (snapPosition < minTranslate + 50) {
                         snapPosition = minTranslate;
                     }
 
@@ -3895,9 +4116,7 @@
                         const elapsed = currentTime - startTime;
                         const progress = Math.min(elapsed / duration, 1);
 
-                        // Easing function (easeOutCubic)
                         const ease = 1 - Math.pow(1 - progress, 3);
-
                         const currentPosition = startPosition + (targetPosition - startPosition) * ease;
 
                         categoryTabsSlider.style.transform = `translateX(${currentPosition}px)`;
@@ -3913,6 +4132,21 @@
 
                 // ===== FUNGSI UNTUK PRODUK SLIDER =====
                 function renderProductsSlider(products, containerId, title = '') {
+                    if (products.length === 0) {
+                        document.getElementById(containerId).innerHTML = `
+                            <div class="all-products-slider-container single-slide">
+                                <div class="all-products-slide">
+                                    <div class="all-products-slide-inner">
+                                        <p style="text-align: center; width: 100%; padding: 40px; color: #666;">
+                                            Tidak ada produk untuk ditampilkan
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        return;
+                    }
+
                     // Hitung jumlah produk per slide berdasarkan lebar layar
                     const productsPerSlide = getProductsPerSlide();
                     const slideCount = Math.ceil(products.length / productsPerSlide);
@@ -3964,10 +4198,10 @@
                 function getProductsPerSlide() {
                     const screenWidth = window.innerWidth;
 
-                    if (screenWidth >= 1200) return 4; // 4 produk per slide
-                    if (screenWidth >= 900) return 3; // 3 produk per slide
-                    if (screenWidth >= 576) return 2; // 2 produk per slide
-                    return 1; // 1 produk per slide (untuk layar kecil)
+                    if (screenWidth >= 1200) return 4;
+                    if (screenWidth >= 900) return 3;
+                    if (screenWidth >= 576) return 2;
+                    return 1;
                 }
 
                 function createProductCard(product) {
@@ -3979,7 +4213,8 @@
 
                     return `
                     <div class="product-card" data-category="${product.category}">
-                        <img src="${product.image}" alt="${product.name}" class="product-image">
+                        <img src="${product.image}" alt="${product.name}" class="product-image" 
+                             onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
                         ${badgeHTML}
                         <div class="product-name">${product.name}</div>
                         <div class="product-rating">
@@ -3987,7 +4222,7 @@
                             <span>(${product.rating})</span>
                         </div>
                         <div class="product-price">${product.price}</div>
-                        <button class="product-btn" data-product-id="${product.id}">
+                        <button class="product-btn" data-product-id="${product.id}" data-product-category="${product.category}">
                             <i class="bi bi-bag"></i> Beli Sekarang
                         </button>
                     </div>
@@ -4023,7 +4258,6 @@
                     const sliderContainer = document.querySelector(`#${containerId} .all-products-slider-container`);
                     const navContainer = document.getElementById(`${containerId}-nav`);
 
-                    // Jika hanya ada 1 slide, jangan inisialisasi navigasi
                     if (slideCount <= 1) {
                         if (sliderContainer) {
                             sliderContainer.classList.add('single-slide');
@@ -4046,7 +4280,6 @@
 
                     let currentSlide = 0;
 
-                    // Buat dots navigation hanya jika ada lebih dari 1 slide
                     if (slideCount > 1 && dotsContainer) {
                         dotsContainer.classList.remove('hidden');
                         dotsContainer.innerHTML = '';
@@ -4150,9 +4383,9 @@
                     let filteredProducts;
 
                     if (category === 'all') {
-                        filteredProducts = popularProducts;
+                        filteredProducts = popularProductsFromDB;
                     } else {
-                        filteredProducts = popularProducts.filter(product => product.category === category);
+                        filteredProducts = popularProductsFromDB.filter(product => product.category === category);
                     }
 
                     renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer');
@@ -4173,14 +4406,12 @@
                 function handleResize() {
                     initTabsSlider();
 
-                    // Render ulang slider produk saat resize untuk update layout
                     const activeTab = document.querySelector('#categoryTabsSlider .category-tab.active');
                     if (activeTab) {
                         filterPopularProducts(activeTab.dataset.category);
                     }
 
-                    // Render ulang slider produk terbaru
-                    renderProductsSlider(latestProducts, 'latest-products-container', 'Produk Terbaru');
+                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
                 }
 
                 // ===== EVENT LISTENERS =====
@@ -4210,9 +4441,15 @@
                 // Add click event to all buy buttons
                 document.addEventListener('click', function(e) {
                     if (e.target.classList.contains('product-btn') || e.target.closest('.product-btn')) {
-                        const productCard = e.target.closest('.product-card');
+                        const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
+                        const productId = productBtn.getAttribute('data-product-id');
+                        const productCategory = productBtn.getAttribute('data-product-category');
+                        const productCard = productBtn.closest('.product-card');
                         const productName = productCard.querySelector('.product-name').textContent;
-                        alert(`Terima kasih! Anda akan membeli: ${productName}`);
+                        
+                        // Redirect ke halaman detail produk atau tambahkan ke keranjang
+                        alert(`Produk ${productName} akan ditambahkan ke keranjang`);
+                        // window.location.href = `detail-produk.php?id=${productId}&category=${productCategory}`;
                     }
                 });
 
@@ -4230,13 +4467,14 @@
                 }
 
                 // ===== INISIALISASI =====
-                loadCategoryProducts(); // Load kategori produk dari file terpisah
                 initTabsSlider();
-                filterPopularProducts('all'); // Render produk populer awal
-                renderProductsSlider(latestProducts, 'latest-products-container', 'Produk Terbaru'); // Render produk terbaru
+                filterPopularProducts('all');
+                renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
             });
         </script>
     </div>
+</body>
+</html>
 
     <div class="container-product">
         <style>
