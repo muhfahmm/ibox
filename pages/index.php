@@ -2987,15 +2987,15 @@ require '../db/db.php';
         </script>
     </div>
 
-<div class="all-products-container">
-    <?php
-    // Fungsi untuk mengambil produk populer dari tabel home_produk_populer
-    function getPopularProducts($db, $limit = 12)
-    {
-        $products = [];
+    <div class="all-products-container">
+        <?php
+        // Fungsi untuk mengambil produk populer dari tabel home_produk_populer
+        function getPopularProducts($db, $limit = 12)
+        {
+            $products = [];
 
-        // Ambil data dari tabel home_produk_populer
-        $query = "SELECT 
+            // Ambil data dari tabel home_produk_populer
+            $query = "SELECT 
                 hpp.*,
                 CASE 
                     WHEN hpp.tipe_produk = 'iphone' THEN iphone.nama_produk
@@ -3050,1125 +3050,1129 @@ require '../db/db.php';
             ORDER BY hpp.urutan ASC, hpp.created_at DESC
             LIMIT $limit";
 
-        $result = mysqli_query($db, $query);
-
-        while ($row = mysqli_fetch_assoc($result)) {
-            $product = [
-                'id' => $row['produk_id'],
-                'name' => $row['nama_produk'] ?? 'Produk tidak ditemukan',
-                'category' => $row['tipe_produk'],
-                'price' => 'Rp ' . number_format($row['harga_terendah'] ?? 0, 0, ',', '.'),
-                'image' => $row['foto_thumbnail'] ? '../admin/uploads/' . $row['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
-                'rating' => 4.5,
-                'badge' => ['text' => $row['label'] ?? 'Populer', 'type' => 'hot']
-            ];
-            $products[] = $product;
-        }
-
-        return $products;
-    }
-
-    // Fungsi untuk mengambil produk terbaru dari semua kategori (query lama yang sudah ada)
-    function getLatestProductsFromCategories($db, $limit = 12)
-    {
-        $products = [];
-
-        // Gabungkan semua produk terbaru dari berbagai kategori
-        $queries = [
-            "SELECT m.id, m.nama_produk as name, 'mac' as category, 
-                COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image,
-                'Mac' as type
-        FROM admin_produk_mac m
-        LEFT JOIN admin_produk_mac_kombinasi mk ON m.id = mk.produk_id
-        LEFT JOIN admin_produk_mac_gambar mg ON m.id = mg.produk_id
-        GROUP BY m.id, mg.foto_thumbnail
-        ORDER BY m.id DESC
-        LIMIT 3",
-
-            "SELECT p.id, p.nama_produk as name, 'iphone' as category, 
-                COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image,
-                'iPhone' as type
-        FROM admin_produk_iphone p
-        LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
-        LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
-        GROUP BY p.id, pg.foto_thumbnail
-        ORDER BY p.id DESC
-        LIMIT 3",
-
-            "SELECT p.id, p.nama_produk as name, 'ipad' as category, 
-                COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image,
-                'iPad' as type
-        FROM admin_produk_ipad p
-        LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
-        LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
-        GROUP BY p.id, pg.foto_thumbnail
-        ORDER BY p.id DESC
-        LIMIT 2",
-
-            "SELECT w.id, w.nama_produk as name, 'watch' as category, 
-                COALESCE(MIN(wk.harga), 0) as price, wg.foto_thumbnail as image,
-                'Watch' as type
-        FROM admin_produk_watch w
-        LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
-        LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
-        GROUP BY w.id, wg.foto_thumbnail
-        ORDER BY w.id DESC
-        LIMIT 2",
-
-            "SELECT a.id, a.nama_produk as name, 'aksesori' as category, 
-                COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image,
-                'Aksesori' as type
-        FROM admin_produk_aksesoris a
-        LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
-        LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
-        GROUP BY a.id, ag.foto_thumbnail
-        ORDER BY a.id DESC
-        LIMIT 2"
-        ];
-
-        foreach ($queries as $query) {
             $result = mysqli_query($db, $query);
+
             while ($row = mysqli_fetch_assoc($result)) {
-                $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
-                $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
-                $row['rating'] = 4.8;
-                $row['badge'] = ['text' => 'Terbaru', 'type' => 'new'];
-                $products[] = $row;
+                $product = [
+                    'id' => $row['produk_id'],
+                    'name' => $row['nama_produk'] ?? 'Produk tidak ditemukan',
+                    'category' => $row['tipe_produk'],
+                    'price' => 'Rp ' . number_format($row['harga_terendah'] ?? 0, 0, ',', '.'),
+                    'image' => $row['foto_thumbnail'] ? '../admin/uploads/' . $row['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
+                    'rating' => 4.5,
+                    'badge' => ['text' => $row['label'] ?? 'Populer', 'type' => 'hot']
+                ];
+                $products[] = $product;
             }
+
+            return $products;
         }
 
-        // Acak produk untuk variasi
-        shuffle($products);
+        // Fungsi untuk mengambil produk terbaru dari tabel home_produk_terbaru (STRUKTUR BARU)
+        function getLatestProducts($db, $limit = 12)
+        {
+            $products = [];
 
-        return array_slice($products, 0, $limit);
-    }
+            // Ambil data dari tabel home_produk_terbaru (struktur baru)
+            $query = "SELECT 
+                hpt.*,
+                CASE 
+                    WHEN hpt.tipe_produk = 'iphone' THEN iphone.nama_produk
+                    WHEN hpt.tipe_produk = 'ipad' THEN ipad.nama_produk
+                    WHEN hpt.tipe_produk = 'mac' THEN mac.nama_produk
+                    WHEN hpt.tipe_produk = 'music' THEN music.nama_produk
+                    WHEN hpt.tipe_produk = 'watch' THEN watch.nama_produk
+                    WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
+                    WHEN hpt.tipe_produk = 'airtag' THEN airtag.nama_produk
+                END as nama_produk,
+                CASE 
+                    WHEN hpt.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
+                    WHEN hpt.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
+                END as foto_thumbnail,
+                CASE 
+                    WHEN hpt.tipe_produk = 'iphone' THEN MIN(iphone_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'ipad' THEN MIN(ipad_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'mac' THEN MIN(mac_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'music' THEN MIN(music_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'watch' THEN MIN(watch_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'aksesoris' THEN MIN(aksesoris_kombinasi.harga)
+                    WHEN hpt.tipe_produk = 'airtag' THEN MIN(airtag_kombinasi.harga)
+                END as harga_terendah
+            FROM home_produk_terbaru hpt
+            LEFT JOIN admin_produk_iphone iphone ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone.id
+            LEFT JOIN admin_produk_ipad ipad ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad.id
+            LEFT JOIN admin_produk_mac mac ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac.id
+            LEFT JOIN admin_produk_music music ON hpt.tipe_produk = 'music' AND hpt.produk_id = music.id
+            LEFT JOIN admin_produk_watch watch ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch.id
+            LEFT JOIN admin_produk_aksesoris aksesoris ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris.id
+            LEFT JOIN admin_produk_airtag airtag ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag.id
+            LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_gambar.produk_id
+            LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_gambar.produk_id
+            LEFT JOIN admin_produk_mac_gambar mac_gambar ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_gambar.produk_id
+            LEFT JOIN admin_produk_music_gambar music_gambar ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_gambar.produk_id
+            LEFT JOIN admin_produk_watch_gambar watch_gambar ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_gambar.produk_id
+            LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_gambar.produk_id
+            LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_gambar.produk_id
+            LEFT JOIN admin_produk_iphone_kombinasi iphone_kombinasi ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_kombinasi.produk_id
+            LEFT JOIN admin_produk_ipad_kombinasi ipad_kombinasi ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_kombinasi.produk_id
+            LEFT JOIN admin_produk_mac_kombinasi mac_kombinasi ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_kombinasi.produk_id
+            LEFT JOIN admin_produk_music_kombinasi music_kombinasi ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_kombinasi.produk_id
+            LEFT JOIN admin_produk_watch_kombinasi watch_kombinasi ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_kombinasi.produk_id
+            LEFT JOIN admin_produk_aksesoris_kombinasi aksesoris_kombinasi ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_kombinasi.produk_id
+            LEFT JOIN admin_produk_airtag_kombinasi airtag_kombinasi ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_kombinasi.produk_id
+            GROUP BY hpt.id, hpt.produk_id, hpt.tipe_produk
+            ORDER BY hpt.urutan ASC, hpt.created_at DESC
+            LIMIT $limit";
 
-    // Fungsi untuk mengambil semua produk dari semua kategori (untuk filter kategori)
-    function getAllProductsForFilter($db)
-    {
-        $allProducts = [];
+            $result = mysqli_query($db, $query);
 
-        // Ambil semua produk dari semua kategori untuk filter
-        $categories = [
-            'mac' => "SELECT m.id, m.nama_produk as name, 'mac' as category, 
+            while ($row = mysqli_fetch_assoc($result)) {
+                $product = [
+                    'id' => $row['produk_id'],
+                    'name' => $row['nama_produk'] ?? 'Produk tidak ditemukan',
+                    'category' => $row['tipe_produk'],
+                    'price' => 'Rp ' . number_format($row['harga_terendah'] ?? 0, 0, ',', '.'),
+                    'image' => $row['foto_thumbnail'] ? '../admin/uploads/' . $row['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
+                    'rating' => 4.5,
+                    'badge' => ['text' => 'Terbaru', 'type' => 'new']
+                ];
+                $products[] = $product;
+            }
+
+            return $products;
+        }
+
+        // Fungsi untuk mengambil semua produk dari semua kategori (untuk filter kategori)
+        function getAllProductsForFilter($db)
+        {
+            $allProducts = [];
+
+            // Ambil semua produk dari semua kategori untuk filter
+            $categories = [
+                'mac' => "SELECT m.id, m.nama_produk as name, 'mac' as category, 
                          COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image
                   FROM admin_produk_mac m
                   LEFT JOIN admin_produk_mac_kombinasi mk ON m.id = mk.produk_id
                   LEFT JOIN admin_produk_mac_gambar mg ON m.id = mg.produk_id
                   GROUP BY m.id, mg.foto_thumbnail",
 
-            'iphone' => "SELECT p.id, p.nama_produk as name, 'iphone' as category, 
+                'iphone' => "SELECT p.id, p.nama_produk as name, 'iphone' as category, 
                             COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
                      FROM admin_produk_iphone p
                      LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
                      LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
                      GROUP BY p.id, pg.foto_thumbnail",
 
-            'ipad' => "SELECT p.id, p.nama_produk as name, 'ipad' as category, 
+                'ipad' => "SELECT p.id, p.nama_produk as name, 'ipad' as category, 
                           COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
                    FROM admin_produk_ipad p
                    LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
                    LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
                    GROUP BY p.id, pg.foto_thumbnail",
 
-            'watch' => "SELECT w.id, w.nama_produk as name, 'watch' as category, 
+                'watch' => "SELECT w.id, w.nama_produk as name, 'watch' as category, 
                            COALESCE(MIN(wk.harga), 0) as price, wg.foto_thumbnail as image
                     FROM admin_produk_watch w
                     LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
                     LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
                     GROUP BY w.id, wg.foto_thumbnail",
 
-            'aksesori' => "SELECT a.id, a.nama_produk as name, 'aksesori' as category, 
+                'aksesori' => "SELECT a.id, a.nama_produk as name, 'aksesori' as category, 
                               COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
                        FROM admin_produk_aksesoris a
                        LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
                        LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
                        GROUP BY a.id, ag.foto_thumbnail",
 
-            'music' => "SELECT m.id, m.nama_produk as name, 'music' as category, 
+                'music' => "SELECT m.id, m.nama_produk as name, 'music' as category, 
                            COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image
                     FROM admin_produk_music m
                     LEFT JOIN admin_produk_music_kombinasi mk ON m.id = mk.produk_id
                     LEFT JOIN admin_produk_music_gambar mg ON m.id = mg.produk_id
                     GROUP BY m.id, mg.foto_thumbnail",
 
-            'airtag' => "SELECT a.id, a.nama_produk as name, 'airtag' as category, 
+                'airtag' => "SELECT a.id, a.nama_produk as name, 'airtag' as category, 
                             COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
                      FROM admin_produk_airtag a
                      LEFT JOIN admin_produk_airtag_kombinasi ak ON a.id = ak.produk_id
                      LEFT JOIN admin_produk_airtag_gambar ag ON a.id = ag.produk_id
                      GROUP BY a.id, ag.foto_thumbnail"
-        ];
+            ];
 
-        foreach ($categories as $category => $query) {
-            $result = mysqli_query($db, $query);
-            while ($row = mysqli_fetch_assoc($result)) {
-                $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
-                $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
-                $row['rating'] = 4.5;
-                $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
-                $allProducts[] = $row;
-            }
-        }
-
-        return $allProducts;
-    }
-
-    // Ambil data dari database
-    $popularProducts = getPopularProducts($db, 16);
-    $latestProducts = getLatestProductsFromCategories($db, 12);
-    $allProductsForFilter = getAllProductsForFilter($db);
-
-    // Konversi ke JSON untuk JavaScript
-    $popularProductsJSON = json_encode($popularProducts);
-    $latestProductsJSON = json_encode($latestProducts);
-    $allProductsJSON = json_encode($allProductsForFilter);
-    ?>
-    <style>
-        * {
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background-color: #f7f7f7;
-            color: #333;
-        }
-
-        .all-products-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .all-products-wrapper {
-            padding: 40px 0;
-        }
-
-        h3 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-            padding-bottom: 15px;
-        }
-
-        h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 3px;
-            background-color: #007aff;
-        }
-
-        /* ========================= */
-        /* CATEGORY TABS SLIDER STYLES */
-        /* ========================= */
-        .category-tabs-wrapper {
-            position: relative;
-            margin-bottom: 40px;
-            overflow: hidden;
-            padding: 10px 0;
-        }
-
-        .category-tabs-container {
-            display: flex;
-            justify-content: flex-start;
-            flex-wrap: nowrap;
-            gap: 12px;
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            cursor: grab;
-            user-select: none;
-            width: max-content;
-            padding: 5px 20px;
-        }
-
-        .category-tabs-container.grabbing {
-            cursor: grabbing;
-            transition: none;
-        }
-
-        .category-tab {
-            padding: 12px 25px;
-            background-color: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 30px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #666;
-            flex-shrink: 0;
-            white-space: nowrap;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
-
-        .category-tab.active {
-            background-color: #007aff;
-            color: white;
-            border-color: #007aff;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
-        }
-
-        .category-tab:hover:not(.active) {
-            border-color: #007aff;
-            color: #007aff;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.15);
-        }
-
-        /* Tabs swipe hint */
-        .tabs-swipe-hint {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 12px;
-            color: #86868b;
-            animation: pulse 2s infinite;
-        }
-
-        .tabs-swipe-hint i {
-            margin-right: 5px;
-            font-size: 14px;
-        }
-
-        @keyframes pulse {
-            0% {
-                opacity: 0.5;
+            foreach ($categories as $category => $query) {
+                $result = mysqli_query($db, $query);
+                while ($row = mysqli_fetch_assoc($result)) {
+                    $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+                    $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+                    $row['rating'] = 4.5;
+                    $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+                    $allProducts[] = $row;
+                }
             }
 
-            50% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0.5;
-            }
+            return $allProducts;
         }
 
-        /* Responsif untuk tabs slider */
-        @media (max-width: 992px) {
+        // Ambil data dari database
+        $popularProducts = getPopularProducts($db, 16);
+        $latestProducts = getLatestProducts($db, 12);
+        $allProductsForFilter = getAllProductsForFilter($db);
+
+        // Konversi ke JSON untuk JavaScript
+        $popularProductsJSON = json_encode($popularProducts);
+        $latestProductsJSON = json_encode($latestProducts);
+        $allProductsJSON = json_encode($allProductsForFilter);
+        ?>
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+                font-family: 'Poppins', sans-serif;
+            }
+
+            body {
+                background-color: #f7f7f7;
+                color: #333;
+            }
+
+            .all-products-container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 20px;
+            }
+
+            .all-products-wrapper {
+                padding: 40px 0;
+            }
+
+            h3 {
+                font-size: 28px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 30px;
+                text-align: center;
+                position: relative;
+                padding-bottom: 15px;
+            }
+
+            h3::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 3px;
+                background-color: #007aff;
+            }
+
+            /* ========================= */
+            /* CATEGORY TABS SLIDER STYLES */
+            /* ========================= */
             .category-tabs-wrapper {
+                position: relative;
+                margin-bottom: 40px;
                 overflow: hidden;
+                padding: 10px 0;
             }
 
             .category-tabs-container {
+                display: flex;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
                 gap: 12px;
+                transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                cursor: grab;
+                user-select: none;
+                width: max-content;
                 padding: 5px 20px;
             }
 
-            .category-tab {
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .category-tabs-container {
-                gap: 10px;
-                padding: 5px 15px;
-            }
-
-            .category-tab {
-                padding: 8px 18px;
-                font-size: 13px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .category-tabs-container {
-                gap: 8px;
-                padding: 5px 10px;
-            }
-
-            .category-tab {
-                padding: 8px 15px;
-                font-size: 12px;
-            }
-        }
-
-        @media (min-width: 993px) {
-            .category-tabs-wrapper {
-                overflow: visible;
-                padding: 0;
-            }
-
-            .category-tabs-container {
-                flex-wrap: wrap;
-                justify-content: center;
-                width: 100%;
-                gap: 15px;
-                padding: 0;
-                cursor: default;
+            .category-tabs-container.grabbing {
+                cursor: grabbing;
+                transition: none;
             }
 
             .category-tab {
                 padding: 12px 25px;
+                background-color: white;
+                border: 2px solid #e0e0e0;
+                border-radius: 30px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                color: #666;
+                flex-shrink: 0;
+                white-space: nowrap;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
             }
 
+            .category-tab.active {
+                background-color: #007aff;
+                color: white;
+                border-color: #007aff;
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.25);
+            }
+
+            .category-tab:hover:not(.active) {
+                border-color: #007aff;
+                color: #007aff;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 122, 255, 0.15);
+            }
+
+            /* Tabs swipe hint */
             .tabs-swipe-hint {
-                display: none;
-            }
-        }
-
-        /* SLIDER CONTAINER UNTUK SEMUA PRODUK */
-        .all-products-slider-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            background: white;
-            padding: 30px 20px 60px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            margin-bottom: 40px;
-        }
-
-        .all-products-slider-container.single-slide {
-            padding-bottom: 30px;
-        }
-
-        .all-products-slider {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
-            gap: 0;
-        }
-
-        .all-products-slide {
-            min-width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .all-products-slide-inner {
-            display: flex;
-            gap: 20px;
-            width: 100%;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        /* PRODUCT CARD STYLES UNTUK SEMUA */
-        .product-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            height: 100%;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            border: 1px solid #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: calc(25% - 20px);
-            min-height: 380px;
-        }
-
-        .product-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 15px 30px rgba(0, 122, 255, 0.1);
-            border-color: #007aff;
-        }
-
-        .product-image {
-            width: 100%;
-            max-width: 200px;
-            height: 180px;
-            object-fit: contain;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #f8f9fa;
-            padding: 15px;
-        }
-
-        .product-badge {
-            background-color: #ff3b30;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        .product-badge.new {
-            background-color: #007aff;
-        }
-
-        .product-badge.hot {
-            background-color: #ff3b30;
-        }
-
-        .product-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .product-rating {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-            margin-bottom: 10px;
-            color: #ffc107;
-        }
-
-        .product-rating span {
-            color: #666;
-            font-size: 13px;
-            margin-left: 5px;
-        }
-
-        .product-price {
-            font-size: 16px;
-            color: #007aff;
-            font-weight: 500;
-            margin-bottom: 15px;
-        }
-
-        .product-btn {
-            background-color: #007aff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            margin-top: auto;
-        }
-
-        .product-btn:hover {
-            background-color: #0056cc;
-            transform: scale(1.05);
-        }
-
-        /* Navigation Buttons untuk semua slider */
-        .all-products-slider-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: calc(100% - 40px);
-            left: 20px;
-            display: flex;
-            justify-content: space-between;
-            pointer-events: none;
-            z-index: 20;
-        }
-
-        .all-products-slider-nav.hidden {
-            display: none;
-        }
-
-        .all-products-nav-btn {
-            background-color: white;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 20px;
-            color: #333;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            pointer-events: auto;
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .all-products-nav-btn.hidden {
-            display: none;
-        }
-
-        .all-products-nav-btn:hover:not(:disabled) {
-            background-color: #007aff;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
-        }
-
-        .all-products-nav-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            background-color: #f0f0f0;
-        }
-
-        .all-products-nav-btn:disabled:hover {
-            transform: none;
-            background-color: #f0f0f0;
-            color: #333;
-        }
-
-        /* Dots Navigation untuk semua slider */
-        .all-products-slider-dots {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            position: absolute;
-            bottom: 25px;
-            left: 0;
-            right: 0;
-            z-index: 10;
-        }
-
-        .all-products-slider-dots.hidden {
-            display: none;
-        }
-
-        .all-products-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(0, 122, 255, 0.2);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .all-products-dot.active {
-            background-color: #007aff !important;
-            transform: scale(1.2);
-            border-color: white !important;
-        }
-
-        .all-products-dot:hover {
-            background-color: rgba(0, 122, 255, 0.4);
-        }
-
-        /* Responsive untuk semua slider */
-        @media (min-width: 1200px) {
-            .all-products-slide-inner .product-card {
-                width: calc(25% - 20px);
-                max-width: calc(25% - 20px);
-                min-width: 0;
-            }
-        }
-
-        @media (min-width: 900px) and (max-width: 1199px) {
-            .all-products-slide-inner .product-card {
-                width: calc(33.333% - 20px);
-                max-width: calc(33.333% - 20px);
-                min-width: 0;
+                display: block;
+                text-align: center;
+                margin-top: 10px;
+                font-size: 12px;
+                color: #86868b;
+                animation: pulse 2s infinite;
             }
 
-            .product-image {
-                max-width: 180px;
-                height: 160px;
+            .tabs-swipe-hint i {
+                margin-right: 5px;
+                font-size: 14px;
             }
 
-            .product-name {
-                font-size: 15px;
-                height: 36px;
-            }
-        }
+            @keyframes pulse {
+                0% {
+                    opacity: 0.5;
+                }
 
-        @media (min-width: 576px) and (max-width: 899px) {
-            .all-products-slide-inner .product-card {
-                width: calc(50% - 20px);
-                max-width: calc(50% - 20px);
-                min-width: 0;
-            }
+                50% {
+                    opacity: 1;
+                }
 
-            .product-image {
-                max-width: 160px;
-                height: 140px;
+                100% {
+                    opacity: 0.5;
+                }
             }
 
-            .product-name {
-                font-size: 15px;
-                height: 36px;
+            /* Responsif untuk tabs slider */
+            @media (max-width: 992px) {
+                .category-tabs-wrapper {
+                    overflow: hidden;
+                }
+
+                .category-tabs-container {
+                    gap: 12px;
+                    padding: 5px 20px;
+                }
+
+                .category-tab {
+                    padding: 10px 20px;
+                    font-size: 14px;
+                }
             }
 
+            @media (max-width: 768px) {
+                .category-tabs-container {
+                    gap: 10px;
+                    padding: 5px 15px;
+                }
+
+                .category-tab {
+                    padding: 8px 18px;
+                    font-size: 13px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .category-tabs-container {
+                    gap: 8px;
+                    padding: 5px 10px;
+                }
+
+                .category-tab {
+                    padding: 8px 15px;
+                    font-size: 12px;
+                }
+            }
+
+            @media (min-width: 993px) {
+                .category-tabs-wrapper {
+                    overflow: visible;
+                    padding: 0;
+                }
+
+                .category-tabs-container {
+                    flex-wrap: wrap;
+                    justify-content: center;
+                    width: 100%;
+                    gap: 15px;
+                    padding: 0;
+                    cursor: default;
+                }
+
+                .category-tab {
+                    padding: 12px 25px;
+                }
+
+                .tabs-swipe-hint {
+                    display: none;
+                }
+            }
+
+            /* SLIDER CONTAINER UNTUK SEMUA PRODUK */
             .all-products-slider-container {
-                padding: 25px 15px 50px;
+                position: relative;
+                overflow: hidden;
+                border-radius: 12px;
+                background: white;
+                padding: 30px 20px 60px;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                margin-bottom: 40px;
             }
 
-            .all-products-slider-nav {
-                width: calc(100% - 30px);
-                left: 15px;
-            }
-        }
-
-        @media (max-width: 575px) {
-            .all-products-slide-inner .product-card {
-                width: calc(100% - 20px);
-                max-width: 300px;
-                min-width: 0;
+            .all-products-slider-container.single-slide {
+                padding-bottom: 30px;
             }
 
-            .product-image {
-                max-width: 140px;
-                height: 120px;
+            .all-products-slider {
+                display: flex;
+                transition: transform 0.5s ease-in-out;
+                gap: 0;
             }
 
-            .product-name {
-                font-size: 15px;
-                height: 36px;
+            .all-products-slide {
+                min-width: 100%;
+                padding: 10px;
+                box-sizing: border-box;
+                display: flex;
+                justify-content: center;
+                flex-shrink: 0;
             }
 
-            .product-price {
-                font-size: 15px;
-            }
-
-            .all-products-slider-container {
-                padding: 20px 10px 50px;
-            }
-
-            .all-products-slider-nav {
-                width: calc(100% - 20px);
-                left: 10px;
-            }
-
-            .all-products-nav-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 18px;
-            }
-        }
-
-        @media (max-width: 300px) {
-            .all-products-slide-inner .product-card {
+            .all-products-slide-inner {
+                display: flex;
+                gap: 20px;
                 width: 100%;
-                max-width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* PRODUCT CARD STYLES UNTUK SEMUA */
+            .product-card {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                height: 100%;
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
+                border: 1px solid #f0f0f0;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                width: calc(25% - 20px);
+                min-height: 380px;
+            }
+
+            .product-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 15px 30px rgba(0, 122, 255, 0.1);
+                border-color: #007aff;
+            }
+
+            .product-image {
+                width: 100%;
+                max-width: 200px;
+                height: 180px;
+                object-fit: contain;
+                margin-bottom: 15px;
+                border-radius: 8px;
+                background-color: #f8f9fa;
                 padding: 15px;
             }
 
-            .product-image {
-                max-width: 120px;
-                height: 100px;
-                padding: 10px;
+            .product-badge {
+                background-color: #ff3b30;
+                color: white;
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                margin-bottom: 10px;
+                display: inline-block;
+            }
+
+            .product-badge.new {
+                background-color: #007aff;
+            }
+
+            .product-badge.hot {
+                background-color: #ff3b30;
             }
 
             .product-name {
-                font-size: 14px;
-                height: 32px;
+                font-size: 16px;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 8px;
+                height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .product-rating {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                margin-bottom: 10px;
+                color: #ffc107;
+            }
+
+            .product-rating span {
+                color: #666;
+                font-size: 13px;
+                margin-left: 5px;
             }
 
             .product-price {
-                font-size: 14px;
+                font-size: 16px;
+                color: #007aff;
+                font-weight: 500;
+                margin-bottom: 15px;
             }
 
             .product-btn {
-                padding: 8px 16px;
-                font-size: 13px;
+                background-color: #007aff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 25px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+                margin-top: auto;
             }
 
-            .all-products-slider-container {
-                padding: 15px 5px 40px;
+            .product-btn:hover {
+                background-color: #0056cc;
+                transform: scale(1.05);
             }
 
+            /* Navigation Buttons untuk semua slider */
             .all-products-slider-nav {
-                width: calc(100% - 10px);
-                left: 5px;
+                position: absolute;
+                top: 50%;
+                transform: translateY(-50%);
+                width: calc(100% - 40px);
+                left: 20px;
+                display: flex;
+                justify-content: space-between;
+                pointer-events: none;
+                z-index: 20;
+            }
+
+            .all-products-slider-nav.hidden {
+                display: none;
             }
 
             .all-products-nav-btn {
-                width: 35px;
-                height: 35px;
-                font-size: 16px;
+                background-color: white;
+                border: none;
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                font-size: 20px;
+                color: #333;
+                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                pointer-events: auto;
+                opacity: 1;
+                visibility: visible;
             }
 
+            .all-products-nav-btn.hidden {
+                display: none;
+            }
+
+            .all-products-nav-btn:hover:not(:disabled) {
+                background-color: #007aff;
+                color: white;
+                transform: scale(1.1);
+                box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
+            }
+
+            .all-products-nav-btn:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+                background-color: #f0f0f0;
+            }
+
+            .all-products-nav-btn:disabled:hover {
+                transform: none;
+                background-color: #f0f0f0;
+                color: #333;
+            }
+
+            /* Dots Navigation untuk semua slider */
             .all-products-slider-dots {
-                bottom: 20px;
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 15px;
+                position: absolute;
+                bottom: 25px;
+                left: 0;
+                right: 0;
+                z-index: 10;
+            }
+
+            .all-products-slider-dots.hidden {
+                display: none;
             }
 
             .all-products-dot {
-                width: 10px;
-                height: 10px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background-color: rgba(0, 122, 255, 0.2);
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
             }
-        }
 
-        /* Header */
-        .product-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+            .all-products-dot.active {
+                background-color: #007aff !important;
+                transform: scale(1.2);
+                border-color: white !important;
+            }
 
-        .product-header h1 {
-            font-size: 36px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 15px;
-        }
+            .all-products-dot:hover {
+                background-color: rgba(0, 122, 255, 0.4);
+            }
 
-        .product-header p {
-            font-size: 16px;
-            color: #666;
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
+            /* Responsive untuk semua slider */
+            @media (min-width: 1200px) {
+                .all-products-slide-inner .product-card {
+                    width: calc(25% - 20px);
+                    max-width: calc(25% - 20px);
+                    min-width: 0;
+                }
+            }
 
-        /* Container untuk produk terbaru */
-        #latest-products-container {
-            margin-top: 40px;
-        }
+            @media (min-width: 900px) and (max-width: 1199px) {
+                .all-products-slide-inner .product-card {
+                    width: calc(33.333% - 20px);
+                    max-width: calc(33.333% - 20px);
+                    min-width: 0;
+                }
 
-        @media (max-width: 768px) {
-            h3 {
-                font-size: 22px;
+                .product-image {
+                    max-width: 180px;
+                    height: 160px;
+                }
+
+                .product-name {
+                    font-size: 15px;
+                    height: 36px;
+                }
+            }
+
+            @media (min-width: 576px) and (max-width: 899px) {
+                .all-products-slide-inner .product-card {
+                    width: calc(50% - 20px);
+                    max-width: calc(50% - 20px);
+                    min-width: 0;
+                }
+
+                .product-image {
+                    max-width: 160px;
+                    height: 140px;
+                }
+
+                .product-name {
+                    font-size: 15px;
+                    height: 36px;
+                }
+
+                .all-products-slider-container {
+                    padding: 25px 15px 50px;
+                }
+
+                .all-products-slider-nav {
+                    width: calc(100% - 30px);
+                    left: 15px;
+                }
+            }
+
+            @media (max-width: 575px) {
+                .all-products-slide-inner .product-card {
+                    width: calc(100% - 20px);
+                    max-width: 300px;
+                    min-width: 0;
+                }
+
+                .product-image {
+                    max-width: 140px;
+                    height: 120px;
+                }
+
+                .product-name {
+                    font-size: 15px;
+                    height: 36px;
+                }
+
+                .product-price {
+                    font-size: 15px;
+                }
+
+                .all-products-slider-container {
+                    padding: 20px 10px 50px;
+                }
+
+                .all-products-slider-nav {
+                    width: calc(100% - 20px);
+                    left: 10px;
+                }
+
+                .all-products-nav-btn {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 18px;
+                }
+            }
+
+            @media (max-width: 300px) {
+                .all-products-slide-inner .product-card {
+                    width: 100%;
+                    max-width: 100%;
+                    padding: 15px;
+                }
+
+                .product-image {
+                    max-width: 120px;
+                    height: 100px;
+                    padding: 10px;
+                }
+
+                .product-name {
+                    font-size: 14px;
+                    height: 32px;
+                }
+
+                .product-price {
+                    font-size: 14px;
+                }
+
+                .product-btn {
+                    padding: 8px 16px;
+                    font-size: 13px;
+                }
+
+                .all-products-slider-container {
+                    padding: 15px 5px 40px;
+                }
+
+                .all-products-slider-nav {
+                    width: calc(100% - 10px);
+                    left: 5px;
+                }
+
+                .all-products-nav-btn {
+                    width: 35px;
+                    height: 35px;
+                    font-size: 16px;
+                }
+
+                .all-products-slider-dots {
+                    bottom: 20px;
+                }
+
+                .all-products-dot {
+                    width: 10px;
+                    height: 10px;
+                }
+            }
+
+            /* Header */
+            .product-header {
+                text-align: center;
+                margin-bottom: 40px;
             }
 
             .product-header h1 {
-                font-size: 28px;
+                font-size: 36px;
+                font-weight: 700;
+                color: #333;
+                margin-bottom: 15px;
             }
-        }
 
-        @media (max-width: 480px) {
-            h3 {
+            .product-header p {
+                font-size: 16px;
+                color: #666;
+                max-width: 600px;
+                margin: 0 auto;
+                line-height: 1.6;
+            }
+
+            /* Container untuk produk terbaru */
+            #latest-products-container {
+                margin-top: 40px;
+            }
+
+            @media (max-width: 768px) {
+                h3 {
+                    font-size: 22px;
+                }
+
+                .product-header h1 {
+                    font-size: 28px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                h3 {
+                    font-size: 20px;
+                }
+
+                .product-header h1 {
+                    font-size: 24px;
+                }
+            }
+
+            /* Loading indicator */
+            .loading {
+                text-align: center;
+                padding: 40px;
+                font-size: 18px;
+                color: #666;
+            }
+
+            .loading i {
+                margin-right: 10px;
+                color: #007aff;
+            }
+
+            /* Empty state */
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: #666;
+            }
+
+            .empty-state i {
+                font-size: 50px;
+                margin-bottom: 15px;
+                color: #ddd;
+            }
+
+            .empty-state h4 {
                 font-size: 20px;
+                margin-bottom: 10px;
+                color: #333;
             }
 
-            .product-header h1 {
-                font-size: 24px;
+            .empty-state p {
+                font-size: 16px;
+                margin-bottom: 20px;
             }
-        }
-
-        /* Loading indicator */
-        .loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 18px;
-            color: #666;
-        }
-
-        .loading i {
-            margin-right: 10px;
-            color: #007aff;
-        }
-
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #666;
-        }
-
-        .empty-state i {
-            font-size: 50px;
-            margin-bottom: 15px;
-            color: #ddd;
-        }
-
-        .empty-state h4 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .empty-state p {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-    </style>
-    <div class="all-products-wrapper">
-        <div class="product-header">
-            <h1>Berbagai produk Apple</h1>
-            <p>Temukan produk Apple terbaru dengan harga terbaik di iBox Indonesia</p>
-        </div>
-
-        <h3>Produk Apple Terpopuler</h3>
-
-        <!-- Category Tabs Slider untuk Produk Populer -->
-        <div class="category-tabs-wrapper">
-            <div class="category-tabs-container" id="categoryTabsSlider">
-                <button class="category-tab active" data-category="all">Semua Produk</button>
-                <button class="category-tab" data-category="mac">Mac</button>
-                <button class="category-tab" data-category="iphone">iPhone</button>
-                <button class="category-tab" data-category="ipad">iPad</button>
-                <button class="category-tab" data-category="watch">Apple Watch</button>
-                <button class="category-tab" data-category="aksesori">Aksesori</button>
-                <button class="category-tab" data-category="music">Music</button>
-                <button class="category-tab" data-category="airtag">Airtag</button>
+        </style>
+        <div class="all-products-wrapper">
+            <div class="product-header">
+                <h1>Berbagai produk Apple</h1>
+                <p>Temukan produk Apple terbaru dengan harga terbaik di iBox Indonesia</p>
             </div>
 
-            <!-- SWIPE HINT UNTUK MOBILE -->
-            <div class="tabs-swipe-hint" id="tabsSwipeHint">
-                <i class="bi bi-arrow-left-right"></i> Geser untuk melihat lebih banyak
+            <h3>Produk Apple Terpopuler</h3>
+
+            <!-- Category Tabs Slider untuk Produk Populer -->
+            <div class="category-tabs-wrapper">
+                <div class="category-tabs-container" id="categoryTabsSlider">
+                    <button class="category-tab active" data-category="all">Semua Produk</button>
+                    <button class="category-tab" data-category="mac">Mac</button>
+                    <button class="category-tab" data-category="iphone">iPhone</button>
+                    <button class="category-tab" data-category="ipad">iPad</button>
+                    <button class="category-tab" data-category="watch">Apple Watch</button>
+                    <button class="category-tab" data-category="aksesori">Aksesori</button>
+                    <button class="category-tab" data-category="music">Music</button>
+                    <button class="category-tab" data-category="airtag">Airtag</button>
+                </div>
+
+                <!-- SWIPE HINT UNTUK MOBILE -->
+                <div class="tabs-swipe-hint" id="tabsSwipeHint">
+                    <i class="bi bi-arrow-left-right"></i> Geser untuk melihat lebih banyak
+                </div>
+            </div>
+
+            <!-- Container untuk slider produk populer -->
+            <div id="popular-products-container">
+                <?php if (empty($popularProducts)): ?>
+                    <div class="empty-state">
+                        <i class="bi bi-fire"></i>
+                        <h4>Belum ada produk populer</h4>
+                        <p>Produk populer akan ditampilkan di sini</p>
+                    </div>
+                <?php else: ?>
+                    <div class="loading">
+                        <i class="bi bi-arrow-clockwise"></i> Memuat produk populer...
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <h3>Produk Terbaru</h3>
+
+            <!-- Container untuk slider produk terbaru -->
+            <div id="latest-products-container">
+                <?php if (empty($latestProducts)): ?>
+                    <div class="empty-state">
+                        <i class="bi bi-box-seam"></i>
+                        <h4>Belum ada produk terbaru</h4>
+                        <p>Produk terbaru akan ditampilkan di sini</p>
+                    </div>
+                <?php else: ?>
+                    <div class="loading">
+                        <i class="bi bi-arrow-clockwise"></i> Memuat produk terbaru...
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Data produk dari PHP (dikonversi ke JavaScript)
+                const popularProductsFromDB = <?php echo $popularProductsJSON; ?>;
+                const latestProductsFromDB = <?php echo $latestProductsJSON; ?>;
+                const allProductsFromDB = <?php echo $allProductsJSON; ?>;
 
-        <!-- Container untuk slider produk populer -->
-        <div id="popular-products-container">
-            <?php if (empty($popularProducts)): ?>
-                <div class="empty-state">
-                    <i class="bi bi-fire"></i>
-                    <h4>Belum ada produk populer</h4>
-                    <p>Produk populer akan ditampilkan di sini</p>
-                </div>
-            <?php else: ?>
-                <div class="loading">
-                    <i class="bi bi-arrow-clockwise"></i> Memuat produk populer...
-                </div>
-            <?php endif; ?>
-        </div>
+                const popularProductsContainer = document.getElementById('popular-products-container');
+                const latestProductsContainer = document.getElementById('latest-products-container');
+                const categoryTabs = document.querySelectorAll('#categoryTabsSlider .category-tab');
+                const categoryTabsSlider = document.getElementById('categoryTabsSlider');
+                const tabsSwipeHint = document.getElementById('tabsSwipeHint');
 
-        <h3>Produk Terbaru</h3>
+                // ===== FUNGSI UNTUK TABS KATEGORI SLIDER =====
+                let isTabsDragging = false;
+                let tabsStartX = 0;
+                let tabsCurrentTranslate = 0;
+                let tabsPrevTranslate = 0;
 
-        <!-- Container untuk slider produk terbaru -->
-        <div id="latest-products-container">
-            <?php if (empty($latestProducts)): ?>
-                <div class="empty-state">
-                    <i class="bi bi-box-seam"></i>
-                    <h4>Belum ada produk terbaru</h4>
-                    <p>Produk terbaru akan ditampilkan di sini</p>
-                </div>
-            <?php else: ?>
-                <div class="loading">
-                    <i class="bi bi-arrow-clockwise"></i> Memuat produk terbaru...
-                </div>
-            <?php endif; ?>
-        </div>
-    </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Data produk dari PHP (dikonversi ke JavaScript)
-            const popularProductsFromDB = <?php echo $popularProductsJSON; ?>;
-            const latestProductsFromDB = <?php echo $latestProductsJSON; ?>;
-            const allProductsFromDB = <?php echo $allProductsJSON; ?>;
+                // Inisialisasi Category Tabs Slider
+                function initTabsSlider() {
+                    // Hitung total lebar konten
+                    const containerWidth = categoryTabsSlider.parentElement.clientWidth;
+                    const tabs = categoryTabsSlider.children;
+                    let totalWidth = 0;
 
-            const popularProductsContainer = document.getElementById('popular-products-container');
-            const latestProductsContainer = document.getElementById('latest-products-container');
-            const categoryTabs = document.querySelectorAll('#categoryTabsSlider .category-tab');
-            const categoryTabsSlider = document.getElementById('categoryTabsSlider');
-            const tabsSwipeHint = document.getElementById('tabsSwipeHint');
+                    // Hitung total lebar semua tab termasuk gap
+                    const style = window.getComputedStyle(categoryTabsSlider);
+                    const gap = parseFloat(style.gap) || 12;
 
-            // ===== FUNGSI UNTUK TABS KATEGORI SLIDER =====
-            let isTabsDragging = false;
-            let tabsStartX = 0;
-            let tabsCurrentTranslate = 0;
-            let tabsPrevTranslate = 0;
-
-            // Inisialisasi Category Tabs Slider
-            function initTabsSlider() {
-                // Hitung total lebar konten
-                const containerWidth = categoryTabsSlider.parentElement.clientWidth;
-                const tabs = categoryTabsSlider.children;
-                let totalWidth = 0;
-
-                // Hitung total lebar semua tab termasuk gap
-                const style = window.getComputedStyle(categoryTabsSlider);
-                const gap = parseFloat(style.gap) || 12;
-
-                for (let i = 0; i < tabs.length; i++) {
-                    totalWidth += tabs[i].offsetWidth;
-                    if (i < tabs.length - 1) {
-                        totalWidth += gap;
+                    for (let i = 0; i < tabs.length; i++) {
+                        totalWidth += tabs[i].offsetWidth;
+                        if (i < tabs.length - 1) {
+                            totalWidth += gap;
+                        }
                     }
+
+                    // Reset posisi slider jika konten lebih kecil dari container
+                    if (totalWidth <= containerWidth) {
+                        categoryTabsSlider.style.transform = 'translateX(0)';
+                        tabsCurrentTranslate = 0;
+                        tabsPrevTranslate = 0;
+                    }
+
+                    setupTabsDragEvents();
                 }
 
-                // Reset posisi slider jika konten lebih kecil dari container
-                if (totalWidth <= containerWidth) {
-                    categoryTabsSlider.style.transform = 'translateX(0)';
-                    tabsCurrentTranslate = 0;
-                    tabsPrevTranslate = 0;
+                function setupTabsDragEvents() {
+                    categoryTabsSlider.addEventListener('touchstart', tabsTouchStart);
+                    categoryTabsSlider.addEventListener('touchmove', tabsTouchMove);
+                    categoryTabsSlider.addEventListener('touchend', tabsTouchEnd);
+
+                    categoryTabsSlider.addEventListener('mousedown', tabsMouseDown);
+                    categoryTabsSlider.addEventListener('mousemove', tabsMouseMove);
+                    categoryTabsSlider.addEventListener('mouseup', tabsMouseUp);
+                    categoryTabsSlider.addEventListener('mouseleave', tabsMouseLeave);
+
+                    categoryTabsSlider.style.cursor = 'grab';
                 }
 
-                setupTabsDragEvents();
-            }
+                // Event handlers untuk Category Tabs Slider
+                function tabsTouchStart(e) {
+                    isTabsDragging = true;
+                    tabsStartX = e.touches[0].clientX;
+                    tabsPrevTranslate = tabsCurrentTranslate;
+                    categoryTabsSlider.classList.add('grabbing');
+                }
 
-            function setupTabsDragEvents() {
-                categoryTabsSlider.addEventListener('touchstart', tabsTouchStart);
-                categoryTabsSlider.addEventListener('touchmove', tabsTouchMove);
-                categoryTabsSlider.addEventListener('touchend', tabsTouchEnd);
+                function tabsTouchMove(e) {
+                    if (!isTabsDragging) return;
 
-                categoryTabsSlider.addEventListener('mousedown', tabsMouseDown);
-                categoryTabsSlider.addEventListener('mousemove', tabsMouseMove);
-                categoryTabsSlider.addEventListener('mouseup', tabsMouseUp);
-                categoryTabsSlider.addEventListener('mouseleave', tabsMouseLeave);
+                    const currentX = e.touches[0].clientX;
+                    const diffX = currentX - tabsStartX;
+                    const newTranslate = tabsPrevTranslate + diffX;
 
-                categoryTabsSlider.style.cursor = 'grab';
-            }
+                    setTabsSliderPosition(newTranslate);
+                }
 
-            // Event handlers untuk Category Tabs Slider
-            function tabsTouchStart(e) {
-                isTabsDragging = true;
-                tabsStartX = e.touches[0].clientX;
-                tabsPrevTranslate = tabsCurrentTranslate;
-                categoryTabsSlider.classList.add('grabbing');
-            }
-
-            function tabsTouchMove(e) {
-                if (!isTabsDragging) return;
-
-                const currentX = e.touches[0].clientX;
-                const diffX = currentX - tabsStartX;
-                const newTranslate = tabsPrevTranslate + diffX;
-
-                setTabsSliderPosition(newTranslate);
-            }
-
-            function tabsTouchEnd() {
-                isTabsDragging = false;
-                categoryTabsSlider.classList.remove('grabbing');
-                snapTabsSlider();
-            }
-
-            function tabsMouseDown(e) {
-                isTabsDragging = true;
-                tabsStartX = e.clientX;
-                tabsPrevTranslate = tabsCurrentTranslate;
-                categoryTabsSlider.classList.add('grabbing');
-                e.preventDefault();
-            }
-
-            function tabsMouseMove(e) {
-                if (!isTabsDragging) return;
-
-                const currentX = e.clientX;
-                const diffX = currentX - tabsStartX;
-                const newTranslate = tabsPrevTranslate + diffX;
-
-                setTabsSliderPosition(newTranslate);
-            }
-
-            function tabsMouseUp() {
-                isTabsDragging = false;
-                categoryTabsSlider.classList.remove('grabbing');
-                snapTabsSlider();
-            }
-
-            function tabsMouseLeave() {
-                if (isTabsDragging) {
+                function tabsTouchEnd() {
                     isTabsDragging = false;
                     categoryTabsSlider.classList.remove('grabbing');
                     snapTabsSlider();
                 }
-            }
 
-            // Fungsi untuk mengatur posisi tabs slider dengan batasan
-            function setTabsSliderPosition(position) {
-                const container = categoryTabsSlider.parentElement;
-                const containerWidth = container.clientWidth;
-                const tabs = categoryTabsSlider.children;
+                function tabsMouseDown(e) {
+                    isTabsDragging = true;
+                    tabsStartX = e.clientX;
+                    tabsPrevTranslate = tabsCurrentTranslate;
+                    categoryTabsSlider.classList.add('grabbing');
+                    e.preventDefault();
+                }
 
-                // Hitung total lebar semua tab termasuk gap
-                const style = window.getComputedStyle(categoryTabsSlider);
-                const gap = parseFloat(style.gap) || 12;
-                let totalWidth = 0;
+                function tabsMouseMove(e) {
+                    if (!isTabsDragging) return;
 
-                for (let i = 0; i < tabs.length; i++) {
-                    totalWidth += tabs[i].offsetWidth;
-                    if (i < tabs.length - 1) {
-                        totalWidth += gap;
+                    const currentX = e.clientX;
+                    const diffX = currentX - tabsStartX;
+                    const newTranslate = tabsPrevTranslate + diffX;
+
+                    setTabsSliderPosition(newTranslate);
+                }
+
+                function tabsMouseUp() {
+                    isTabsDragging = false;
+                    categoryTabsSlider.classList.remove('grabbing');
+                    snapTabsSlider();
+                }
+
+                function tabsMouseLeave() {
+                    if (isTabsDragging) {
+                        isTabsDragging = false;
+                        categoryTabsSlider.classList.remove('grabbing');
+                        snapTabsSlider();
                     }
                 }
 
-                // Batasi pergerakan slider
-                if (totalWidth <= containerWidth) {
-                    position = 0;
-                } else {
+                // Fungsi untuk mengatur posisi tabs slider dengan batasan
+                function setTabsSliderPosition(position) {
+                    const container = categoryTabsSlider.parentElement;
+                    const containerWidth = container.clientWidth;
+                    const tabs = categoryTabsSlider.children;
+
+                    // Hitung total lebar semua tab termasuk gap
+                    const style = window.getComputedStyle(categoryTabsSlider);
+                    const gap = parseFloat(style.gap) || 12;
+                    let totalWidth = 0;
+
+                    for (let i = 0; i < tabs.length; i++) {
+                        totalWidth += tabs[i].offsetWidth;
+                        if (i < tabs.length - 1) {
+                            totalWidth += gap;
+                        }
+                    }
+
+                    // Batasi pergerakan slider
+                    if (totalWidth <= containerWidth) {
+                        position = 0;
+                    } else {
+                        const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
+                        const maxTranslate = 0;
+                        position = Math.max(minTranslate, Math.min(maxTranslate, position));
+                    }
+
+                    categoryTabsSlider.style.transform = `translateX(${position}px)`;
+                    tabsCurrentTranslate = position;
+                }
+
+                // Fungsi untuk snap tabs slider ke posisi yang tepat
+                function snapTabsSlider() {
+                    const container = categoryTabsSlider.parentElement;
+                    const containerWidth = container.clientWidth;
+                    const tabs = categoryTabsSlider.children;
+
+                    const style = window.getComputedStyle(categoryTabsSlider);
+                    const gap = parseFloat(style.gap) || 12;
+                    let totalWidth = 0;
+
+                    for (let i = 0; i < tabs.length; i++) {
+                        totalWidth += tabs[i].offsetWidth;
+                        if (i < tabs.length - 1) {
+                            totalWidth += gap;
+                        }
+                    }
+
+                    if (totalWidth <= containerWidth) {
+                        animateTabsSlider(0);
+                        return;
+                    }
+
                     const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
                     const maxTranslate = 0;
-                    position = Math.max(minTranslate, Math.min(maxTranslate, position));
-                }
 
-                categoryTabsSlider.style.transform = `translateX(${position}px)`;
-                tabsCurrentTranslate = position;
-            }
+                    let snapPosition = tabsCurrentTranslate;
 
-            // Fungsi untuk snap tabs slider ke posisi yang tepat
-            function snapTabsSlider() {
-                const container = categoryTabsSlider.parentElement;
-                const containerWidth = container.clientWidth;
-                const tabs = categoryTabsSlider.children;
-
-                const style = window.getComputedStyle(categoryTabsSlider);
-                const gap = parseFloat(style.gap) || 12;
-                let totalWidth = 0;
-
-                for (let i = 0; i < tabs.length; i++) {
-                    totalWidth += tabs[i].offsetWidth;
-                    if (i < tabs.length - 1) {
-                        totalWidth += gap;
+                    if (snapPosition > -50) {
+                        snapPosition = 0;
+                    } else if (snapPosition < minTranslate + 50) {
+                        snapPosition = minTranslate;
                     }
+
+                    animateTabsSlider(snapPosition);
                 }
 
-                if (totalWidth <= containerWidth) {
-                    animateTabsSlider(0);
-                    return;
-                }
+                // Fungsi animasi untuk tabs slider
+                function animateTabsSlider(targetPosition) {
+                    const startPosition = tabsCurrentTranslate;
+                    const duration = 300;
+                    const startTime = performance.now();
 
-                const minTranslate = Math.min(0, containerWidth - totalWidth - 20);
-                const maxTranslate = 0;
+                    function animate(currentTime) {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
 
-                let snapPosition = tabsCurrentTranslate;
+                        const ease = 1 - Math.pow(1 - progress, 3);
+                        const currentPosition = startPosition + (targetPosition - startPosition) * ease;
 
-                if (snapPosition > -50) {
-                    snapPosition = 0;
-                } else if (snapPosition < minTranslate + 50) {
-                    snapPosition = minTranslate;
-                }
+                        categoryTabsSlider.style.transform = `translateX(${currentPosition}px)`;
+                        tabsCurrentTranslate = currentPosition;
 
-                animateTabsSlider(snapPosition);
-            }
-
-            // Fungsi animasi untuk tabs slider
-            function animateTabsSlider(targetPosition) {
-                const startPosition = tabsCurrentTranslate;
-                const duration = 300;
-                const startTime = performance.now();
-
-                function animate(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-
-                    const ease = 1 - Math.pow(1 - progress, 3);
-                    const currentPosition = startPosition + (targetPosition - startPosition) * ease;
-
-                    categoryTabsSlider.style.transform = `translateX(${currentPosition}px)`;
-                    tabsCurrentTranslate = currentPosition;
-
-                    if (progress < 1) {
-                        requestAnimationFrame(animate);
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
                     }
+
+                    requestAnimationFrame(animate);
                 }
 
-                requestAnimationFrame(animate);
-            }
-
-            // ===== FUNGSI UNTUK PRODUK SLIDER =====
-            function renderProductsSlider(products, containerId, title = '') {
-                if (products.length === 0) {
-                    document.getElementById(containerId).innerHTML = `
+                // ===== FUNGSI UNTUK PRODUK SLIDER =====
+                function renderProductsSlider(products, containerId, title = '') {
+                    if (products.length === 0) {
+                        document.getElementById(containerId).innerHTML = `
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
                             <h4>Tidak ada produk untuk ditampilkan</h4>
                             <p>Belum ada produk dalam kategori ini</p>
                         </div>
                     `;
-                    return;
-                }
+                        return;
+                    }
 
-                // Hitung jumlah produk per slide berdasarkan lebar layar
-                const productsPerSlide = getProductsPerSlide();
-                const slideCount = Math.ceil(products.length / productsPerSlide);
-                const isSingleSlide = slideCount <= 1;
+                    // Hitung jumlah produk per slide berdasarkan lebar layar
+                    const productsPerSlide = getProductsPerSlide();
+                    const slideCount = Math.ceil(products.length / productsPerSlide);
+                    const isSingleSlide = slideCount <= 1;
 
-                let html = `
+                    let html = `
                 <div class="all-products-slider-container ${isSingleSlide ? 'single-slide' : ''}">
                     <div class="all-products-slider-nav ${isSingleSlide ? 'hidden' : ''}" id="${containerId}-nav">
                         <button class="all-products-nav-btn all-products-prev-btn ${isSingleSlide ? 'hidden' : ''}" id="${containerId}-prev-btn">
@@ -4181,53 +4185,53 @@ require '../db/db.php';
                     <div class="all-products-slider" id="${containerId}-slider">
                 `;
 
-                // Buat slide sesuai jumlah yang dibutuhkan
-                for (let slideIndex = 0; slideIndex < slideCount; slideIndex++) {
-                    html += `<div class="all-products-slide">`;
-                    html += `<div class="all-products-slide-inner" id="${containerId}-slide-inner-${slideIndex}">`;
+                    // Buat slide sesuai jumlah yang dibutuhkan
+                    for (let slideIndex = 0; slideIndex < slideCount; slideIndex++) {
+                        html += `<div class="all-products-slide">`;
+                        html += `<div class="all-products-slide-inner" id="${containerId}-slide-inner-${slideIndex}">`;
 
-                    // Tambahkan produk ke slide ini
-                    const startIndex = slideIndex * productsPerSlide;
-                    const endIndex = Math.min(startIndex + productsPerSlide, products.length);
+                        // Tambahkan produk ke slide ini
+                        const startIndex = slideIndex * productsPerSlide;
+                        const endIndex = Math.min(startIndex + productsPerSlide, products.length);
 
-                    for (let i = startIndex; i < endIndex; i++) {
-                        html += createProductCard(products[i]);
+                        for (let i = startIndex; i < endIndex; i++) {
+                            html += createProductCard(products[i]);
+                        }
+
+                        html += `</div></div>`;
                     }
 
-                    html += `</div></div>`;
-                }
-
-                html += `
+                    html += `
                     </div>
                     ${!isSingleSlide ? `<div class="all-products-slider-dots" id="${containerId}-dots"></div>` : ''}
                 </div>
                 `;
 
-                const container = document.getElementById(containerId);
-                if (container) {
-                    container.innerHTML = html;
-                    initAllProductsSlider(productsPerSlide, slideCount, containerId);
+                    const container = document.getElementById(containerId);
+                    if (container) {
+                        container.innerHTML = html;
+                        initAllProductsSlider(productsPerSlide, slideCount, containerId);
+                    }
                 }
-            }
 
-            // Fungsi untuk menentukan jumlah produk per slide berdasarkan lebar layar
-            function getProductsPerSlide() {
-                const screenWidth = window.innerWidth;
+                // Fungsi untuk menentukan jumlah produk per slide berdasarkan lebar layar
+                function getProductsPerSlide() {
+                    const screenWidth = window.innerWidth;
 
-                if (screenWidth >= 1200) return 4;
-                if (screenWidth >= 900) return 3;
-                if (screenWidth >= 576) return 2;
-                return 1;
-            }
+                    if (screenWidth >= 1200) return 4;
+                    if (screenWidth >= 900) return 3;
+                    if (screenWidth >= 576) return 2;
+                    return 1;
+                }
 
-            function createProductCard(product) {
-                const badgeClass = product.badge ? `product-badge ${product.badge.type}` : '';
-                const badgeHTML = product.badge ?
-                    `<div class="${badgeClass}">${product.badge.text}</div>` : '';
+                function createProductCard(product) {
+                    const badgeClass = product.badge ? `product-badge ${product.badge.type}` : '';
+                    const badgeHTML = product.badge ?
+                        `<div class="${badgeClass}">${product.badge.text}</div>` : '';
 
-                const stars = getProductStarRating(product.rating);
+                    const stars = getProductStarRating(product.rating);
 
-                return `
+                    return `
                 <div class="product-card" data-category="${product.category}">
                     <img src="${product.image}" alt="${product.name}" class="product-image" 
                          onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
@@ -4243,263 +4247,264 @@ require '../db/db.php';
                     </button>
                 </div>
                 `;
-            }
-
-            function getProductStarRating(rating) {
-                let stars = '';
-                const fullStars = Math.floor(rating);
-                const hasHalfStar = rating % 1 >= 0.5;
-
-                for (let i = 0; i < fullStars; i++) {
-                    stars += '<i class="bi bi-star-fill"></i>';
                 }
 
-                if (hasHalfStar) {
-                    stars += '<i class="bi bi-star-half"></i>';
-                }
+                function getProductStarRating(rating) {
+                    let stars = '';
+                    const fullStars = Math.floor(rating);
+                    const hasHalfStar = rating % 1 >= 0.5;
 
-                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                for (let i = 0; i < emptyStars; i++) {
-                    stars += '<i class="bi bi-star"></i>';
-                }
-
-                return stars;
-            }
-
-            function initAllProductsSlider(productsPerSlide, slideCount, containerId) {
-                const slider = document.getElementById(`${containerId}-slider`);
-                const prevBtn = document.getElementById(`${containerId}-prev-btn`);
-                const nextBtn = document.getElementById(`${containerId}-next-btn`);
-                const dotsContainer = document.getElementById(`${containerId}-dots`);
-                const sliderContainer = document.querySelector(`#${containerId} .all-products-slider-container`);
-                const navContainer = document.getElementById(`${containerId}-nav`);
-
-                if (slideCount <= 1) {
-                    if (sliderContainer) {
-                        sliderContainer.classList.add('single-slide');
+                    for (let i = 0; i < fullStars; i++) {
+                        stars += '<i class="bi bi-star-fill"></i>';
                     }
-                    if (navContainer) {
-                        navContainer.classList.add('hidden');
+
+                    if (hasHalfStar) {
+                        stars += '<i class="bi bi-star-half"></i>';
                     }
-                    if (dotsContainer) {
+
+                    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                    for (let i = 0; i < emptyStars; i++) {
+                        stars += '<i class="bi bi-star"></i>';
+                    }
+
+                    return stars;
+                }
+
+                function initAllProductsSlider(productsPerSlide, slideCount, containerId) {
+                    const slider = document.getElementById(`${containerId}-slider`);
+                    const prevBtn = document.getElementById(`${containerId}-prev-btn`);
+                    const nextBtn = document.getElementById(`${containerId}-next-btn`);
+                    const dotsContainer = document.getElementById(`${containerId}-dots`);
+                    const sliderContainer = document.querySelector(`#${containerId} .all-products-slider-container`);
+                    const navContainer = document.getElementById(`${containerId}-nav`);
+
+                    if (slideCount <= 1) {
+                        if (sliderContainer) {
+                            sliderContainer.classList.add('single-slide');
+                        }
+                        if (navContainer) {
+                            navContainer.classList.add('hidden');
+                        }
+                        if (dotsContainer) {
+                            dotsContainer.classList.add('hidden');
+                        }
+                        return;
+                    } else {
+                        if (sliderContainer) {
+                            sliderContainer.classList.remove('single-slide');
+                        }
+                        if (navContainer) {
+                            navContainer.classList.remove('hidden');
+                        }
+                    }
+
+                    let currentSlide = 0;
+
+                    if (slideCount > 1 && dotsContainer) {
+                        dotsContainer.classList.remove('hidden');
+                        dotsContainer.innerHTML = '';
+                        for (let i = 0; i < slideCount; i++) {
+                            const dot = document.createElement('div');
+                            dot.classList.add('all-products-dot');
+                            if (i === 0) dot.classList.add('active');
+                            dot.addEventListener('click', () => goToSlide(i));
+                            dotsContainer.appendChild(dot);
+                        }
+                    } else if (dotsContainer) {
                         dotsContainer.classList.add('hidden');
                     }
-                    return;
-                } else {
-                    if (sliderContainer) {
-                        sliderContainer.classList.remove('single-slide');
-                    }
-                    if (navContainer) {
-                        navContainer.classList.remove('hidden');
-                    }
-                }
 
-                let currentSlide = 0;
-
-                if (slideCount > 1 && dotsContainer) {
-                    dotsContainer.classList.remove('hidden');
-                    dotsContainer.innerHTML = '';
-                    for (let i = 0; i < slideCount; i++) {
-                        const dot = document.createElement('div');
-                        dot.classList.add('all-products-dot');
-                        if (i === 0) dot.classList.add('active');
-                        dot.addEventListener('click', () => goToSlide(i));
-                        dotsContainer.appendChild(dot);
+                    function updateNavButtons() {
+                        if (prevBtn) {
+                            prevBtn.disabled = currentSlide === 0;
+                        }
+                        if (nextBtn) {
+                            nextBtn.disabled = currentSlide === slideCount - 1;
+                        }
                     }
-                } else if (dotsContainer) {
-                    dotsContainer.classList.add('hidden');
-                }
 
-                function updateNavButtons() {
-                    if (prevBtn) {
-                        prevBtn.disabled = currentSlide === 0;
+                    function goToSlide(slideIndex) {
+                        if (slideIndex < 0 || slideIndex >= slideCount) return;
+
+                        currentSlide = slideIndex;
+                        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                        updateDots();
+                        updateNavButtons();
                     }
-                    if (nextBtn) {
-                        nextBtn.disabled = currentSlide === slideCount - 1;
+
+                    function updateDots() {
+                        if (slideCount <= 1 || !dotsContainer) return;
+
+                        const dots = document.querySelectorAll(`#${containerId}-dots .all-products-dot`);
+                        dots.forEach((dot, index) => {
+                            dot.classList.toggle('active', index === currentSlide);
+                        });
                     }
-                }
 
-                function goToSlide(slideIndex) {
-                    if (slideIndex < 0 || slideIndex >= slideCount) return;
+                    function nextSlide() {
+                        if (currentSlide < slideCount - 1) {
+                            goToSlide(currentSlide + 1);
+                        }
+                    }
 
-                    currentSlide = slideIndex;
-                    slider.style.transform = `translateX(-${currentSlide * 100}%)`;
-                    updateDots();
+                    function prevSlide() {
+                        if (currentSlide > 0) {
+                            goToSlide(currentSlide - 1);
+                        }
+                    }
+
+                    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+                    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+
+                    // Keyboard navigation
+                    document.addEventListener('keydown', (e) => {
+                        if (slideCount <= 1) return;
+
+                        if (e.ctrlKey && e.key === 'ArrowLeft') {
+                            prevSlide();
+                        } else if (e.ctrlKey && e.key === 'ArrowRight') {
+                            nextSlide();
+                        }
+                    });
+
+                    // Swipe untuk mobile
+                    let touchStartX = 0;
+                    let touchEndX = 0;
+
+                    if (slider && slideCount > 1) {
+                        slider.addEventListener('touchstart', (e) => {
+                            touchStartX = e.changedTouches[0].screenX;
+                        });
+
+                        slider.addEventListener('touchend', (e) => {
+                            touchEndX = e.changedTouches[0].screenX;
+                            handleSwipe();
+                        });
+                    }
+
+                    function handleSwipe() {
+                        const swipeThreshold = 50;
+                        const diff = touchStartX - touchEndX;
+
+                        if (Math.abs(diff) > swipeThreshold) {
+                            if (diff > 0) {
+                                nextSlide();
+                            } else {
+                                prevSlide();
+                            }
+                        }
+                    }
+
                     updateNavButtons();
                 }
 
-                function updateDots() {
-                    if (slideCount <= 1 || !dotsContainer) return;
+                // ===== FILTER PRODUK POPULER =====
+                function filterPopularProducts(category) {
+                    let filteredProducts;
 
-                    const dots = document.querySelectorAll(`#${containerId}-dots .all-products-dot`);
-                    dots.forEach((dot, index) => {
-                        dot.classList.toggle('active', index === currentSlide);
-                    });
-                }
-
-                function nextSlide() {
-                    if (currentSlide < slideCount - 1) {
-                        goToSlide(currentSlide + 1);
-                    }
-                }
-
-                function prevSlide() {
-                    if (currentSlide > 0) {
-                        goToSlide(currentSlide - 1);
-                    }
-                }
-
-                if (prevBtn) prevBtn.addEventListener('click', prevSlide);
-                if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-
-                // Keyboard navigation
-                document.addEventListener('keydown', (e) => {
-                    if (slideCount <= 1) return;
-
-                    if (e.ctrlKey && e.key === 'ArrowLeft') {
-                        prevSlide();
-                    } else if (e.ctrlKey && e.key === 'ArrowRight') {
-                        nextSlide();
-                    }
-                });
-
-                // Swipe untuk mobile
-                let touchStartX = 0;
-                let touchEndX = 0;
-
-                if (slider && slideCount > 1) {
-                    slider.addEventListener('touchstart', (e) => {
-                        touchStartX = e.changedTouches[0].screenX;
-                    });
-
-                    slider.addEventListener('touchend', (e) => {
-                        touchEndX = e.changedTouches[0].screenX;
-                        handleSwipe();
-                    });
-                }
-
-                function handleSwipe() {
-                    const swipeThreshold = 50;
-                    const diff = touchStartX - touchEndX;
-
-                    if (Math.abs(diff) > swipeThreshold) {
-                        if (diff > 0) {
-                            nextSlide();
-                        } else {
-                            prevSlide();
-                        }
-                    }
-                }
-
-                updateNavButtons();
-            }
-
-            // ===== FILTER PRODUK POPULER =====
-            function filterPopularProducts(category) {
-                let filteredProducts;
-
-                if (category === 'all') {
-                    // Untuk filter "Semua Produk", gunakan semua produk populer yang sudah ada
-                    filteredProducts = popularProductsFromDB;
-                } else {
-                    // Filter berdasarkan kategori produk populer yang sudah ada
-                    filteredProducts = popularProductsFromDB.filter(product => product.category === category);
-                }
-
-                renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer');
-            }
-
-            // ===== UPDATE TAB KATEGORI =====
-            function updateCategoryTab(category) {
-                categoryTabs.forEach(tab => {
-                    if (tab.dataset.category === category) {
-                        tab.classList.add('active');
+                    if (category === 'all') {
+                        // Untuk filter "Semua Produk", gunakan semua produk populer yang sudah ada
+                        filteredProducts = popularProductsFromDB;
                     } else {
-                        tab.classList.remove('active');
+                        // Filter berdasarkan kategori produk populer yang sudah ada
+                        filteredProducts = popularProductsFromDB.filter(product => product.category === category);
+                    }
+
+                    renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer');
+                }
+
+                // ===== UPDATE TAB KATEGORI =====
+                function updateCategoryTab(category) {
+                    categoryTabs.forEach(tab => {
+                        if (tab.dataset.category === category) {
+                            tab.classList.add('active');
+                        } else {
+                            tab.classList.remove('active');
+                        }
+                    });
+                }
+
+                // ===== FUNGSI UNTUK RESPONSIF =====
+                function handleResize() {
+                    initTabsSlider();
+
+                    const activeTab = document.querySelector('#categoryTabsSlider .category-tab.active');
+                    if (activeTab) {
+                        filterPopularProducts(activeTab.dataset.category);
+                    }
+
+                    // Render ulang produk terbaru
+                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
+                }
+
+                // ===== EVENT LISTENERS =====
+                window.addEventListener('resize', debounce(handleResize, 250));
+
+                categoryTabsSlider.addEventListener('touchstart', function() {
+                    tabsSwipeHint.style.opacity = '0.5';
+                    setTimeout(() => {
+                        tabsSwipeHint.style.display = 'none';
+                    }, 300);
+                });
+
+                categoryTabsSlider.addEventListener('mousedown', function() {
+                    tabsSwipeHint.style.opacity = '0.5';
+                    setTimeout(() => {
+                        tabsSwipeHint.style.display = 'none';
+                    }, 300);
+                });
+
+                categoryTabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const category = tab.dataset.category;
+                        updateCategoryTab(category);
+                        filterPopularProducts(category);
+                    });
+                });
+
+                // Add click event to all buy buttons
+                document.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('product-btn') || e.target.closest('.product-btn')) {
+                        const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
+                        const productId = productBtn.getAttribute('data-product-id');
+                        const productCategory = productBtn.getAttribute('data-product-category');
+                        const productCard = productBtn.closest('.product-card');
+                        const productName = productCard.querySelector('.product-name').textContent;
+
+                        // Redirect ke halaman detail produk
+                        alert(`Produk ${productName} akan ditambahkan ke keranjang`);
+                        // window.location.href = `detail-produk.php?id=${productId}&category=${productCategory}`;
                     }
                 });
-            }
 
-            // ===== FUNGSI UNTUK RESPONSIF =====
-            function handleResize() {
+                // ===== UTILITY FUNCTIONS =====
+                function debounce(func, wait) {
+                    let timeout;
+                    return function executedFunction(...args) {
+                        const later = () => {
+                            clearTimeout(timeout);
+                            func(...args);
+                        };
+                        clearTimeout(timeout);
+                        timeout = setTimeout(later, wait);
+                    };
+                }
+
+                // ===== INISIALISASI =====
                 initTabsSlider();
 
-                const activeTab = document.querySelector('#categoryTabsSlider .category-tab.active');
-                if (activeTab) {
-                    filterPopularProducts(activeTab.dataset.category);
+                // Render produk populer (dari tabel home_produk_populer)
+                if (popularProductsFromDB.length > 0) {
+                    renderProductsSlider(popularProductsFromDB, 'popular-products-container', 'Produk Populer');
                 }
 
-                renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
-            }
-
-            // ===== EVENT LISTENERS =====
-            window.addEventListener('resize', debounce(handleResize, 250));
-
-            categoryTabsSlider.addEventListener('touchstart', function() {
-                tabsSwipeHint.style.opacity = '0.5';
-                setTimeout(() => {
-                    tabsSwipeHint.style.display = 'none';
-                }, 300);
-            });
-
-            categoryTabsSlider.addEventListener('mousedown', function() {
-                tabsSwipeHint.style.opacity = '0.5';
-                setTimeout(() => {
-                    tabsSwipeHint.style.display = 'none';
-                }, 300);
-            });
-
-            categoryTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const category = tab.dataset.category;
-                    updateCategoryTab(category);
-                    filterPopularProducts(category);
-                });
-            });
-
-            // Add click event to all buy buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('product-btn') || e.target.closest('.product-btn')) {
-                    const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
-                    const productId = productBtn.getAttribute('data-product-id');
-                    const productCategory = productBtn.getAttribute('data-product-category');
-                    const productCard = productBtn.closest('.product-card');
-                    const productName = productCard.querySelector('.product-name').textContent;
-
-                    // Redirect ke halaman detail produk
-                    alert(`Produk ${productName} akan ditambahkan ke keranjang`);
-                    // window.location.href = `detail-produk.php?id=${productId}&category=${productCategory}`;
+                // Render produk terbaru (dari tabel home_produk_terbaru yang baru)
+                if (latestProductsFromDB.length > 0) {
+                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
                 }
             });
-
-            // ===== UTILITY FUNCTIONS =====
-            function debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            }
-
-            // ===== INISIALISASI =====
-            initTabsSlider();
-
-            // Render produk populer (dari tabel home_produk_populer)
-            if (popularProductsFromDB.length > 0) {
-                renderProductsSlider(popularProductsFromDB, 'popular-products-container', 'Produk Populer');
-            }
-
-            // Render produk terbaru (dari query langsung ke semua kategori)
-            if (latestProductsFromDB.length > 0) {
-                renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
-            }
-        });
-    </script>
-</div>
+        </script>
+    </div>
 
     <div class="container-product">
         <style>
