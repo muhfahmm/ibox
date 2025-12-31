@@ -538,12 +538,6 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                 <span>Dashboard</span>
                             </a>
                         </li>
-                        <li>
-                            <a href="../../products-panel/categories/kategori.php">
-                                <i class="fas fa-tags"></i>
-                                <span>Kategori</span>
-                            </a>
-                        </li>
                         <li class="active">
                             <a href="ipad.php<?php echo $ipad_first_id ? '?id=' . $ipad_first_id : ''; ?>">
                                 <i class="fas fa-tablet-alt"></i>

@@ -419,12 +419,6 @@ if ($id > 0) {
                             </a>
                         </li>
                         <li>
-                            <a href="../../../products-panel/categories/kategori.php">
-                                <i class="fas fa-tags"></i>
-                                <span>Kategori</span>
-                            </a>
-                        </li>
-                        <li>
                             <a href="../../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>

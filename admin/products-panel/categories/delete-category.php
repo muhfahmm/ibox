@@ -396,12 +396,6 @@ mysqli_stmt_close($stmt);
                                 <span>Dashboard</span>
                             </a>
                         </li>
-                        <li class="active">
-                            <a href="../../products-panel/categories/kategori.php">
-                                <i class="fas fa-tags"></i>
-                                <span>Kategori</span>
-                            </a>
-                        </li>
                         <li>
                             <a href="../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>

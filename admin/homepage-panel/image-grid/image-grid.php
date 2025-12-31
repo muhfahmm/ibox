@@ -2,7 +2,6 @@
 session_start();
 require_once '../../db.php';
 
-// Jika belum login, redirect ke login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../../auth/login.php?error=not_logged_in');
     exit();
@@ -10,69 +9,90 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
-// Ambil data produk AirTag dengan kombinasi
-$query = "SELECT p.*, 
-                 COUNT(DISTINCT k.id) as total_kombinasi,
-                 COUNT(DISTINCT g.id) as total_warna,
-                 MIN(k.harga) as harga_terendah,
-                 MAX(k.harga) as harga_tertinggi,
-                 SUM(k.jumlah_stok) as total_stok
-          FROM admin_produk_airtag p
-          LEFT JOIN admin_produk_airtag_kombinasi k ON p.id = k.produk_id
-          LEFT JOIN admin_produk_airtag_gambar g ON p.id = g.produk_id
-          GROUP BY p.id
-          ORDER BY p.id DESC";
-$result = mysqli_query($db, $query);
+// Ambil data image grid yang sudah ada
+$query_grid = "SELECT * FROM home_grid ORDER BY urutan, created_at DESC";
+$result_grid = mysqli_query($db, $query_grid);
+$grid_count = mysqli_num_rows($result_grid);
 
-// Hitung jumlah produk AirTag
-$airtag_count = mysqli_num_rows($result);
+// Hitung jumlah untuk sidebar badges
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
 
-// Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
-$tables = [
-    'iphone' => 'admin_produk_iphone',
-    'ipad' => 'admin_produk_ipad',
-    'mac' => 'admin_produk_mac',
-    'watch' => 'admin_produk_watch',
-    'music' => 'admin_produk_music',
-    'aksesoris' => 'admin_produk_aksesoris'
-];
-
-// Array untuk menyimpan jumlah dan ID pertama setiap kategori
-$category_data = [];
-
-foreach ($tables as $key => $table_name) {
-    $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
-    $count_result = mysqli_query($db, $count_query);
-    $data = mysqli_fetch_assoc($count_result);
-    
-    $category_data[$key] = [
-        'count' => $data['total'],
-        'first_id' => $data['first_id']
-    ];
-}
-
-// Dapatkan ID pertama untuk AirTag
-$airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
-$airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
-$airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
-$airtag_first_id = $airtag_first_id_data['first_id'];
-
-// Hitung jumlah untuk Homepage Panel
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
 $populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
 $terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
-$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
-$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
 $trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
 $aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
 $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
-?>
 
+// Fungsi untuk mengambil detail produk berdasarkan tipe
+function getProductDetail($db, $tipe, $produk_id)
+{
+    $configs = [
+        'iphone' => [
+            'table' => 'admin_produk_iphone',
+            'gambar' => 'admin_produk_iphone_gambar',
+            'kombinasi' => 'admin_produk_iphone_kombinasi'
+        ],
+        'ipad' => [
+            'table' => 'admin_produk_ipad',
+            'gambar' => 'admin_produk_ipad_gambar',
+            'kombinasi' => 'admin_produk_ipad_kombinasi'
+        ],
+        'mac' => [
+            'table' => 'admin_produk_mac',
+            'gambar' => 'admin_produk_mac_gambar',
+            'kombinasi' => 'admin_produk_mac_kombinasi'
+        ],
+        'music' => [
+            'table' => 'admin_produk_music',
+            'gambar' => 'admin_produk_music_gambar',
+            'kombinasi' => 'admin_produk_music_kombinasi'
+        ],
+        'watch' => [
+            'table' => 'admin_produk_watch',
+            'gambar' => 'admin_produk_watch_gambar',
+            'kombinasi' => 'admin_produk_watch_kombinasi'
+        ],
+        'aksesoris' => [
+            'table' => 'admin_produk_aksesoris',
+            'gambar' => 'admin_produk_aksesoris_gambar',
+            'kombinasi' => 'admin_produk_aksesoris_kombinasi'
+        ],
+        'airtag' => [
+            'table' => 'admin_produk_airtag',
+            'gambar' => 'admin_produk_airtag_gambar',
+            'kombinasi' => 'admin_produk_airtag_kombinasi'
+        ]
+    ];
+
+    if (!isset($configs[$tipe])) return null;
+
+    $config = $configs[$tipe];
+
+    $query = "SELECT 
+                p.*,
+                (SELECT foto_thumbnail FROM {$config['gambar']} WHERE produk_id = p.id LIMIT 1) as thumbnail,
+                (SELECT MIN(harga) FROM {$config['kombinasi']} WHERE produk_id = p.id) as harga_terendah
+              FROM {$config['table']} p 
+              WHERE p.id = '$produk_id'";
+
+    $result = mysqli_query($db, $query);
+    return mysqli_fetch_assoc($result);
+}
+?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Kelola Image Grid</title>
+    <title>Kelola Image Grid - Admin Panel iBox</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -85,6 +105,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
         body {
             background-color: #f5f7fb;
+            color: #333;
         }
 
         .admin-container {
@@ -100,6 +121,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             display: flex;
             flex-direction: column;
             box-shadow: 5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 100;
         }
 
         .sidebar-header {
@@ -158,6 +180,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .sidebar-menu ul li a:hover {
@@ -237,73 +260,76 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
         /* Main Content Styles */
         .main-content {
             flex: 1;
-            padding: 40px;
+            padding: 30px;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
 
+        /* Page Header */
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
         }
 
-        .page-header h1 {
+        .page-title h1 {
             font-size: 28px;
             font-weight: 600;
-            color: #333;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .page-title p {
+            color: #7f8c8d;
+            font-size: 14px;
         }
 
         .btn-add {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 500;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 10px;
             text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
             transition: all 0.3s;
         }
 
         .btn-add:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
-            color: white;
+            box-shadow: 0 6px 20px rgba(74, 108, 247, 0.4);
         }
 
-        /* Card Styles */
+        /* Table Card */
         .card {
-            background: white;
+            background: #fff;
             border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .card-header {
-            background-color: white;
-            border-bottom: 1px solid #eaeaea;
-            padding: 20px;
-            border-radius: 15px 15px 0 0;
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .card-header h3 {
             font-size: 18px;
             font-weight: 600;
-            margin: 0;
-            color: #333;
         }
 
-        .card-body {
-            padding: 20px;
-        }
-
-        .table-container {
+        .table-responsive {
             overflow-x: auto;
         }
 
@@ -312,197 +338,138 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             border-collapse: collapse;
         }
 
-        table thead {
-            background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
-            color: white;
-        }
-
-        table thead th {
-            padding: 15px;
+        th {
+            background-color: #f8f9fa;
+            padding: 15px 25px;
             text-align: left;
+            font-size: 13px;
             font-weight: 600;
-            font-size: 14px;
+            color: #666;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        table tbody tr {
-            border-bottom: 1px solid #f0f0f0;
-            transition: all 0.3s ease;
+        td {
+            padding: 15px 25px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            vertical-align: middle;
         }
 
-        table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-
-        table tbody td {
-            padding: 15px;
-            font-size: 15px;
-            vertical-align: top;
-        }
-
-        .product-info {
+        .product-cell {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             gap: 15px;
         }
 
         .thumbnail-img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
+            width: 50px;
+            height: 50px;
             border-radius: 8px;
-            border: 2px solid #4a6cf7;
+            object-fit: cover;
+            border: 1px solid #eee;
         }
 
-        .product-details {
-            flex: 1;
+        .product-info-cell {
+            display: flex;
+            flex-direction: column;
         }
 
         .product-title {
             font-weight: 600;
             color: #333;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
-        .product-desc {
-            font-size: 13px;
+        .tipe-badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            background: #eee;
             color: #666;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .product-stats {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stat-badge {
-            background: #f8f9fa;
-            border: 1px solid #eaeaea;
-            border-radius: 15px;
-            padding: 3px 10px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .stat-badge i {
-            margin-right: 4px;
+            width: fit-content;
         }
 
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
-        .btn-edit, .btn-delete, .btn-view {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            text-decoration: none;
-            display: inline-flex;
+        .btn-action {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
         }
 
         .btn-edit {
             background-color: #e3f2fd;
             color: #1976d2;
-            border: 1px solid #bbdefb;
         }
 
         .btn-edit:hover {
-            background-color: #bbdefb;
-        }
-
-        .btn-view {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .btn-view:hover {
-            background-color: #ffeaa7;
+            background-color: #1976d2;
+            color: #fff;
         }
 
         .btn-delete {
             background-color: #ffebee;
             color: #d32f2f;
-            border: 1px solid #ffcdd2;
         }
 
         .btn-delete:hover {
-            background-color: #ffcdd2;
+            background-color: #d32f2f;
+            color: #fff;
+        }
+
+        .alert {
+            padding: 15px 25px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
         .no-data {
             text-align: center;
-            padding: 40px;
-            color: #777;
+            padding: 50px 25px;
+            color: #999;
         }
 
         .no-data i {
-            font-size: 50px;
+            display: block;
+            font-size: 40px;
             margin-bottom: 15px;
-            color: #ddd;
+            opacity: 0.3;
         }
 
-        .price-range {
-            font-weight: 600;
-            color: #4a6cf7;
-        }
-
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
+        .label-badge {
             font-size: 12px;
             font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-tersedia {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-habis {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .admin-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .product-info {
-                flex-direction: column;
-            }
-            
-            .product-stats {
-                flex-direction: column;
-                gap: 5px;
-            }
+            background: #e0e0e0;
+            padding: 3px 10px;
+            border-radius: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -525,55 +492,49 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/categories/kategori.php">
-                                <i class="fas fa-tags"></i>
-                                <span>Kategori</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../products-panel/ipad/ipad.php<?php echo $category_data['ipad']['first_id'] ? '?id=' . $category_data['ipad']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
-                                <span class="badge"><?php echo $category_data['ipad']['count']; ?></span>
+                                <span class="badge"><?php echo $ipad_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/iphone/iphone.php<?php echo $category_data['iphone']['first_id'] ? '?id=' . $category_data['iphone']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
-                                <span class="badge"><?php echo $category_data['iphone']['count']; ?></span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/mac/mac.php<?php echo $category_data['mac']['first_id'] ? '?id=' . $category_data['mac']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
-                                <span class="badge"><?php echo $category_data['mac']['count']; ?></span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/music/music.php<?php echo $category_data['music']['first_id'] ? '?id=' . $category_data['music']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
-                                <span class="badge"><?php echo $category_data['music']['count']; ?></span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/watch/watch.php<?php echo $category_data['watch']['first_id'] ? '?id=' . $category_data['watch']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
-                                <span class="badge"><?php echo $category_data['watch']['count']; ?></span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/aksesoris/aksesoris.php<?php echo $category_data['aksesoris']['first_id'] ? '?id=' . $category_data['aksesoris']['first_id'] : ''; ?>">
+                            <a href="../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
-                                <span class="badge"><?php echo $category_data['aksesoris']['count']; ?></span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/airtag/airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
+                            <a href="../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
                                 <span class="badge"><?php echo $airtag_count; ?></span>
@@ -586,49 +547,49 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                     <h3 class="section-title">Homepage Panel</h3>
                     <ul>
                         <li>
-                            <a href="../../homepage-panel/image-slider/image-slider.php">
+                            <a href="../image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
                                 <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/produk-populer/produk-populer.php">
+                            <a href="../produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
                                 <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
+                            <a href="../produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
                                 <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li class="active">
-                            <a href="../../homepage-panel/image-grid/image-grid.php">
+                            <a href="image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
                                 <span class="badge"><?php echo $grid_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/trade-in/trade-in.php">
+                            <a href="../trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
                                 <span class="badge"><?php echo $trade_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
+                            <a href="../aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
                                 <span>Aksesori unggulan</span>
                                 <span class="badge"><?php echo $aksesori_home_count; ?></span>
                             </a>
                         </li>
                         <li>
-                            <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
+                            <a href="../checkout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
                                 <span>Checkout sekarang</span>
                                 <span class="badge"><?php echo $checkout_count; ?></span>
@@ -650,7 +611,6 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             <a href="../../other/orders/order.php">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Pesanan</span>
-                                <span class="badge badge-warning">5</span>
                             </a>
                         </li>
                         <li>
@@ -679,156 +639,114 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
         <!-- Main Content -->
         <main class="main-content">
-            <div class="page-header">
-                <h1><i class="fas fa-tag me-2"></i> Kelola Produk AirTag</h1>
-                <a href="add-airtag.php" class="btn-add">
-                    <i class="fas fa-plus"></i> Tambah Produk AirTag
+            <header class="page-header">
+                <div class="page-title">
+                    <h1><i class="fas fa-th"></i> Kelola Image Grid</h1>
+                    <p>Atur produk yang tampil di bagian grid halaman utama.</p>
+                </div>
+                <a href="add-image-grid.php" class="btn-add">
+                    <i class="fas fa-plus"></i> Tambah Produk ke Grid
                 </a>
-            </div>
+            </header>
+
+            <?php if (isset($_GET['success'])): ?>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <?php
+                    if ($_GET['success'] == 'added') echo "Produk berhasil ditambahkan ke grid!";
+                    if ($_GET['success'] == 'updated') echo "Data grid berhasil diperbarui!";
+                    if ($_GET['success'] == 'deleted') echo "Produk berhasil dihapus dari grid!";
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error'])): ?>
+                <div class="alert alert-error">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <?php
+                    if ($_GET['error'] == 'already_exists') echo "Produk tersebut sudah ada di dalam grid!";
+                    if ($_GET['error'] == 'db_error') echo "Terjadi kesalahan pada database.";
+                    if ($_GET['error'] == 'update_failed') echo "Gagal memperbarui data grid.";
+                    ?>
+                </div>
+            <?php endif; ?>
 
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-list me-2"></i> Daftar Produk AirTag</h3>
+                    <h3>Daftar Produk Grid</h3>
+                    <span class="badge" style="padding: 5px 12px; font-size: 13px;"><?php echo $grid_count; ?> Produk</span>
                 </div>
-                <div class="card-body">
-                    <div class="table-container">
-                        <?php if(mysqli_num_rows($result) > 0): ?>
-                            <table>
-                                <thead>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Produk</th>
+                                <th>Tipe</th>
+                                <th>Label</th>
+                                <th>Urutan</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($grid_count > 0): ?>
+                                <?php while ($item = mysqli_fetch_assoc($result_grid)):
+                                    $detail = getProductDetail($db, $item['tipe_produk'], $item['produk_id']);
+                                ?>
                                     <tr>
-                                        <th>ID</th>
-                                        <th>Produk</th>
-                                        <th>Statistik</th>
-                                        <th>Harga Range</th>
-                                        <th>Total Stok</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php while($product = mysqli_fetch_assoc($result)): 
-                                        // Ambil thumbnail pertama untuk produk
-                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
-                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
-                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-                                        
-                                        // Ambil semua warna untuk produk ini
-                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
-                                        $result_warna = mysqli_query($db, $query_warna);
-                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-                                        
-                                        // Check if product has stock
-                                        $has_stock = $product['total_stok'] > 0;
-                                    ?>
-                                    <tr>
-                                        <td><strong>#<?php echo $product['id']; ?></strong></td>
+                                        <td><strong>#<?php echo $item['id']; ?></strong></td>
                                         <td>
-                                            <div class="product-info">
-                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
-                                                         alt="Thumbnail" class="thumbnail-img">
+                                            <div class="product-cell">
+                                                <?php if (!empty($detail['thumbnail'])): ?>
+                                                    <img src="../../uploads/<?php echo htmlspecialchars($detail['thumbnail']); ?>" alt="Thumbnail" class="thumbnail-img">
                                                 <?php else: ?>
                                                     <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                                                        <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                                        <i class="fas fa-image" style="color: #ccc;"></i>
                                                     </div>
                                                 <?php endif; ?>
-                                                <div class="product-details">
-                                                    <div class="product-title">
-                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                                                    </div>
-                                                    <div class="product-desc">
-                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                                                    </div>
-                                                    <div class="product-stats">
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-palette"></i>
-                                                            <?php echo $product['total_warna']; ?> Warna
-                                                        </span>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-layer-group"></i>
-                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                        </span>
-                                                    </div>
+                                                <div class="product-info-cell">
+                                                    <span class="product-title"><?php echo htmlspecialchars($detail['nama_produk'] ?? 'Produk tidak ditemukan'); ?></span>
+                                                    <span class="tipe-badge"><?php echo strtoupper($item['tipe_produk']); ?></span>
                                                 </div>
                                             </div>
                                         </td>
+                                        <td><?php echo ucfirst($item['tipe_produk']); ?></td>
                                         <td>
-                                            <div class="product-stats">
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-boxes"></i>
-                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                </span>
-                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php if($product['harga_terendah']): ?>
-                                                <div class="price-range">
-                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Mulai dari
-                                                </small>
+                                            <?php if ($item['label']): ?>
+                                                <span class="label-badge"><?php echo htmlspecialchars($item['label']); ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">Belum ada harga</span>
+                                                <span class="text-muted" style="font-size: 12px;">-</span>
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-                                            </div>
-                                            <small class="text-muted">
-                                                Stok total semua kombinasi
-                                            </small>
-                                        </td>
+                                        <td><?php echo $item['urutan']; ?></td>
                                         <td>
                                             <div class="action-buttons">
-                                                <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                                                    <i class="fas fa-eye"></i> Lihat
+                                                <a href="edit-image-grid.php?id=<?php echo $item['id']; ?>" class="btn-action btn-edit" title="Edit">
+                                                    <i class="fas fa-pencil-alt"></i>
                                                 </a>
-                                                <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
-                                                    <i class="fas fa-trash"></i> Hapus
+                                                <a href="delete-image-grid.php?id=<?php echo $item['id']; ?>" class="btn-action btn-delete" title="Hapus" onclick="return confirm('Yakin ingin menghapus produk ini dari grid?')">
+                                                    <i class="fas fa-trash"></i>
                                                 </a>
                                             </div>
                                         </td>
                                     </tr>
-                                    <?php endwhile; ?>
-                                </tbody>
-                            </table>
-                        <?php else: ?>
-                            <div class="no-data">
-                                <i class="fas fa-tag" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
-                                <h4>Belum ada produk AirTag</h4>
-                                <p>Mulai dengan menambahkan produk AirTag pertama Anda</p>
-                                <a href="add-airtag.php" class="btn-add mt-3" style="display: inline-flex;">
-                                    <i class="fas fa-plus"></i> Tambah Produk Pertama
-                                </a>
-                            </div>
-                        <?php endif; ?>
-                    </div>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6">
+                                        <div class="no-data">
+                                            <i class="fas fa-th"></i>
+                                            Belum ada produk yang ditambahkan ke grid.
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </main>
     </div>
-
-    <script>
-        // Session timeout warning 
-        setTimeout(function() {
-            alert('Session akan segera berakhir. Silakan login kembali.');
-        }, 25 * 60 * 1000);
-
-        // Auto logout 
-        setTimeout(function() {
-            window.location.href = '../../auth/logout.php';
-        }, 30 * 60 * 1000);
-    </script>
 </body>
+
 </html>
