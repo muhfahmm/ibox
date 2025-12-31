@@ -56,6 +56,15 @@ $airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
 $airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
 $airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
 $airtag_first_id = $airtag_first_id_data['first_id'];
+
+// Hitung jumlah untuk Homepage Panel
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
+$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
+$trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
+$aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
+$checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
 ?>
 
 <!DOCTYPE html>
@@ -63,7 +72,7 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Kelola AirTag</title>
+    <title>Admin Panel - Kelola Checkout Sekarang</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -85,7 +94,7 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
 
         /* Sidebar Styles */
         .sidebar {
-            width: 280px;
+            width: 200px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
             display: flex;
@@ -564,7 +573,7 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                             </a>
                         </li>
                         <li>
-                            <a href="airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
+                            <a href="../../products-panel/airtag/airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
                                 <span class="badge"><?php echo $airtag_count; ?></span>
@@ -580,42 +589,49 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                             <a href="../../homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
+                                <span class="badge"><?php echo $grid_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
+                                <span class="badge"><?php echo $trade_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
                                 <span>Aksesori unggulan</span>
+                                <span class="badge"><?php echo $aksesori_home_count; ?></span>
                             </a>
                         </li>
                         <li class="active">
                             <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
                                 <span>Checkout sekarang</span>
+                                <span class="badge"><?php echo $checkout_count; ?></span>
                             </a>
                         </li>
                     </ul>

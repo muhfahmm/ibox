@@ -1,3 +1,32 @@
+<?php
+session_start();
+require_once '../../db.php';
+
+if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
+    header('Location: ../../auth/login.php?error=not_logged_in');
+    exit();
+}
+
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
+
+// Hitung jumlah produk untuk sidebar
+$iphone_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_iphone"))['total'];
+$ipad_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_ipad"))['total'];
+$mac_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_mac"))['total'];
+$music_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_music"))['total'];
+$watch_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_watch"))['total'];
+$airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_airtag"))['total'];
+$aksesoris_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM admin_produk_aksesoris"))['total'];
+
+// Hitung jumlah untuk Homepage Panel
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
+$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
+$trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
+$aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
+$checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
+?>
 <!DOCTYPE html>
 <html lang="id">
 
@@ -28,7 +57,7 @@
 
         /* Sidebar Styles */
         .sidebar {
-            width: 280px;
+            width: 200px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
             display: flex;
@@ -266,49 +295,49 @@
                             <a href="../../products-panel/ipad/ipad.php">
                                 <i class="fas fa-tablet-alt"></i>
                                 <span>iPad</span>
-                                <span class="badge">8</span>
+                                <span class="badge"><?php echo $ipad_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/iphone/iphone.php">
                                 <i class="fas fa-mobile-alt"></i>
                                 <span>iPhone</span>
-                                <span class="badge">24</span>
+                                <span class="badge"><?php echo $iphone_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/mac/mac.php">
                                 <i class="fas fa-laptop"></i>
                                 <span>Mac</span>
-                                <span class="badge">12</span>
+                                <span class="badge"><?php echo $mac_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/music/music.php">
                                 <i class="fas fa-headphones-alt"></i>
                                 <span>Music</span>
-                                <span class="badge">10</span>
+                                <span class="badge"><?php echo $music_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/watch/watch.php">
                                 <i class="fas fa-clock"></i>
                                 <span>Watch</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $watch_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/aksesoris/aksesoris.php">
                                 <i class="fas fa-toolbox"></i>
                                 <span>Aksesoris</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $aksesoris_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../products-panel/airtag/airtag.php">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
-                                <span class="badge">15</span>
+                                <span class="badge"><?php echo $airtag_count; ?></span>
                             </a>
                         </li>
                     </ul>
@@ -321,42 +350,49 @@
                             <a href="../../homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
+                                <span class="badge"><?php echo $grid_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
+                                <span class="badge"><?php echo $trade_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
                                 <span>Aksesori unggulan</span>
+                                <span class="badge"><?php echo $aksesori_home_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
                                 <span>Checkout sekarang</span>
+                                <span class="badge"><?php echo $checkout_count; ?></span>
                             </a>
                         </li>
                     </ul>

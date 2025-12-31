@@ -54,6 +54,15 @@ foreach ($tables as $key => $table_name) {
         'first_id' => $data['first_id']
     ];
 }
+
+// Hitung jumlah untuk Homepage Panel
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
+$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
+$trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
+$aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
+$checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
 ?>
 
 <!DOCTYPE html>
@@ -83,7 +92,7 @@ foreach ($tables as $key => $table_name) {
 
         /* Sidebar Styles */
         .sidebar {
-            width: 280px;
+            width: 200px;
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
             display: flex;
@@ -614,42 +623,49 @@ foreach ($tables as $key => $table_name) {
                             <a href="../../homepage-panel/image-slider/image-slider.php">
                                 <i class="fas fa-images"></i>
                                 <span>Image slider</span>
+                                <span class="badge"><?php echo $slider_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-populer/produk-populer.php">
                                 <i class="fas fa-fire"></i>
                                 <span>Produk Apple Populer</span>
+                                <span class="badge"><?php echo $populer_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/produk-terbaru/produk-terbaru.php">
                                 <i class="fas fa-bolt"></i>
                                 <span>Produk Terbaru</span>
+                                <span class="badge"><?php echo $terbaru_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/image-grid/image-grid.php">
                                 <i class="fas fa-th"></i>
                                 <span>Image grid</span>
+                                <span class="badge"><?php echo $grid_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/trade-in/trade-in.php">
                                 <i class="fas fa-exchange-alt"></i>
                                 <span>Trade in</span>
+                                <span class="badge"><?php echo $trade_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/aksesori-unggulan/aksesori-unggulan.php">
                                 <i class="fas fa-gem"></i>
                                 <span>Aksesori unggulan</span>
+                                <span class="badge"><?php echo $aksesori_home_count; ?></span>
                             </a>
                         </li>
                         <li>
                             <a href="../../homepage-panel/checkout-sekarang/chekout-sekarang.php">
                                 <i class="fas fa-shopping-bag"></i>
                                 <span>Checkout sekarang</span>
+                                <span class="badge"><?php echo $checkout_count; ?></span>
                             </a>
                         </li>
                     </ul>
