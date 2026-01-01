@@ -111,6 +111,8 @@ function addSlider() {
     // Get data from request
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk'] ?? '');
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    $tipe_produk = mysqli_real_escape_string($db, $_POST['tipe_produk'] ?? '');
+    $produk_id = !empty($_POST['produk_id']) ? intval($_POST['produk_id']) : 'NULL';
     
     if (empty($nama_produk)) {
         http_response_code(400);
@@ -154,8 +156,9 @@ function addSlider() {
     }
     
     // Insert into database
-    $query = "INSERT INTO home_image_slider (gambar_produk, nama_produk, deskripsi_produk) 
-              VALUES ('$gambar_produk', '$nama_produk', '$deskripsi_produk')";
+    $tipe_val = !empty($tipe_produk) ? "'$tipe_produk'" : "NULL";
+    $query = "INSERT INTO home_image_slider (gambar_produk, nama_produk, deskripsi_produk, produk_id, tipe_produk) 
+              VALUES ('$gambar_produk', '$nama_produk', '$deskripsi_produk', $produk_id, $tipe_val)";
     
     if (mysqli_query($db, $query)) {
         $id = mysqli_insert_id($db);
@@ -189,6 +192,8 @@ function updateSlider() {
     $id = intval($_POST['id']);
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk'] ?? '');
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    $tipe_produk = mysqli_real_escape_string($db, $_POST['tipe_produk'] ?? '');
+    $produk_id = !empty($_POST['produk_id']) ? intval($_POST['produk_id']) : 'NULL';
     
     if (empty($nama_produk)) {
         http_response_code(400);
@@ -239,10 +244,13 @@ function updateSlider() {
     }
     
     // Update database
+    $tipe_val = !empty($tipe_produk) ? "'$tipe_produk'" : "NULL";
     $query = "UPDATE home_image_slider 
               SET gambar_produk = '$gambar_produk', 
                   nama_produk = '$nama_produk', 
-                  deskripsi_produk = '$deskripsi_produk'
+                  deskripsi_produk = '$deskripsi_produk',
+                  produk_id = $produk_id,
+                  tipe_produk = $tipe_val
               WHERE id = $id";
     
     if (mysqli_query($db, $query)) {

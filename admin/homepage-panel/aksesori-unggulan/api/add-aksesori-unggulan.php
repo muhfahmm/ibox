@@ -9,31 +9,27 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id = mysqli_real_escape_string($db, $_POST['id']);
     $tipe_produk = mysqli_real_escape_string($db, $_POST['tipe_produk']);
     $produk_id = mysqli_real_escape_string($db, $_POST['produk_id']);
-    $label_promo = mysqli_real_escape_string($db, $_POST['label_promo']);
+    $label = mysqli_real_escape_string($db, $_POST['label']);
     $urutan = isset($_POST['urutan']) ? (int)$_POST['urutan'] : 0;
 
-    // Cek apakah produk lain sudah pakai ID & Tipe yang sama
-    $check_query = "SELECT * FROM home_trade_in 
-                    WHERE produk_id = '$produk_id' AND tipe_produk = '$tipe_produk' AND id != '$id'";
+    // Cek apakah sudah ada
+    $check_query = "SELECT * FROM home_aksesori 
+                    WHERE produk_id = '$produk_id' AND tipe_produk = '$tipe_produk'";
     $check_result = mysqli_query($db, $check_query);
 
     if (mysqli_num_rows($check_result) > 0) {
-        echo json_encode(['success' => false, 'message' => 'Produk ini sudah ada dalam daftar trade-in']);
+        echo json_encode(['success' => false, 'message' => 'Produk sudah ada dalam daftar aksesori unggulan']);
         exit();
     }
 
-    $update_query = "UPDATE home_trade_in SET 
-                     produk_id = '$produk_id', 
-                     tipe_produk = '$tipe_produk', 
-                     label_promo = '$label_promo', 
-                     urutan = '$urutan' 
-                     WHERE id = '$id'";
+    $insert_query = "INSERT INTO home_aksesori 
+                    (produk_id, tipe_produk, label, urutan) 
+                    VALUES ('$produk_id', '$tipe_produk', '$label', '$urutan')";
     
-    if (mysqli_query($db, $update_query)) {
-        echo json_encode(['success' => true, 'message' => 'Produk trade-in berhasil diperbarui']);
+    if (mysqli_query($db, $insert_query)) {
+        echo json_encode(['success' => true, 'message' => 'Aksesori unggulan berhasil ditambahkan']);
     } else {
         echo json_encode(['success' => false, 'message' => 'Kesalahan database: ' . mysqli_error($db)]);
     }

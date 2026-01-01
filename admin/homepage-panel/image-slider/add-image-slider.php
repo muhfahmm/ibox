@@ -22,12 +22,42 @@ $airtag_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total F
 // Handle form submission
 $success = false;
 $error = '';
+
+// Ambil daftar produk dari semua kategori untuk dropdown
+$products = [];
+$categories = [
+    'iphone' => 'admin_produk_iphone',
+    'ipad' => 'admin_produk_ipad',
+    'mac' => 'admin_produk_mac',
+    'music' => 'admin_produk_music',
+    'watch' => 'admin_produk_watch',
+    'aksesoris' => 'admin_produk_aksesoris',
+    'airtag' => 'admin_produk_airtag'
+];
+
+foreach ($categories as $key => $table) {
+    $q = "SELECT id, nama_produk, deskripsi_produk FROM $table ORDER BY nama_produk";
+    $res = mysqli_query($db, $q);
+    if ($res) {
+        while ($row = mysqli_fetch_assoc($res)) {
+            $products[] = [
+                'id' => $row['id'],
+                'nama' => $row['nama_produk'],
+                'deskripsi' => $row['deskripsi_produk'] ?? '',
+                'tipe' => $key
+            ];
+        }
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk']);
+    $tipe_produk = mysqli_real_escape_string($db, $_POST['tipe_produk'] ?? '');
+    $produk_id = !empty($_POST['produk_id']) ? intval($_POST['produk_id']) : 'NULL';
     
     // Handle file upload
-    $target_dir = "../../../uploads/slider/";
+    $target_dir = "../../uploads/slider/";
     if (!is_dir($target_dir)) {
         mkdir($target_dir, 0777, true);
     }
@@ -39,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $allowed_ext = array('jpg', 'jpeg', 'png', 'gif', 'webp');
         
         if (in_array($file_ext, $allowed_ext)) {
-            // Generate unique filename
             $new_filename = uniqid() . '_' . time() . '.' . $file_ext;
             $target_file = $target_dir . $new_filename;
             
@@ -54,8 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     
     if (empty($error) && !empty($gambar_produk)) {
-        $query = "INSERT INTO home_image_slider (gambar_produk, nama_produk, deskripsi_produk) 
-                  VALUES ('$gambar_produk', '$nama_produk', '$deskripsi_produk')";
+        $tipe_val = !empty($tipe_produk) ? "'$tipe_produk'" : "NULL";
+        $query = "INSERT INTO home_image_slider (gambar_produk, nama_produk, deskripsi_produk, produk_id, tipe_produk) 
+                  VALUES ('$gambar_produk', '$nama_produk', '$deskripsi_produk', $produk_id, $tipe_val)";
         
         if (mysqli_query($db, $query)) {
             $success = true;
@@ -597,6 +627,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-container">
                 <form method="POST" action="" enctype="multipart/form-data">
                     <div class="form-group">
+                        <label for="tipe_produk">Tipe Produk <span style="color: red;">*</span></label>
+                        <select id="tipe_produk" name="tipe_produk" class="form-control" required>
+                            <option value="">-- Pilih Tipe Produk --</option>
+                            <option value="iphone">iPhone</option>
+                            <option value="ipad">iPad</option>
+                            <option value="mac">Mac</option>
+                            <option value="music">Music</option>
+                            <option value="watch">Watch</option>
+                            <option value="aksesoris">Aksesoris</option>
+                            <option value="airtag">AirTag</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="produk_id">Pilih Produk <span style="color: red;">*</span></label>
+                        <select id="produk_id" name="produk_id" class="form-control" required disabled>
+                            <option value="">-- Pilih Produk --</option>
+                            <?php foreach ($products as $product): ?>
+                                <option value="<?php echo $product['id']; ?>" 
+                                        data-tipe="<?php echo $product['tipe']; ?>"
+                                        data-nama="<?php echo htmlspecialchars($product['nama']); ?>"
+                                        data-deskripsi="<?php echo htmlspecialchars($product['deskripsi']); ?>">
+                                    [<?php echo strtoupper($product['tipe']); ?>] <?php echo htmlspecialchars($product['nama']); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
                         <label for="nama_produk">Nama Produk <span style="color: red;">*</span></label>
                         <input type="text" 
                                id="nama_produk" 
@@ -607,12 +666,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
 
                     <div class="form-group">
-                        <label for="deskripsi_produk">Deskripsi Produk</label>
+                        <label for="deskripsi_produk">Deskripsi Produk (Slider)</label>
                         <textarea id="deskripsi_produk" 
                                   name="deskripsi_produk" 
                                   class="form-control" 
                                   rows="4"
-                                  placeholder="Masukkan deskripsi produk (opsional)"></textarea>
+                                  placeholder="Masukkan deskripsi produk untuk ditampilkan di slider"></textarea>
                     </div>
 
                     <div class="form-group">
@@ -649,6 +708,61 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
+        // Product filtering and auto-filling
+        document.getElementById('tipe_produk').addEventListener('change', function() {
+            const selectedTipe = this.value;
+            const produkSelect = document.getElementById('produk_id');
+            const namaInput = document.getElementById('nama_produk');
+            const deskripsiInput = document.getElementById('deskripsi_produk');
+            
+            // Reset produk select
+            produkSelect.innerHTML = '<option value="">-- Pilih Produk --</option>';
+            
+            if (selectedTipe) {
+                produkSelect.disabled = false;
+                
+                // Ambil semua data produk yang sudah ada di PHP
+                const allProducts = <?php echo json_encode($products); ?>;
+                
+                // Filter produk berdasarkan tipe
+                const filteredProducts = allProducts.filter(p => p.tipe === selectedTipe);
+                
+                filteredProducts.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.id;
+                    option.textContent = p.nama;
+                    option.dataset.nama = p.nama;
+                    option.dataset.deskripsi = p.deskripsi;
+                    produkSelect.appendChild(option);
+                });
+            } else {
+                produkSelect.disabled = true;
+                namaInput.value = '';
+                deskripsiInput.value = '';
+            }
+        });
+
+        document.getElementById('produk_id').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const namaInput = document.getElementById('nama_produk');
+            const deskripsiInput = document.getElementById('deskripsi_produk');
+            
+            if (selectedOption.value) {
+                // Auto-fill nama
+                namaInput.value = selectedOption.dataset.nama;
+                
+                // Auto-fill deskripsi (jika kosong atau ingin diupdate)
+                // Kita biarkan user mengedit deskripsi slider secara manual
+                // Tapi kita beri nilai awal dari deskripsi produk asli
+                if (!deskripsiInput.value.trim()) {
+                    // Strip HTML if any
+                    const temp = document.createElement('div');
+                    temp.innerHTML = selectedOption.dataset.deskripsi;
+                    deskripsiInput.value = temp.textContent || temp.innerText || "";
+                }
+            }
+        });
+
         // Image preview function
         function previewImage(event) {
             const preview = document.getElementById('previewImage');

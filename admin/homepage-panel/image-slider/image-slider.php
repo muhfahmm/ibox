@@ -41,7 +41,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
         
         // Hapus file gambar jika ada
         if ($image_file) {
-            $upload_dir = '../../../uploads/slider/';
+            $upload_dir = '../../uploads/slider/';
             $image_path = $upload_dir . $image_file;
             
             if (file_exists($image_path)) {
@@ -779,44 +779,42 @@ if (isset($_GET['action']) && $_GET['action'] == 'delete' && isset($_GET['id']))
                 $query = "SELECT * FROM home_image_slider ORDER BY id DESC";
                 $result = mysqli_query($db, $query);
                 
+
                 if (mysqli_num_rows($result) > 0) {
                 ?>
                     <table>
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Gambar</th>
-                                <th>Nama Produk</th>
-                                <th>Deskripsi Produk</th>
-                                <th>Aksi</th>
+                                 <th>No</th>
+                                 <th>Gambar</th>
+                                 <th>Tipe</th>
+                                 <th>Nama Produk</th>
+                                 <th>Deskripsi Slider</th>
+                                 <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php
                             $no = 1;
                             while ($row = mysqli_fetch_assoc($result)) {
-                                $image_path = '../../../uploads/slider/' . $row['gambar_produk'];
+                                $image_path = '../../uploads/slider/' . $row['gambar_produk'];
                                 $image_exists = file_exists($image_path) ? $image_path : '../../../uploads/default-slider.jpg';
                             ?>
                                 <tr>
                                     <td><?php echo $no++; ?></td>
                                     <td>
-                                        <img src="<?php echo $image_exists; ?>" 
-                                             class="slider-image" 
-                                             alt="<?php echo htmlspecialchars($row['nama_produk']); ?>"
-                                             title="Klik untuk memperbesar">
+                                        <img src="<?php echo $image_exists; ?>" alt="Slider" class="slider-image">
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info"><?php echo strtoupper($row['tipe_produk'] ?? '-'); ?></span>
+                                        <br>
+                                        <small>ID: <?php echo $row['produk_id'] ?? '-'; ?></small>
                                     </td>
                                     <td><?php echo htmlspecialchars($row['nama_produk']); ?></td>
                                     <td>
-                                        <?php 
-                                        if (!empty($row['deskripsi_produk'])) {
-                                            echo strlen($row['deskripsi_produk']) > 50 
-                                                ? substr(htmlspecialchars($row['deskripsi_produk']), 0, 50) . '...' 
-                                                : htmlspecialchars($row['deskripsi_produk']);
-                                        } else {
-                                            echo '-';
-                                        }
-                                        ?>
+                                        <div style="max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            <?php echo htmlspecialchars($row['deskripsi_produk']); ?>
+                                        </div>
                                     </td>
                                     <td>
                                         <div class="action-buttons-cell">

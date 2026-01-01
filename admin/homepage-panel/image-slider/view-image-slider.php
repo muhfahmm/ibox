@@ -543,7 +543,7 @@ if ($id > 0) {
                 <div class="image-section">
                     <?php if ($slider['gambar_produk']): ?>
                         <?php 
-                        $image_path = '../../../uploads/slider/' . $slider['gambar_produk'];
+                        $image_path = '../../uploads/slider/' . $slider['gambar_produk'];
                         $image_exists = file_exists($image_path);
                         ?>
                         <img src="<?php echo $image_exists ? $image_path : '../../../uploads/default-slider.jpg'; ?>" 

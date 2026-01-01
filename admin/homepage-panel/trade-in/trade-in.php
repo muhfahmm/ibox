@@ -2,7 +2,6 @@
 session_start();
 require_once '../../db.php';
 
-// Jika belum login, redirect ke login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header('Location: ../../auth/login.php?error=not_logged_in');
     exit();
@@ -10,36 +9,67 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
-// Ambil data produk AirTag dengan kombinasi
-$query = "SELECT p.*, 
-                 COUNT(DISTINCT k.id) as total_kombinasi,
-                 COUNT(DISTINCT g.id) as total_warna,
-                 MIN(k.harga) as harga_terendah,
-                 MAX(k.harga) as harga_tertinggi,
-                 SUM(k.jumlah_stok) as total_stok
-          FROM admin_produk_airtag p
-          LEFT JOIN admin_produk_airtag_kombinasi k ON p.id = k.produk_id
-          LEFT JOIN admin_produk_airtag_gambar g ON p.id = g.produk_id
-          GROUP BY p.id
-          ORDER BY p.id DESC";
+// Ambil data trade in dari tabel home_trade_in
+$query = "SELECT 
+            hti.*,
+            CASE 
+                WHEN hti.tipe_produk = 'iphone' THEN iphone.nama_produk
+                WHEN hti.tipe_produk = 'ipad' THEN ipad.nama_produk
+                WHEN hti.tipe_produk = 'mac' THEN mac.nama_produk
+                WHEN hti.tipe_produk = 'music' THEN music.nama_produk
+                WHEN hti.tipe_produk = 'watch' THEN watch.nama_produk
+                WHEN hti.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
+                WHEN hti.tipe_produk = 'airtag' THEN airtag.nama_produk
+            END as nama_produk,
+            CASE 
+                WHEN hti.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
+                WHEN hti.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
+            END as foto_thumbnail
+          FROM home_trade_in hti
+          LEFT JOIN admin_produk_iphone iphone ON hti.tipe_produk = 'iphone' AND hti.produk_id = iphone.id
+          LEFT JOIN admin_produk_ipad ipad ON hti.tipe_produk = 'ipad' AND hti.produk_id = ipad.id
+          LEFT JOIN admin_produk_mac mac ON hti.tipe_produk = 'mac' AND hti.produk_id = mac.id
+          LEFT JOIN admin_produk_music music ON hti.tipe_produk = 'music' AND hti.produk_id = music.id
+          LEFT JOIN admin_produk_watch watch ON hti.tipe_produk = 'watch' AND hti.produk_id = watch.id
+          LEFT JOIN admin_produk_aksesoris aksesoris ON hti.tipe_produk = 'aksesoris' AND hti.produk_id = aksesoris.id
+          LEFT JOIN admin_produk_airtag airtag ON hti.tipe_produk = 'airtag' AND hti.produk_id = airtag.id
+          LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hti.tipe_produk = 'iphone' AND hti.produk_id = iphone_gambar.produk_id
+          LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hti.tipe_produk = 'ipad' AND hti.produk_id = ipad_gambar.produk_id
+          LEFT JOIN admin_produk_mac_gambar mac_gambar ON hti.tipe_produk = 'mac' AND hti.produk_id = mac_gambar.produk_id
+          LEFT JOIN admin_produk_music_gambar music_gambar ON hti.tipe_produk = 'music' AND hti.produk_id = music_gambar.produk_id
+          LEFT JOIN admin_produk_watch_gambar watch_gambar ON hti.tipe_produk = 'watch' AND hti.produk_id = watch_gambar.produk_id
+          LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hti.tipe_produk = 'aksesoris' AND hti.produk_id = aksesoris_gambar.produk_id
+          LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hti.tipe_produk = 'airtag' AND hti.produk_id = airtag_gambar.produk_id
+          GROUP BY hti.id
+          ORDER BY hti.urutan ASC, hti.created_at DESC";
 $result = mysqli_query($db, $query);
 
-// Hitung jumlah produk AirTag
-$airtag_count = mysqli_num_rows($result);
+// Hitung jumlah untuk sidebar
+$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
+$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
+$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
+$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
+$trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
+$aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
+$checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
 
-// Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
+// Hitung jumlah per kategori untuk sidebar
 $tables = [
     'iphone' => 'admin_produk_iphone',
     'ipad' => 'admin_produk_ipad',
     'mac' => 'admin_produk_mac',
     'watch' => 'admin_produk_watch',
     'music' => 'admin_produk_music',
-    'aksesoris' => 'admin_produk_aksesoris'
+    'aksesoris' => 'admin_produk_aksesoris',
+    'airtag' => 'admin_produk_airtag'
 ];
 
-// Array untuk menyimpan jumlah dan ID pertama setiap kategori
 $category_data = [];
-
 foreach ($tables as $key => $table_name) {
     $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
     $count_result = mysqli_query($db, $count_query);
@@ -50,21 +80,6 @@ foreach ($tables as $key => $table_name) {
         'first_id' => $data['first_id']
     ];
 }
-
-// Dapatkan ID pertama untuk AirTag
-$airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
-$airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
-$airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
-$airtag_first_id = $airtag_first_id_data['first_id'];
-
-// Hitung jumlah untuk Homepage Panel
-$populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
-$terbaru_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_terbaru"))['total'];
-$slider_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_image_slider"))['total'];
-$grid_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_grid"))['total'];
-$trade_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_trade_in"))['total'];
-$aksesori_home_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_aksesori"))['total'];
-$checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_checkout"))['total'];
 ?>
 
 <!DOCTYPE html>
@@ -365,32 +380,12 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             margin-bottom: 5px;
         }
 
-        .product-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .product-stats {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stat-badge {
-            background: #f8f9fa;
-            border: 1px solid #eaeaea;
-            border-radius: 15px;
-            padding: 3px 10px;
+        .product-category {
             font-size: 12px;
-            color: #666;
-        }
-
-        .stat-badge i {
-            margin-right: 4px;
+            color: #4a6cf7;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .action-buttons {
@@ -398,7 +393,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             gap: 8px;
         }
 
-        .btn-edit, .btn-delete, .btn-view {
+        .btn-edit, .btn-delete {
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
@@ -416,16 +411,6 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
         .btn-edit:hover {
             background-color: #bbdefb;
-        }
-
-        .btn-view {
-            background-color: #fff3cd;
-            color: #856404;
-            border: 1px solid #ffeaa7;
-        }
-
-        .btn-view:hover {
-            background-color: #ffeaa7;
         }
 
         .btn-delete {
@@ -450,56 +435,13 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             color: #ddd;
         }
 
-        .price-range {
-            font-weight: 600;
-            color: #4a6cf7;
-        }
-
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
+        .badge-promo {
+            background-color: #bf4800;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 5px;
             font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-tersedia {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-habis {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .admin-container {
-                flex-direction: column;
-            }
-
-            .sidebar {
-                width: 100%;
-                height: auto;
-            }
-
-            .main-content {
-                padding: 20px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-            
-            .product-info {
-                flex-direction: column;
-            }
-            
-            .product-stats {
-                flex-direction: column;
-                gap: 5px;
-            }
+            font-weight: 600;
         }
     </style>
 </head>
@@ -567,10 +509,10 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             </a>
                         </li>
                         <li>
-                            <a href="../../products-panel/airtag/airtag.php<?php echo $airtag_first_id ? '?id=' . $airtag_first_id : ''; ?>">
+                            <a href="../../products-panel/airtag/airtag.php<?php echo $category_data['airtag']['first_id'] ? '?id=' . $category_data['airtag']['first_id'] : ''; ?>">
                                 <i class="fas fa-tag"></i>
                                 <span>AirTag</span>
-                                <span class="badge"><?php echo $airtag_count; ?></span>
+                                <span class="badge"><?php echo $category_data['airtag']['count']; ?></span>
                             </a>
                         </li>
                     </ul>
@@ -630,31 +572,6 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                         </li>
                     </ul>
                 </div>
-
-                <div class="menu-section">
-                    <h3 class="section-title">Lainnya</h3>
-                    <ul>
-                        <li>
-                            <a href="../../other/users/users.php">
-                                <i class="fas fa-users"></i>
-                                <span>Pengguna</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/orders/order.php">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Pesanan</span>
-                                <span class="badge badge-warning">5</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="../../other/settings/settings.php">
-                                <i class="fas fa-cog"></i>
-                                <span>Pengaturan</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
 
             <div class="sidebar-footer">
@@ -673,16 +590,35 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
         <!-- Main Content -->
         <main class="main-content">
+            <?php if (isset($_GET['success'])): ?>
+                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <?php 
+                        if ($_GET['success'] == 'added') echo "Produk trade-in berhasil ditambahkan!";
+                        if ($_GET['success'] == 'updated') echo "Produk trade-in berhasil diperbarui!";
+                        if ($_GET['success'] == 'deleted') echo "Produk trade-in berhasil dihapus!";
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error'])): ?>
+                <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <?php 
+                        if ($_GET['error'] == 'already_exists') echo "Produk ini sudah ada dalam daftar trade-in!";
+                        if ($_GET['error'] == 'db_error') echo "Terjadi kesalahan database!";
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <div class="page-header">
-                <h1><i class="fas fa-tag me-2"></i> Kelola Produk AirTag</h1>
-                <a href="add-airtag.php" class="btn-add">
-                    <i class="fas fa-plus"></i> Tambah Produk AirTag
+                <h1><i class="fas fa-exchange-alt me-2"></i> Kelola Trade In</h1>
+                <a href="add-trade-in.php" class="btn-add">
+                    <i class="fas fa-plus"></i> Tambah Produk Trade In
                 </a>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-list me-2"></i> Daftar Produk AirTag</h3>
+                    <h3><i class="fas fa-list me-2"></i> Daftar Produk Trade In</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-container">
@@ -692,33 +628,19 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                     <tr>
                                         <th>ID</th>
                                         <th>Produk</th>
-                                        <th>Statistik</th>
-                                        <th>Harga Range</th>
-                                        <th>Total Stok</th>
+                                        <th>Label Promo</th>
+                                        <th>Urutan</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($product = mysqli_fetch_assoc($result)): 
-                                        // Ambil thumbnail pertama untuk produk
-                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
-                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
-                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-                                        
-                                        // Ambil semua warna untuk produk ini
-                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
-                                        $result_warna = mysqli_query($db, $query_warna);
-                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-                                        
-                                        // Check if product has stock
-                                        $has_stock = $product['total_stok'] > 0;
-                                    ?>
+                                    <?php while($item = mysqli_fetch_assoc($result)): ?>
                                     <tr>
-                                        <td><strong>#<?php echo $product['id']; ?></strong></td>
+                                        <td><strong>#<?php echo $item['id']; ?></strong></td>
                                         <td>
                                             <div class="product-info">
-                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
+                                                <?php if(!empty($item['foto_thumbnail'])): ?>
+                                                    <img src="../../uploads/<?php echo htmlspecialchars($item['foto_thumbnail']); ?>" 
                                                          alt="Thumbnail" class="thumbnail-img">
                                                 <?php else: ?>
                                                     <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
@@ -726,69 +648,30 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                                     </div>
                                                 <?php endif; ?>
                                                 <div class="product-details">
+                                                    <div class="product-category"><?php echo strtoupper($item['tipe_produk']); ?></div>
                                                     <div class="product-title">
-                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                                                    </div>
-                                                    <div class="product-desc">
-                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                                                    </div>
-                                                    <div class="product-stats">
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-palette"></i>
-                                                            <?php echo $product['total_warna']; ?> Warna
-                                                        </span>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-layer-group"></i>
-                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                        </span>
+                                                        <?php echo htmlspecialchars($item['nama_produk'] ?? 'Produk Tidak Ditemukan'); ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="product-stats">
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-boxes"></i>
-                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                </span>
-                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php if($product['harga_terendah']): ?>
-                                                <div class="price-range">
-                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Mulai dari
-                                                </small>
+                                            <?php if(!empty($item['label_promo'])): ?>
+                                                <span class="badge-promo"><?php echo htmlspecialchars($item['label_promo']); ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">Belum ada harga</span>
+                                                <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-                                            </div>
-                                            <small class="text-muted">
-                                                Stok total semua kombinasi
-                                            </small>
+                                            <strong><?php echo $item['urutan']; ?></strong>
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                                                    <i class="fas fa-eye"></i> Lihat
-                                                </a>
-                                                <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
+                                                <a href="edit-trade-in.php?id=<?php echo $item['id']; ?>" class="btn-edit">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
+                                                <a href="delete-trade-in.php?id=<?php echo $item['id']; ?>" class="btn-delete" 
+                                                   onclick="return confirm('Yakin ingin menghapus produk trade-in ini?')">
                                                     <i class="fas fa-trash"></i> Hapus
                                                 </a>
                                             </div>
@@ -799,12 +682,8 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             </table>
                         <?php else: ?>
                             <div class="no-data">
-                                <i class="fas fa-tag" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
-                                <h4>Belum ada produk AirTag</h4>
-                                <p>Mulai dengan menambahkan produk AirTag pertama Anda</p>
-                                <a href="add-airtag.php" class="btn-add mt-3" style="display: inline-flex;">
-                                    <i class="fas fa-plus"></i> Tambah Produk Pertama
-                                </a>
+                                <i class="fas fa-exchange-alt"></i>
+                                <p>Belum ada produk trade-in yang ditambahkan.</p>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -812,17 +691,5 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             </div>
         </main>
     </div>
-
-    <script>
-        // Session timeout warning 
-        setTimeout(function() {
-            alert('Session akan segera berakhir. Silakan login kembali.');
-        }, 25 * 60 * 1000);
-
-        // Auto logout 
-        setTimeout(function() {
-            window.location.href = '../../auth/logout.php';
-        }, 30 * 60 * 1000);
-    </script>
 </body>
 </html>

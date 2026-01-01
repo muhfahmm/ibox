@@ -9,6 +9,7 @@ require '../db/db.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iBox Indonesia (Stabilized Menu)</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         * {
@@ -813,7 +814,7 @@ require '../db/db.php';
                             <i class="bi bi-list"></i>
                         </button>
                         <div class="logo">
-                            <img src="img/logo/logo.png" alt="iBox Logo">
+                            <img src="assets/img/logo/logo.png" alt="iBox Logo">
                         </div>
                     </div>
                     <div class="search-bar-menu">
@@ -1733,6 +1734,26 @@ require '../db/db.php';
     </nav>
 
     <div class="slider-container">
+        <?php
+        // Query untuk mengambil data slider dari database
+        $query = "SELECT * FROM home_image_slider ORDER BY id ASC";
+        $result = mysqli_query($db, $query);
+
+        // Cek apakah query berhasil
+        if (!$result) {
+            die("Query error: " . mysqli_error($db));
+        }
+
+        // Ambil semua data slide
+        $slides = [];
+        while ($row = mysqli_fetch_assoc($result)) {
+            $slides[] = $row;
+        }
+
+        // Jika tidak ada data, tampilkan slide default
+        $hasSlides = !empty($slides);
+        ?>
+
         <style>
             /* CSS untuk image slider */
             * {
@@ -1821,6 +1842,7 @@ require '../db/db.php';
                 font-size: 15px;
                 letter-spacing: 0.3px;
                 box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+                text-decoration: none;
             }
 
             .slide-btn:hover {
@@ -1968,7 +1990,6 @@ require '../db/db.php';
             }
 
             @media (max-width: 768px) {
-
                 .slider-container {
                     height: 320px;
                     border-radius: 8px;
@@ -2134,66 +2155,83 @@ require '../db/db.php';
                 animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
             }
         </style>
+
         <div class="slider" id="ibox-slider">
-            <!-- Slide 1: iPhone -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="iPhone 15 Pro">
-                <div class="slide-content">
-                    <h3>iPhone 15 Pro</h3>
-                    <p>Titanium. So strong. So light. So Pro. Rasakan kekuatan chip A17 Pro yang revolusioner.</p>
-                    <button class="slide-btn" onclick="window.location.href='#'">
-                        <i class="bi bi-bag"></i> Beli Sekarang
-                    </button>
-                </div>
-            </div>
+            <?php if ($hasSlides): ?>
+                <?php foreach ($slides as $slide): ?>
+                    <?php
+                    // Path gambar relatif dari halaman pages/index.php
+                    $gambar_path = '../admin/uploads/slider/' . htmlspecialchars($slide['gambar_produk']);
 
-            <!-- Slide 2: MacBook -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="MacBook Pro">
-                <div class="slide-content">
-                    <h3>MacBook Pro</h3>
-                    <p>Ditenagai chip M3 yang luar biasa. Untuk pengembang, desainer, dan profesional kreatif.</p>
-                    <button class="slide-btn" onclick="window.location.href='#'">
-                        <i class="bi bi-laptop"></i> Jelajahi Mac
-                    </button>
+                    // Link produk jika ada produk_id dan tipe_produk
+                    $produk_link = '#';
+                    if (!empty($slide['produk_id']) && !empty($slide['tipe_produk'])) {
+                        $produk_link = 'produk.php?tipe=' . $slide['tipe_produk'] . '&id=' . $slide['produk_id'];
+                    }
+                    ?>
+                    <div class="slide">
+                        <img src="<?php echo $gambar_path; ?>"
+                            alt="<?php echo htmlspecialchars($slide['nama_produk']); ?>"
+                            onerror="this.src='https://via.placeholder.com/1400x500/007AFF/FFFFFF?text=<?php echo urlencode($slide['nama_produk']); ?>'">
+                        <div class="slide-content">
+                            <h3><?php echo htmlspecialchars($slide['nama_produk']); ?></h3>
+                            <p><?php echo htmlspecialchars($slide['deskripsi_produk']); ?></p>
+                            <a href="<?php echo $produk_link; ?>" class="slide-btn">
+                                <i class="bi bi-bag"></i> Beli Sekarang
+                            </a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <!-- Fallback slides jika tidak ada data di database -->
+                <!-- Slide 1: iPhone -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="iPhone 15 Pro">
+                    <div class="slide-content">
+                        <h3>iPhone 15 Pro</h3>
+                        <p>Titanium. So strong. So light. So Pro. Rasakan kekuatan chip A17 Pro yang revolusioner.</p>
+                        <a href="#" class="slide-btn">
+                            <i class="bi bi-bag"></i> Beli Sekarang
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Slide 3: Apple Watch -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="Apple Watch">
-                <div class="slide-content">
-                    <h3>Apple Watch Series 9</h3>
-                    <p>Lebih cerdas, lebih cerah, lebih kuat. Pantau kesehatan dan tingkatkan produktivitas Anda.</p>
-                    <button class="slide-btn" onclick="window.location.href='#'">
-                        <i class="bi bi-watch"></i> Lihat Watch
-                    </button>
+                <!-- Slide 2: MacBook -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1496181133206-80ce9b88a853?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="MacBook Pro">
+                    <div class="slide-content">
+                        <h3>MacBook Pro</h3>
+                        <p>Ditenagai chip M3 yang luar biasa. Untuk pengembang, desainer, dan profesional kreatif.</p>
+                        <a href="#" class="slide-btn">
+                            <i class="bi bi-laptop"></i> Jelajahi Mac
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Slide 4: iPad -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="iPad Pro">
-                <div class="slide-content">
-                    <h3>iPad Pro</h3>
-                    <p>Chip M2 yang super cepat. Layar Liquid Retina XDR yang menakjubkan. Sangat Pro.</p>
-                    <button class="slide-btn" onclick="window.location.href='#'">
-                        <i class="bi bi-tablet"></i> Beli iPad
-                    </button>
+                <!-- Slide 3: Apple Watch -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="Apple Watch">
+                    <div class="slide-content">
+                        <h3>Apple Watch Series 9</h3>
+                        <p>Lebih cerdas, lebih cerah, lebih kuat. Pantau kesehatan dan tingkatkan produktivitas Anda.</p>
+                        <a href="#" class="slide-btn">
+                            <i class="bi bi-watch"></i> Lihat Watch
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Slide 5: Aksesori -->
-            <div class="slide">
-                <img src="https://images.unsplash.com/photo-1581094794329-c8112a89af12?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="Aksesori Apple">
-                <div class="slide-content">
-                    <h3>Aksesori Apple</h3>
-                    <p>Temukan koleksi lengkap aksesori untuk melengkapi perangkat Apple Anda.</p>
-                    <button class="slide-btn" onclick="window.location.href='#'">
-                        <i class="bi bi-headphones"></i> Lihat Aksesori
-                    </button>
+                <!-- Slide 4: iPad -->
+                <div class="slide">
+                    <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1200&q=80" alt="iPad Pro">
+                    <div class="slide-content">
+                        <h3>iPad Pro</h3>
+                        <p>Chip M2 yang super cepat. Layar Liquid Retina XDR yang menakjubkan. Sangat Pro.</p>
+                        <a href="#" class="slide-btn">
+                            <i class="bi bi-tablet"></i> Beli iPad
+                        </a>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
 
         <!-- Navigation buttons -->
@@ -2210,6 +2248,7 @@ require '../db/db.php';
         <div class="slider-status" id="sliderStatus">
             <!-- Dots will be generated by JavaScript -->
         </div>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const slider = document.getElementById('ibox-slider');
@@ -2221,7 +2260,7 @@ require '../db/db.php';
                 let currentSlide = 0;
                 let slideInterval;
                 let isForwardDirection = true;
-                let autoPlaySpeed = 3000; // 3 detik per slide (sesuai delay auto swipe)
+                let autoPlaySpeed = 3000;
 
                 // Create status dots
                 function createStatusDots() {
@@ -2246,37 +2285,33 @@ require '../db/db.php';
                     updateStatusDots();
                 }
 
-                // Next slide - always forward direction for manual navigation
+                // Next slide
                 function nextSlide() {
                     let newSlide = currentSlide + 1;
                     if (newSlide >= slides.length) newSlide = 0;
                     goToSlide(newSlide);
                 }
 
-                // Previous slide - always forward direction for manual navigation
+                // Previous slide
                 function prevSlide() {
                     let newSlide = currentSlide - 1;
                     if (newSlide < 0) newSlide = slides.length - 1;
                     goToSlide(newSlide);
                 }
 
-                // Auto slide function with forward/backward pattern (1,2,3,4,5,4,3,2,1)
+                // Auto slide function
                 function autoSlide() {
                     let newSlide;
 
                     if (isForwardDirection) {
-                        // Moving forward: 1,2,3,4,5
                         newSlide = currentSlide + 1;
                         if (newSlide >= slides.length) {
-                            // Reached the end, switch to backward direction
                             isForwardDirection = false;
                             newSlide = currentSlide - 1;
                         }
                     } else {
-                        // Moving backward: 5,4,3,2,1
                         newSlide = currentSlide - 1;
                         if (newSlide < 0) {
-                            // Reached the beginning, switch to forward direction
                             isForwardDirection = true;
                             newSlide = currentSlide + 1;
                         }
@@ -2357,16 +2392,13 @@ require '../db/db.php';
                         touchEndX = e.changedTouches[0].screenX;
                         touchEndY = e.changedTouches[0].screenY;
 
-                        // Calculate swipe distance
                         const diffX = touchStartX - touchEndX;
                         const diffY = touchStartY - touchEndY;
 
-                        // Only trigger swipe if horizontal movement is greater than vertical
                         if (Math.abs(diffX) > Math.abs(diffY)) {
                             handleSwipe(diffX);
                         }
 
-                        // Restart autoplay after swipe
                         setTimeout(startAutoPlay, 1000);
                     });
 
@@ -2375,10 +2407,8 @@ require '../db/db.php';
 
                         if (Math.abs(diff) > swipeThreshold) {
                             if (diff > 0) {
-                                // Swipe left - next slide
                                 nextSlide();
                             } else {
-                                // Swipe right - previous slide
                                 prevSlide();
                             }
                         }
@@ -2389,7 +2419,6 @@ require '../db/db.php';
                     window.addEventListener('resize', () => {
                         clearTimeout(resizeTimeout);
                         resizeTimeout = setTimeout(() => {
-                            // Reset slider position on resize
                             slider.style.transform = `translateX(-${currentSlide * 100}%)`;
                         }, 250);
                     });
@@ -2994,75 +3023,63 @@ require '../db/db.php';
         {
             $products = [];
 
-            // Ambil data dari tabel home_produk_populer
-            $query = "SELECT 
-                hpp.*,
-                CASE 
-                    WHEN hpp.tipe_produk = 'iphone' THEN iphone.nama_produk
-                    WHEN hpp.tipe_produk = 'ipad' THEN ipad.nama_produk
-                    WHEN hpp.tipe_produk = 'mac' THEN mac.nama_produk
-                    WHEN hpp.tipe_produk = 'music' THEN music.nama_produk
-                    WHEN hpp.tipe_produk = 'watch' THEN watch.nama_produk
-                    WHEN hpp.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
-                    WHEN hpp.tipe_produk = 'airtag' THEN airtag.nama_produk
-                END as nama_produk,
-                CASE 
-                    WHEN hpp.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
-                    WHEN hpp.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
-                END as foto_thumbnail,
-                CASE 
-                    WHEN hpp.tipe_produk = 'iphone' THEN MIN(iphone_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'ipad' THEN MIN(ipad_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'mac' THEN MIN(mac_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'music' THEN MIN(music_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'watch' THEN MIN(watch_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'aksesoris' THEN MIN(aksesoris_kombinasi.harga)
-                    WHEN hpp.tipe_produk = 'airtag' THEN MIN(airtag_kombinasi.harga)
-                END as harga_terendah
-            FROM home_produk_populer hpp
-            LEFT JOIN admin_produk_iphone iphone ON hpp.tipe_produk = 'iphone' AND hpp.produk_id = iphone.id
-            LEFT JOIN admin_produk_ipad ipad ON hpp.tipe_produk = 'ipad' AND hpp.produk_id = ipad.id
-            LEFT JOIN admin_produk_mac mac ON hpp.tipe_produk = 'mac' AND hpp.produk_id = mac.id
-            LEFT JOIN admin_produk_music music ON hpp.tipe_produk = 'music' AND hpp.produk_id = music.id
-            LEFT JOIN admin_produk_watch watch ON hpp.tipe_produk = 'watch' AND hpp.produk_id = watch.id
-            LEFT JOIN admin_produk_aksesoris aksesoris ON hpp.tipe_produk = 'aksesoris' AND hpp.produk_id = aksesoris.id
-            LEFT JOIN admin_produk_airtag airtag ON hpp.tipe_produk = 'airtag' AND hpp.produk_id = airtag.id
-            LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hpp.tipe_produk = 'iphone' AND hpp.produk_id = iphone_gambar.produk_id
-            LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hpp.tipe_produk = 'ipad' AND hpp.produk_id = ipad_gambar.produk_id
-            LEFT JOIN admin_produk_mac_gambar mac_gambar ON hpp.tipe_produk = 'mac' AND hpp.produk_id = mac_gambar.produk_id
-            LEFT JOIN admin_produk_music_gambar music_gambar ON hpp.tipe_produk = 'music' AND hpp.produk_id = music_gambar.produk_id
-            LEFT JOIN admin_produk_watch_gambar watch_gambar ON hpp.tipe_produk = 'watch' AND hpp.produk_id = watch_gambar.produk_id
-            LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hpp.tipe_produk = 'aksesoris' AND hpp.produk_id = aksesoris_gambar.produk_id
-            LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hpp.tipe_produk = 'airtag' AND hpp.produk_id = airtag_gambar.produk_id
-            LEFT JOIN admin_produk_iphone_kombinasi iphone_kombinasi ON hpp.tipe_produk = 'iphone' AND hpp.produk_id = iphone_kombinasi.produk_id
-            LEFT JOIN admin_produk_ipad_kombinasi ipad_kombinasi ON hpp.tipe_produk = 'ipad' AND hpp.produk_id = ipad_kombinasi.produk_id
-            LEFT JOIN admin_produk_mac_kombinasi mac_kombinasi ON hpp.tipe_produk = 'mac' AND hpp.produk_id = mac_kombinasi.produk_id
-            LEFT JOIN admin_produk_music_kombinasi music_kombinasi ON hpp.tipe_produk = 'music' AND hpp.produk_id = music_kombinasi.produk_id
-            LEFT JOIN admin_produk_watch_kombinasi watch_kombinasi ON hpp.tipe_produk = 'watch' AND hpp.produk_id = watch_kombinasi.produk_id
-            LEFT JOIN admin_produk_aksesoris_kombinasi aksesoris_kombinasi ON hpp.tipe_produk = 'aksesoris' AND hpp.produk_id = aksesoris_kombinasi.produk_id
-            LEFT JOIN admin_produk_airtag_kombinasi airtag_kombinasi ON hpp.tipe_produk = 'airtag' AND hpp.produk_id = airtag_kombinasi.produk_id
-            GROUP BY hpp.id, hpp.produk_id, hpp.tipe_produk, hpp.label
-            ORDER BY hpp.urutan ASC, hpp.created_at DESC
-            LIMIT $limit";
+            // 1. Ambil data dasar dari home_produk_populer
+            $hpp_query = "SELECT produk_id, tipe_produk, label FROM home_produk_populer 
+                          ORDER BY urutan ASC, created_at DESC LIMIT $limit";
+            $hpp_result = mysqli_query($db, $hpp_query);
 
-            $result = mysqli_query($db, $query);
+            if (!$hpp_result) return [];
 
-            while ($row = mysqli_fetch_assoc($result)) {
-                $product = [
-                    'id' => $row['produk_id'],
-                    'name' => $row['nama_produk'] ?? 'Produk tidak ditemukan',
-                    'category' => $row['tipe_produk'],
-                    'price' => 'Rp ' . number_format($row['harga_terendah'] ?? 0, 0, ',', '.'),
-                    'image' => $row['foto_thumbnail'] ? '../admin/uploads/' . $row['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
-                    'rating' => 4.5,
-                    'badge' => ['text' => $row['label'] ?? 'Populer', 'type' => 'hot']
-                ];
-                $products[] = $product;
+            $items = [];
+            $ids_by_type = [];
+            while ($row = mysqli_fetch_assoc($hpp_result)) {
+                $items[] = $row;
+                $ids_by_type[$row['tipe_produk']][] = $row['produk_id'];
+            }
+
+            // 2. Ambil detail untuk setiap tipe produk yang ada
+            $details = [];
+            foreach ($ids_by_type as $type => $ids) {
+                if (empty($ids)) continue;
+                $id_list = implode(',', array_map('intval', $ids));
+
+                // Gunakan tabel yang sesuai berdasarkan tipe
+                $table_main = "admin_produk_" . $type;
+                $table_gambar = "admin_produk_" . $type . "_gambar";
+                $table_kombi = "admin_produk_" . $type . "_kombinasi";
+
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                                 FROM $table_main p
+                                 LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
+                                 LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
+                                 WHERE p.id IN ($id_list)
+                                 GROUP BY p.id";
+
+                $detail_result = mysqli_query($db, $detail_query);
+                if ($detail_result) {
+                    while ($d = mysqli_fetch_assoc($detail_result)) {
+                        $details[$type][$d['id']] = $d;
+                    }
+                }
+            }
+
+            // 3. Susun kembali sesuai urutan original
+            foreach ($items as $item) {
+                $t = $item['tipe_produk'];
+                $pid = $item['produk_id'];
+
+                if (isset($details[$t][$pid])) {
+                    $d = $details[$t][$pid];
+                    $products[] = [
+                        'id' => $pid,
+                        'name' => $d['nama_produk'],
+                        'category' => $t,
+                        'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
+                        'rating' => 4.5,
+                        'badge' => ['text' => $item['label'] ?? 'Populer', 'type' => 'hot']
+                    ];
+                }
             }
 
             return $products;
@@ -3073,75 +3090,62 @@ require '../db/db.php';
         {
             $products = [];
 
-            // Ambil data dari tabel home_produk_terbaru (struktur baru)
-            $query = "SELECT 
-                hpt.*,
-                CASE 
-                    WHEN hpt.tipe_produk = 'iphone' THEN iphone.nama_produk
-                    WHEN hpt.tipe_produk = 'ipad' THEN ipad.nama_produk
-                    WHEN hpt.tipe_produk = 'mac' THEN mac.nama_produk
-                    WHEN hpt.tipe_produk = 'music' THEN music.nama_produk
-                    WHEN hpt.tipe_produk = 'watch' THEN watch.nama_produk
-                    WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
-                    WHEN hpt.tipe_produk = 'airtag' THEN airtag.nama_produk
-                END as nama_produk,
-                CASE 
-                    WHEN hpt.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
-                    WHEN hpt.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
-                END as foto_thumbnail,
-                CASE 
-                    WHEN hpt.tipe_produk = 'iphone' THEN MIN(iphone_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'ipad' THEN MIN(ipad_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'mac' THEN MIN(mac_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'music' THEN MIN(music_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'watch' THEN MIN(watch_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'aksesoris' THEN MIN(aksesoris_kombinasi.harga)
-                    WHEN hpt.tipe_produk = 'airtag' THEN MIN(airtag_kombinasi.harga)
-                END as harga_terendah
-            FROM home_produk_terbaru hpt
-            LEFT JOIN admin_produk_iphone iphone ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone.id
-            LEFT JOIN admin_produk_ipad ipad ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad.id
-            LEFT JOIN admin_produk_mac mac ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac.id
-            LEFT JOIN admin_produk_music music ON hpt.tipe_produk = 'music' AND hpt.produk_id = music.id
-            LEFT JOIN admin_produk_watch watch ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch.id
-            LEFT JOIN admin_produk_aksesoris aksesoris ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris.id
-            LEFT JOIN admin_produk_airtag airtag ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag.id
-            LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_gambar.produk_id
-            LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_gambar.produk_id
-            LEFT JOIN admin_produk_mac_gambar mac_gambar ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_gambar.produk_id
-            LEFT JOIN admin_produk_music_gambar music_gambar ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_gambar.produk_id
-            LEFT JOIN admin_produk_watch_gambar watch_gambar ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_gambar.produk_id
-            LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_gambar.produk_id
-            LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_gambar.produk_id
-            LEFT JOIN admin_produk_iphone_kombinasi iphone_kombinasi ON hpt.tipe_produk = 'iphone' AND hpt.produk_id = iphone_kombinasi.produk_id
-            LEFT JOIN admin_produk_ipad_kombinasi ipad_kombinasi ON hpt.tipe_produk = 'ipad' AND hpt.produk_id = ipad_kombinasi.produk_id
-            LEFT JOIN admin_produk_mac_kombinasi mac_kombinasi ON hpt.tipe_produk = 'mac' AND hpt.produk_id = mac_kombinasi.produk_id
-            LEFT JOIN admin_produk_music_kombinasi music_kombinasi ON hpt.tipe_produk = 'music' AND hpt.produk_id = music_kombinasi.produk_id
-            LEFT JOIN admin_produk_watch_kombinasi watch_kombinasi ON hpt.tipe_produk = 'watch' AND hpt.produk_id = watch_kombinasi.produk_id
-            LEFT JOIN admin_produk_aksesoris_kombinasi aksesoris_kombinasi ON hpt.tipe_produk = 'aksesoris' AND hpt.produk_id = aksesoris_kombinasi.produk_id
-            LEFT JOIN admin_produk_airtag_kombinasi airtag_kombinasi ON hpt.tipe_produk = 'airtag' AND hpt.produk_id = airtag_kombinasi.produk_id
-            GROUP BY hpt.id, hpt.produk_id, hpt.tipe_produk
-            ORDER BY hpt.urutan ASC, hpt.created_at DESC
-            LIMIT $limit";
+            // 1. Ambil data dasar dari home_produk_terbaru
+            $hpt_query = "SELECT produk_id, tipe_produk FROM home_produk_terbaru 
+                          ORDER BY urutan ASC, created_at DESC LIMIT $limit";
+            $hpt_result = mysqli_query($db, $hpt_query);
 
-            $result = mysqli_query($db, $query);
+            if (!$hpt_result) return [];
 
-            while ($row = mysqli_fetch_assoc($result)) {
-                $product = [
-                    'id' => $row['produk_id'],
-                    'name' => $row['nama_produk'] ?? 'Produk tidak ditemukan',
-                    'category' => $row['tipe_produk'],
-                    'price' => 'Rp ' . number_format($row['harga_terendah'] ?? 0, 0, ',', '.'),
-                    'image' => $row['foto_thumbnail'] ? '../admin/uploads/' . $row['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
-                    'rating' => 4.5,
-                    'badge' => ['text' => 'Terbaru', 'type' => 'new']
-                ];
-                $products[] = $product;
+            $items = [];
+            $ids_by_type = [];
+            while ($row = mysqli_fetch_assoc($hpt_result)) {
+                $items[] = $row;
+                $ids_by_type[$row['tipe_produk']][] = $row['produk_id'];
+            }
+
+            // 2. Ambil detail untuk setiap tipe produk
+            $details = [];
+            foreach ($ids_by_type as $type => $ids) {
+                if (empty($ids)) continue;
+                $id_list = implode(',', array_map('intval', $ids));
+
+                $table_main = "admin_produk_" . $type;
+                $table_gambar = "admin_produk_" . $type . "_gambar";
+                $table_kombi = "admin_produk_" . $type . "_kombinasi";
+
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                                 FROM $table_main p
+                                 LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
+                                 LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
+                                 WHERE p.id IN ($id_list)
+                                 GROUP BY p.id";
+
+                $detail_result = mysqli_query($db, $detail_query);
+                if ($detail_result) {
+                    while ($d = mysqli_fetch_assoc($detail_result)) {
+                        $details[$type][$d['id']] = $d;
+                    }
+                }
+            }
+
+            // 3. Susun kembali
+            foreach ($items as $item) {
+                $t = $item['tipe_produk'];
+                $pid = $item['produk_id'];
+
+                if (isset($details[$t][$pid])) {
+                    $d = $details[$t][$pid];
+                    $products[] = [
+                        'id' => $pid,
+                        'name' => $d['nama_produk'],
+                        'category' => $t,
+                        'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
+                        'rating' => 4.5,
+                        'badge' => ['text' => 'Terbaru', 'type' => 'new']
+                    ];
+                }
             }
 
             return $products;
@@ -3152,66 +3156,68 @@ require '../db/db.php';
         {
             $allProducts = [];
 
-            // Ambil semua produk dari semua kategori untuk filter
+            // Ambil produk dari semua kategori untuk filter (dengan LIMIT untuk performa)
             $categories = [
                 'mac' => "SELECT m.id, m.nama_produk as name, 'mac' as category, 
                          COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image
                   FROM admin_produk_mac m
                   LEFT JOIN admin_produk_mac_kombinasi mk ON m.id = mk.produk_id
                   LEFT JOIN admin_produk_mac_gambar mg ON m.id = mg.produk_id
-                  GROUP BY m.id, mg.foto_thumbnail",
+                  GROUP BY m.id, mg.foto_thumbnail LIMIT 16",
 
                 'iphone' => "SELECT p.id, p.nama_produk as name, 'iphone' as category, 
-                            COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
-                     FROM admin_produk_iphone p
-                     LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
-                     LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
-                     GROUP BY p.id, pg.foto_thumbnail",
+                             COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
+                      FROM admin_produk_iphone p
+                      LEFT JOIN admin_produk_iphone_kombinasi pk ON p.id = pk.produk_id
+                      LEFT JOIN admin_produk_iphone_gambar pg ON p.id = pg.produk_id
+                      GROUP BY p.id, pg.foto_thumbnail LIMIT 16",
 
                 'ipad' => "SELECT p.id, p.nama_produk as name, 'ipad' as category, 
-                          COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
-                   FROM admin_produk_ipad p
-                   LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
-                   LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
-                   GROUP BY p.id, pg.foto_thumbnail",
+                           COALESCE(MIN(pk.harga), 0) as price, pg.foto_thumbnail as image
+                    FROM admin_produk_ipad p
+                    LEFT JOIN admin_produk_ipad_kombinasi pk ON p.id = pk.produk_id
+                    LEFT JOIN admin_produk_ipad_gambar pg ON p.id = pg.produk_id
+                    GROUP BY p.id, pg.foto_thumbnail LIMIT 16",
 
                 'watch' => "SELECT w.id, w.nama_produk as name, 'watch' as category, 
-                           COALESCE(MIN(wk.harga), 0) as price, wg.foto_thumbnail as image
-                    FROM admin_produk_watch w
-                    LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
-                    LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
-                    GROUP BY w.id, wg.foto_thumbnail",
+                            COALESCE(MIN(wk.harga), 0) as price, wg.foto_thumbnail as image
+                     FROM admin_produk_watch w
+                     LEFT JOIN admin_produk_watch_kombinasi wk ON w.id = wk.produk_id
+                     LEFT JOIN admin_produk_watch_gambar wg ON w.id = wg.produk_id
+                     GROUP BY w.id, wg.foto_thumbnail LIMIT 16",
 
                 'aksesori' => "SELECT a.id, a.nama_produk as name, 'aksesori' as category, 
-                              COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
-                       FROM admin_produk_aksesoris a
-                       LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
-                       LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
-                       GROUP BY a.id, ag.foto_thumbnail",
+                               COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
+                        FROM admin_produk_aksesoris a
+                        LEFT JOIN admin_produk_aksesoris_kombinasi ak ON a.id = ak.produk_id
+                        LEFT JOIN admin_produk_aksesoris_gambar ag ON a.id = ag.produk_id
+                        GROUP BY a.id, ag.foto_thumbnail LIMIT 16",
 
                 'music' => "SELECT m.id, m.nama_produk as name, 'music' as category, 
-                           COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image
-                    FROM admin_produk_music m
-                    LEFT JOIN admin_produk_music_kombinasi mk ON m.id = mk.produk_id
-                    LEFT JOIN admin_produk_music_gambar mg ON m.id = mg.produk_id
-                    GROUP BY m.id, mg.foto_thumbnail",
+                            COALESCE(MIN(mk.harga), 0) as price, mg.foto_thumbnail as image
+                     FROM admin_produk_music m
+                     LEFT JOIN admin_produk_music_kombinasi mk ON m.id = mk.produk_id
+                     LEFT JOIN admin_produk_music_gambar mg ON m.id = mg.produk_id
+                     GROUP BY m.id, mg.foto_thumbnail LIMIT 16",
 
                 'airtag' => "SELECT a.id, a.nama_produk as name, 'airtag' as category, 
-                            COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
-                     FROM admin_produk_airtag a
-                     LEFT JOIN admin_produk_airtag_kombinasi ak ON a.id = ak.produk_id
-                     LEFT JOIN admin_produk_airtag_gambar ag ON a.id = ag.produk_id
-                     GROUP BY a.id, ag.foto_thumbnail"
+                             COALESCE(MIN(ak.harga), 0) as price, ag.foto_thumbnail as image
+                      FROM admin_produk_airtag a
+                      LEFT JOIN admin_produk_airtag_kombinasi ak ON a.id = ak.produk_id
+                      LEFT JOIN admin_produk_airtag_gambar ag ON a.id = ag.produk_id
+                      GROUP BY a.id, ag.foto_thumbnail LIMIT 16"
             ];
 
             foreach ($categories as $category => $query) {
                 $result = mysqli_query($db, $query);
-                while ($row = mysqli_fetch_assoc($result)) {
-                    $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
-                    $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
-                    $row['rating'] = 4.5;
-                    $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
-                    $allProducts[] = $row;
+                if ($result) {
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        $row['price'] = 'Rp ' . number_format($row['price'], 0, ',', '.');
+                        $row['image'] = $row['image'] ? '../admin/uploads/' . $row['image'] : 'https://via.placeholder.com/200x180?text=No+Image';
+                        $row['rating'] = 4.5;
+                        $row['badge'] = ['text' => 'Terlaris', 'type' => 'hot'];
+                        $allProducts[] = $row;
+                    }
                 }
             }
 
@@ -4468,12 +4474,9 @@ require '../db/db.php';
                         const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
                         const productId = productBtn.getAttribute('data-product-id');
                         const productCategory = productBtn.getAttribute('data-product-category');
-                        const productCard = productBtn.closest('.product-card');
-                        const productName = productCard.querySelector('.product-name').textContent;
-
-                        // Redirect ke halaman detail produk
-                        alert(`Produk ${productName} akan ditambahkan ke keranjang`);
-                        // window.location.href = `detail-produk.php?id=${productId}&category=${productCategory}`;
+                        
+                        // Redirect ke halaman checkout
+                        window.location.href = `checkout/checkout.php?id=${productId}&type=${productCategory}`;
                     }
                 });
 
@@ -4506,7 +4509,115 @@ require '../db/db.php';
         </script>
     </div>
 
-    <div class="container-product">
+    <div class="container-grid-products">
+        <?php
+        // Fungsi untuk mengambil data grid dari tabel home_grid
+        function getGridProducts($db, $limit = 3)
+        {
+            $gridItems = [];
+            $query = "SELECT * FROM home_grid ORDER BY urutan ASC, created_at DESC LIMIT $limit";
+            $result = mysqli_query($db, $query);
+
+            if (!$result) return [];
+
+            while ($item = mysqli_fetch_assoc($result)) {
+                $tipe = $item['tipe_produk'];
+                $produk_id = $item['produk_id'];
+
+                $table_main = "admin_produk_" . $tipe;
+                $table_gambar = "admin_produk_" . $tipe . "_gambar";
+                $table_kombi = "admin_produk_" . $tipe . "_kombinasi";
+
+                if ($tipe == 'aksesoris' || $tipe == 'aksesori') {
+                    $table_main = "admin_produk_aksesoris";
+                    $table_gambar = "admin_produk_aksesoris_gambar";
+                    $table_kombi = "admin_produk_aksesoris_kombinasi";
+                }
+
+                $detail_query = "SELECT p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                                 FROM $table_main p
+                                 LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
+                                 LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
+                                 WHERE p.id = '$produk_id'
+                                 GROUP BY p.id";
+
+                $detail_result = mysqli_query($db, $detail_query);
+                if ($detail_result && $d = mysqli_fetch_assoc($detail_result)) {
+                    $gridItems[] = [
+                        'name' => $d['nama_produk'],
+                        'description' => $d['deskripsi_produk'] ?? '',
+                        'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/800x800?text=No+Image',
+                        'label' => $item['label'] ?? 'NEW',
+                        'tipe' => $tipe,
+                        'id' => $produk_id
+                    ];
+                }
+            }
+            return $gridItems;
+        }
+
+        $gridProducts = getGridProducts($db, 3);
+
+        // Fungsi untuk mengambil data trade-in
+        function getTradeInProducts($db, $limit = 12)
+        {
+            $tradeItems = [];
+            $query = "SELECT * FROM home_trade_in ORDER BY urutan ASC, created_at DESC LIMIT $limit";
+            $result = mysqli_query($db, $query);
+
+            if (!$result) return [];
+
+            while ($item = mysqli_fetch_assoc($result)) {
+                $tipe = $item['tipe_produk'];
+                $produk_id = $item['produk_id'];
+
+                $table_main = "admin_produk_" . $tipe;
+                $table_gambar = "admin_produk_" . $tipe . "_gambar";
+                $table_kombi = "admin_produk_" . $tipe . "_kombinasi";
+
+                if ($tipe == 'aksesoris' || $tipe == 'aksesori') {
+                    $table_main = "admin_produk_aksesoris";
+                    $table_gambar = "admin_produk_aksesoris_gambar";
+                    $table_kombi = "admin_produk_aksesoris_kombinasi";
+                }
+
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                                 FROM $table_main p
+                                 LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
+                                 LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
+                                 WHERE p.id = '$produk_id'
+                                 GROUP BY p.id";
+
+                $detail_result = mysqli_query($db, $detail_query);
+                if ($detail_result && $d = mysqli_fetch_assoc($detail_result)) {
+                    $base_price = (float)($d['harga_terendah'] ?? 0);
+                    $promo_value = $item['label_promo'] ?: "0";
+                    
+                    // Ambil hanya angka/desimal dari label (cth: "10%" atau "10" menjadi 10)
+                    $percentage = (float) preg_replace('/[^0-9.]/', '', $promo_value);
+                    $discount_amount = $base_price * ($percentage / 100);
+
+                    $trade_in_price = $base_price - $discount_amount;
+                    if ($trade_in_price < 0) $trade_in_price = 0;
+
+                    $tradeItems[] = [
+                        'id' => $produk_id,
+                        'tipe' => $tipe,
+                        'name' => $d['nama_produk'],
+                        'oldPrice' => 'Rp ' . number_format($base_price, 0, ',', '.'),
+                        'newPrice' => 'Rp ' . number_format($trade_in_price, 0, ',', '.'),
+                        'discount' => $percentage, // Kirim angka saja ke frontend
+                        'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image'
+                    ];
+                }
+            }
+            return $tradeItems;
+        }
+
+        $tradeInProductsFromDB = getTradeInProducts($db);
+ 
+         ?>
         <style>
             /* Variabel Warna Apple */
             :root {
@@ -4535,7 +4646,7 @@ require '../db/db.php';
                 line-height: 1.5;
             }
 
-            .container-product {
+            .container-grid-products {
                 width: 100%;
                 max-width: 1400px;
                 margin: 0 auto;
@@ -4835,61 +4946,69 @@ require '../db/db.php';
             }
         </style>
         <div class="grid-main">
-            <!-- iPhone 17 Pro -->
-            <div class="card card-large">
-                <span class="badge">NEW</span>
-                <h2 class="title">iPhone 17 Pro</h2>
-                <p class="text">Pro luar dalam.</p>
-                <p class="price-text">
-                    <span class="price-start">Mulai </span>Rp23.749.000
-                </p>
-                <div class="button-container">
-                    <a href="#" class="button">
-                        <i class="fas fa-shopping-bag"></i>
-                        Beli sekarang
-                    </a>
+            <?php if (isset($gridProducts[0])): $p = $gridProducts[0]; ?>
+                <!-- Main Card (Large) -->
+                <div class="card card-large">
+                    <?php if (!empty($p['label'])): ?>
+                        <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
+                    <?php endif; ?>
+                    <h2 class="title"><?php echo htmlspecialchars($p['name']); ?></h2>
+                    <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                    <p class="price-text">
+                        <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                    </p>
+                    <div class="button-container">
+                        <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                            <i class="fas fa-shopping-bag"></i>
+                            Beli sekarang
+                        </a>
+                    </div>
+                    <img src="<?php echo $p['image']; ?>" class="image-large" alt="<?php echo htmlspecialchars($p['name']); ?>">
                 </div>
-                <img src="https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    class="image-large" alt="iPhone">
-            </div>
+            <?php endif; ?>
 
-            <!-- iPad & AirPods -->
             <div class="grid-side">
-                <!-- iPad Pro M5 -->
-                <div class="card card-horizontal">
-                    <img src="https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                        class="image-small" alt="iPad">
-                    <div class="content-right">
-                        <span class="badge">NEW</span>
-                        <h3 class="title">iPad Pro M5</h3>
-                        <p class="text">Bertenagaaaaa.</p>
-                        <p class="price-text">
-                            <span class="price-start">Mulai </span>Rp20.499.000
-                        </p>
-                        <a href="#" class="button">
-                            <i class="fas fa-shopping-bag"></i>
-                            Beli sekarang
-                        </a>
+                <?php if (isset($gridProducts[1])): $p = $gridProducts[1]; ?>
+                    <!-- Second Card (Horizontal) -->
+                    <div class="card card-horizontal">
+                        <img src="<?php echo $p['image']; ?>" class="image-small" alt="<?php echo htmlspecialchars($p['name']); ?>">
+                        <div class="content-right">
+                            <?php if (!empty($p['label'])): ?>
+                                <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
+                            <?php endif; ?>
+                            <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
+                            <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                            <p class="price-text">
+                                <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                            </p>
+                            <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                                <i class="fas fa-shopping-bag"></i>
+                                Beli sekarang
+                            </a>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
 
-                <!-- AirPods Pro 3 -->
-                <div class="card card-horizontal">
-                    <img src="https://images.unsplash.com/photo-1589003077984-894e133dabab?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                        class="image-small" alt="AirPods">
-                    <div class="content-right">
-                        <span class="badge">NEW</span>
-                        <h3 class="title">AirPods Pro 3</h3>
-                        <p class="text">Peredam kebisingan aktif.</p>
-                        <p class="price-text">
-                            <span class="price-start">Mulai </span>Rp4.499.000
-                        </p>
-                        <a href="#" class="button">
-                            <i class="fas fa-shopping-bag"></i>
-                            Beli sekarang
-                        </a>
+                <?php if (isset($gridProducts[2])): $p = $gridProducts[2]; ?>
+                    <!-- Third Card (Horizontal) -->
+                    <div class="card card-horizontal">
+                        <img src="<?php echo $p['image']; ?>" class="image-small" alt="<?php echo htmlspecialchars($p['name']); ?>">
+                        <div class="content-right">
+                            <?php if (!empty($p['label'])): ?>
+                                <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
+                            <?php endif; ?>
+                            <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
+                            <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                            <p class="price-text">
+                                <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                            </p>
+                            <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                                <i class="fas fa-shopping-bag"></i>
+                                Beli sekarang
+                            </a>
+                        </div>
                     </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
         <script>
@@ -4921,9 +5040,8 @@ require '../db/db.php';
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
 
-                    // Ambil nama produk
-                    const card = this.closest('.card');
-                    const productName = card.querySelector('.title').textContent;
+                    const productId = this.getAttribute('data-id');
+                    const productType = this.getAttribute('data-type');
 
                     // Animasi klik
                     this.style.transform = 'scale(0.95)';
@@ -4936,12 +5054,12 @@ require '../db/db.php';
                     ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
                     ripple.style.transform = 'scale(0)';
                     ripple.style.animation = 'ripple 0.6s linear';
-                    ripple.style.width = '80px'; /* DIPERKECIL: dari 100px */
-                    ripple.style.height = '80px'; /* DIPERKECIL: dari 100px */
+                    ripple.style.width = '80px';
+                    ripple.style.height = '80px';
                     ripple.style.top = '50%';
                     ripple.style.left = '50%';
-                    ripple.style.marginTop = '-40px'; /* DIPERKECIL: dari -50px */
-                    ripple.style.marginLeft = '-40px'; /* DIPERKECIL: dari -50px */
+                    ripple.style.marginTop = '-40px';
+                    ripple.style.marginLeft = '-40px';
 
                     this.appendChild(ripple);
 
@@ -4950,14 +5068,10 @@ require '../db/db.php';
                         ripple.remove();
                     }, 600);
 
-                    // Simulasi pembelian
+                    // Redirect ke halaman checkout setelah sedikit delay animasi
                     setTimeout(() => {
-                        alert(`Terima kasih! Anda akan membeli ${productName}.`);
-
-                        // Reset button
-                        this.style.transform = '';
-                        this.style.backgroundColor = '';
-                    }, 800);
+                        window.location.href = `checkout/checkout.php?id=${productId}&type=${productType}`;
+                    }, 400);
                 });
             });
 
@@ -5268,6 +5382,16 @@ require '../db/db.php';
                 background-color: rgba(0, 122, 255, 0.4);
             }
 
+            .empty-state i {
+                display: block;
+                margin-bottom: 15px;
+            }
+
+            .empty-state h4 {
+                font-size: 18px;
+                font-weight: 600;
+            }
+
             /* RESPONSIVE STYLES - MODIFIKASI UTAMA */
             /* Desktop besar: 4 produk per slide */
             @media (min-width: 1200px) {
@@ -5448,141 +5572,46 @@ require '../db/db.php';
 
         <!-- SLIDER -->
         <div class="tradein-slider-wrapper" id="tradeinSliderWrapper">
-            <div class="tradein-controls" id="tradeinControls">
-                <button class="tradein-nav-btn tradein-prev" id="tradeinPrev">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <button class="tradein-nav-btn tradein-next" id="tradeinNext">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-            </div>
+            <?php if (empty($tradeInProductsFromDB)): ?>
+                <div class="empty-state" style="text-align: center; padding: 40px;">
+                    <i class="bi bi-inbox" style="font-size: 48px; color: #ccc;"></i>
+                    <h4 style="margin-top: 15px; color: #333;">Tidak ada produk untuk ditampilkan</h4>
+                    <p style="color: #666;">Belum ada produk dalam kategori ini</p>
+                </div>
+            <?php else: ?>
+                <div class="tradein-controls" id="tradeinControls">
+                    <button class="tradein-nav-btn tradein-prev" id="tradeinPrev">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button class="tradein-nav-btn tradein-next" id="tradeinNext">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
 
-            <div class="tradein-slider" id="tradeinSlider">
-                <!-- Slides akan di-generate oleh JavaScript -->
-            </div>
+                <div class="tradein-slider" id="tradeinSlider">
+                    <!-- Slides akan di-generate oleh JavaScript -->
+                </div>
 
-            <div class="tradein-dots" id="tradeinDots"></div>
+                <div class="tradein-dots" id="tradeinDots"></div>
+            <?php endif; ?>
         </div>
         <script>
-            // Data produk dengan harga trade-in
-            const tradeinProducts = [{
-                    id: 1,
-                    name: '14-inch MacBook Pro M4 Pro',
-                    oldPrice: 'Rp 34.999.000',
-                    newPrice: 'Rp 33.999.000',
-                    discount: 'Rp 1.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mbp14-spacegray-select-202310?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1697230830030'
-                },
-                {
-                    id: 2,
-                    name: 'iPhone 16 Pro',
-                    oldPrice: 'Rp 21.999.000',
-                    newPrice: 'Rp 17.499.000',
-                    discount: 'Rp 4.500.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/iphone-15-pro-finish-select-202309-6-7inch?wid=5120&hei=2880&fmt=webp&qlt=70&.v=1693009279096'
-                },
-                {
-                    id: 3,
-                    name: '13-inch iPad Air M3',
-                    oldPrice: 'Rp 15.499.000',
-                    newPrice: 'Rp 13.699.000',
-                    discount: 'Rp 1.800.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/ipad-pro-11-select-wifi-spacegray-202210_FMT_WHH?wid=940&hei=1112&fmt=png-alpha&.v=1664411200794'
-                },
-                {
-                    id: 4,
-                    name: 'Apple Watch Series 10',
-                    oldPrice: 'Rp 7.299.000',
-                    newPrice: 'Rp 6.239.000',
-                    discount: 'Rp 1.060.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/s9-watch-ultra2-titanium-202309?wid=940&hei=1112&fmt=png-alpha&.v=1693501423925'
-                },
-                {
-                    id: 5,
-                    name: 'AirPods Pro 2',
-                    oldPrice: 'Rp 4.499.000',
-                    newPrice: 'Rp 3.799.000',
-                    discount: 'Rp 700.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/airpods-pro-2-hero-select-202409?wid=940&hei=1112&fmt=jpeg&qlt=90&.v=1723507647577'
-                },
-                {
-                    id: 6,
-                    name: 'MacBook Air 15" M3',
-                    oldPrice: 'Rp 23.999.000',
-                    newPrice: 'Rp 21.999.000',
-                    discount: 'Rp 2.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/macbook-air-15-midnight-select-202306?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1683844876259'
-                },
-                {
-                    id: 7,
-                    name: 'iMac 24" M3',
-                    oldPrice: 'Rp 19.999.000',
-                    newPrice: 'Rp 17.999.000',
-                    discount: 'Rp 2.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/imac-24-blue-selection-hero-202104?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1617492405000'
-                },
-                {
-                    id: 8,
-                    name: 'iPhone 15',
-                    oldPrice: 'Rp 14.999.000',
-                    newPrice: 'Rp 12.999.000',
-                    discount: 'Rp 2.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch?wid=5120&hei=2880&fmt=webp&qlt=70&.v=1692923777977'
-                },
-                {
-                    id: 9,
-                    name: 'iPad Pro 12.9" M2',
-                    oldPrice: 'Rp 28.999.000',
-                    newPrice: 'Rp 25.999.000',
-                    discount: 'Rp 3.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/ipad-pro-12-11-select-wifi-spacegray-202210_FMT_WHH?wid=940&hei=1112&fmt=png-alpha&.v=1664411200794'
-                },
-                {
-                    id: 10,
-                    name: 'Mac Studio M2 Ultra',
-                    oldPrice: 'Rp 49.999.000',
-                    newPrice: 'Rp 44.999.000',
-                    discount: 'Rp 5.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mac-studio-select-202206?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1653053033061'
-                },
-                {
-                    id: 11,
-                    name: 'Apple Watch Ultra 2',
-                    oldPrice: 'Rp 14.999.000',
-                    newPrice: 'Rp 12.499.000',
-                    discount: 'Rp 2.500.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/watch-ultra2-202309_GEO_ID?wid=940&hei=1112&fmt=png-alpha&.v=1693501423925'
-                },
-                {
-                    id: 12,
-                    name: 'Mac Mini M2 Pro',
-                    oldPrice: 'Rp 18.999.000',
-                    newPrice: 'Rp 16.999.000',
-                    discount: 'Rp 2.000.000',
-                    image: 'https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/mac-mini-select-202301?wid=904&hei=840&fmt=jpeg&qlt=90&.v=1671588045725'
-                }
-            ];
+            // Data produk dengan harga trade-in (diambil dari database)
+            const tradeinProducts = <?php echo json_encode($tradeInProductsFromDB); ?>;
 
             // ===== FUNGSI UTAMA =====
             function renderTradeinSlider() {
                 const sliderWrapper = document.getElementById('tradeinSliderWrapper');
+                const slider = document.getElementById('tradeinSlider');
+
+                if (!slider) return; // Exit jika empty state ditampilkan
 
                 // Periksa jika hanya ada 1 slide
                 const productsPerSlide = getProductsPerSlide();
                 const slideCount = Math.ceil(tradeinProducts.length / productsPerSlide);
                 const isSingleSlide = slideCount <= 1;
 
-                let html = `
-                <div class="tradein-controls ${isSingleSlide ? 'hidden' : ''}" id="tradeinControls">
-                    <button class="tradein-nav-btn tradein-prev ${isSingleSlide ? 'hidden' : ''}" id="tradeinPrev">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <button class="tradein-nav-btn tradein-next ${isSingleSlide ? 'hidden' : ''}" id="tradeinNext">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
-                </div>
-                <div class="tradein-slider" id="tradeinSlider">
-            `;
+                let html = '';
 
                 for (let i = 0; i < slideCount; i++) {
                     html += `<div class="tradein-slide">`;
@@ -5598,12 +5627,21 @@ require '../db/db.php';
                     html += `</div></div>`;
                 }
 
-                html += `
-                </div>
-                ${!isSingleSlide ? `<div class="tradein-dots" id="tradeinDots"></div>` : ''}
-            `;
+                slider.innerHTML = html;
 
-                sliderWrapper.innerHTML = html;
+                // Hide controls and dots if single slide
+                const controls = document.getElementById('tradeinControls');
+                const dots = document.getElementById('tradeinDots');
+                if (isSingleSlide) {
+                    if (controls) controls.classList.add('hidden');
+                    if (dots) dots.classList.add('hidden');
+                    sliderWrapper.classList.add('single-slide');
+                } else {
+                    if (controls) controls.classList.remove('hidden');
+                    if (dots) dots.classList.remove('hidden');
+                    sliderWrapper.classList.remove('single-slide');
+                }
+
                 initTradeinSlider(productsPerSlide, slideCount);
             }
 
@@ -5620,7 +5658,7 @@ require '../db/db.php';
             function createTradeinCard(product) {
                 return `
                 <div class="tradein-product">
-                    <img src="${product.image}" alt="${product.name}" class="tradein-image">
+                    <img src="${product.image}" alt="${product.name}" class="tradein-image" onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
                     <div class="tradein-name">${product.name}</div>
                     
                     <div class="tradein-prices">
@@ -5633,12 +5671,12 @@ require '../db/db.php';
                             <span class="tradein-price-value tradein-new-price">${product.newPrice}</span>
                         </div>
                         <div class="tradein-price-row">
-                            <span class="tradein-price-label">Anda Hemat:</span>
-                            <span class="tradein-price-value tradein-discount">${product.discount}</span>
+                            <span class="tradein-price-label">Promo:</span>
+                            <span class="tradein-price-value tradein-discount">${product.discount}%</span>
                         </div>
                     </div>
                     
-                    <button class="tradein-btn" onclick="tradeinBuy(${product.id})">
+                    <button class="tradein-btn" onclick="location.href='checkout/checkout.php?id=${product.id}&type=${product.tipe}'">
                         <i class="bi bi-bag"></i> Beli Sekarang
                     </button>
                 </div>
@@ -5650,24 +5688,14 @@ require '../db/db.php';
                 const prevBtn = document.getElementById('tradeinPrev');
                 const nextBtn = document.getElementById('tradeinNext');
                 const dotsContainer = document.getElementById('tradeinDots');
-                const sliderWrapper = document.querySelector('.tradein-slider-wrapper');
+                const sliderWrapper = document.getElementById('tradeinSliderWrapper');
 
-                // Jika hanya ada 1 slide, jangan inisialisasi navigasi
-                if (slideCount <= 1) {
-                    if (sliderWrapper) {
-                        sliderWrapper.classList.add('single-slide');
-                    }
-                    return;
-                } else {
-                    if (sliderWrapper) {
-                        sliderWrapper.classList.remove('single-slide');
-                    }
-                }
+                if (!slider || slideCount <= 1) return;
 
                 let currentSlide = 0;
 
-                // Buat dots navigation hanya jika ada lebih dari 1 slide
-                if (slideCount > 1 && dotsContainer) {
+                // Buat dots navigation
+                if (dotsContainer) {
                     dotsContainer.innerHTML = '';
                     for (let i = 0; i < slideCount; i++) {
                         const dot = document.createElement('div');
@@ -5697,9 +5725,8 @@ require '../db/db.php';
                 }
 
                 function updateDots() {
-                    if (slideCount <= 1 || !dotsContainer) return;
-
-                    const dots = document.querySelectorAll('.tradein-dots .tradein-dot');
+                    if (!dotsContainer) return;
+                    const dots = dotsContainer.querySelectorAll('.tradein-dot');
                     dots.forEach((dot, index) => {
                         dot.classList.toggle('active', index === currentSlide);
                     });
@@ -5720,57 +5747,21 @@ require '../db/db.php';
                 if (prevBtn) prevBtn.addEventListener('click', prevSlide);
                 if (nextBtn) nextBtn.addEventListener('click', nextSlide);
 
-                // Keyboard navigation
-                document.addEventListener('keydown', (e) => {
-                    if (slideCount <= 1) return;
-
-                    if (e.ctrlKey && e.key === 'ArrowLeft') {
-                        prevSlide();
-                    } else if (e.ctrlKey && e.key === 'ArrowRight') {
-                        nextSlide();
-                    }
-                });
-
-                // Swipe untuk mobile
-                let touchStartX = 0;
-                let touchEndX = 0;
-
-                if (slider && slideCount > 1) {
-                    slider.addEventListener('touchstart', (e) => {
-                        touchStartX = e.changedTouches[0].screenX;
-                    });
-
-                    slider.addEventListener('touchend', (e) => {
-                        touchEndX = e.changedTouches[0].screenX;
-                        handleSwipe();
-                    });
-                }
-
-                function handleSwipe() {
-                    const swipeThreshold = 50;
-                    const diff = touchStartX - touchEndX;
-
-                    if (Math.abs(diff) > swipeThreshold) {
-                        if (diff > 0) {
-                            nextSlide();
-                        } else {
-                            prevSlide();
-                        }
-                    }
-                }
-
                 updateNavButtons();
             }
 
-            // Fungsi beli/trade-in
-            function tradeinBuy(id) {
-                const product = tradeinProducts.find(p => p.id === id);
-                if (product) {
-                    alert(`Trade-in untuk:\n${product.name}\nHarga Normal: ${product.oldPrice}\nHarga Trade-in: ${product.newPrice}\nAnda Hemat: ${product.discount}`);
-                }
-            }
+            // ===== INISIALISASI =====
+            document.addEventListener('DOMContentLoaded', function() {
+                if (tradeinProducts && tradeinProducts.length > 0) {
+                    renderTradeinSlider();
 
-            // Fungsi debounce untuk optimasi event resize
+                    // Re-render on resize
+                    window.addEventListener('resize', debounce(function() {
+                        renderTradeinSlider();
+                    }, 250));
+                }
+            });
+
             function debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -5782,22 +5773,12 @@ require '../db/db.php';
                     timeout = setTimeout(later, wait);
                 };
             }
-
-            // ===== INISIALISASI =====
-            document.addEventListener('DOMContentLoaded', function() {
-                renderTradeinSlider();
-
-                // Handle resize dengan debounce
-                window.addEventListener('resize', debounce(function() {
-                    renderTradeinSlider();
-                }, 250));
-            });
         </script>
     </div>
 
     <div class="simple-services-container">
         <style>
-            * {
+            .simple-services-container * {
                 margin: 0;
                 padding: 0;
                 box-sizing: border-box;
@@ -6197,10 +6178,10 @@ require '../db/db.php';
         <div class="simple-services-wrapper">
             <div class="simple-controls">
                 <button class="simple-nav-btn simple-prev" id="simplePrev" disabled>
-                    <i class="fas fa-chevron-left"></i>
+                    <i class="bi bi-chevron-left"></i>
                 </button>
                 <button class="simple-nav-btn simple-next" id="simpleNext">
-                    <i class="fas fa-chevron-right"></i>
+                    <i class="bi bi-chevron-right"></i>
                 </button>
             </div>
 
@@ -6439,6 +6420,57 @@ require '../db/db.php';
     </div>
 
     <div class="container-aksesori">
+        <?php
+        // Fungsi untuk mengambil data aksesori unggulan
+        if (!function_exists('getHomeAksesori')) {
+            function getHomeAksesori($db, $limit = 12)
+            {
+                $aksesoriItems = [];
+                $query = "SELECT * FROM home_aksesori ORDER BY urutan ASC, created_at DESC LIMIT $limit";
+                $result = mysqli_query($db, $query);
+
+                if (!$result) return [];
+
+                while ($item = mysqli_fetch_assoc($result)) {
+                    $tipe = $item['tipe_produk'];
+                    $produk_id = $item['produk_id'];
+
+                    $table_main = "admin_produk_" . $tipe;
+                    $table_gambar = "admin_produk_" . $tipe . "_gambar";
+                    $table_kombi = "admin_produk_" . $tipe . "_kombinasi";
+
+                    if ($tipe == 'aksesoris' || $tipe == 'aksesori') {
+                        $table_main = "admin_produk_aksesoris";
+                        $table_gambar = "admin_produk_aksesoris_gambar";
+                        $table_kombi = "admin_produk_aksesoris_kombinasi";
+                    }
+
+                    $detail_query = "SELECT p.id, p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                                 FROM $table_main p
+                                 LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
+                                 LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
+                                 WHERE p.id = '$produk_id'
+                                 GROUP BY p.id";
+
+                    $detail_result = mysqli_query($db, $detail_query);
+                    if ($detail_result && $d = mysqli_fetch_assoc($detail_result)) {
+                        $aksesoriItems[] = [
+                            'id' => $produk_id,
+                            'tipe' => $tipe,
+                            'name' => $d['nama_produk'],
+                            'description' => $d['deskripsi_produk'],
+                            'price' => (float)($d['harga_terendah'] ?? 0),
+                            'label' => $item['label'] ?: ucfirst($tipe),
+                            'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/400x400?text=No+Image'
+                        ];
+                    }
+                }
+                return $aksesoriItems;
+            }
+        }
+
+        $homeAksesoriFromDB = getHomeAksesori($db);
+        ?>
         <style>
             * {
                 margin: 0;
@@ -7106,111 +7138,45 @@ require '../db/db.php';
 
             <!-- SLIDER TRACK -->
             <div class="aksesori-slider-track" id="aksesoriSliderTrack">
-                <!-- Card 1 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-mac.png" alt="Aksesori Mac">
+                <?php if (empty($homeAksesoriFromDB)): ?>
+                <!-- Empty State -->
+                <div class="content-aksesori" style="width: 100%; min-width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; border-radius: 24px; padding: 60px;">
+                    <div style="width: 100px; height: 100px; background: #f5f5f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                        <i class="bi bi-inbox" style="font-size: 3rem; color: #d2d2d7;"></i>
                     </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">Mac</span>
-                        <h3 class="nama-aksesori">Aksesori Mac</h3>
-                        <p class="deskripsi-aksesori">Tingkatkan produktivitas dengan aksesori premium untuk MacBook dan iMac Anda. Dari keyboard hingga docking station.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Mulai Rp459.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
-                        </div>
-                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px; text-align: center;">Belum Ada Aksesori Pilihan</h3>
+                    <p style="color: #86868b; text-align: center; max-width: 400px; font-size: 1rem;">Kami sedang menyiapkan aksesori terbaik untuk melengkapi perangkat Apple Anda. Cek kembali segera!</p>
                 </div>
-
-                <!-- Card 2 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-ipad.png" alt="Aksesori iPad">
-                    </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">iPad</span>
-                        <h3 class="nama-aksesori">Aksesori iPad</h3>
-                        <p class="deskripsi-aksesori">Transformasikan iPad Anda menjadi workstation kreatif dengan keyboard, Apple Pencil, dan case premium.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Mulai Rp1.599.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
+                <?php else: ?>
+                    <?php foreach ($homeAksesoriFromDB as $aksesori): ?>
+                    <!-- Card Dynamic -->
+                    <div class="content-aksesori">
+                        <div class="header-card-aksesori">
+                            <img src="<?= $aksesori['image'] ?>" alt="<?= htmlspecialchars($aksesori['name']) ?>" onerror="this.src='https://via.placeholder.com/400?text=No+Image'">
+                        </div>
+                        <div class="footer-card-aksesori">
+                            <span class="badge-category"><?= htmlspecialchars($aksesori['label']) ?></span>
+                            <h3 class="nama-aksesori"><?= htmlspecialchars($aksesori['name']) ?></h3>
+                            <p class="deskripsi-aksesori"><?= htmlspecialchars(mb_strimwidth($aksesori['description'], 0, 100, "...")) ?></p>
+                            <div class="harga-container">
+                                <span class="harga-aksesori">Mulai Rp<?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                <button class="btn-beli" onclick="location.href='checkout/checkout.php?id=<?= $aksesori['id'] ?>&type=<?= $aksesori['tipe'] ?>'">
+                                    <i class="bi bi-cart-plus"></i> Beli Sekarang
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
 
-                <!-- Card 3 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-watch.png" alt="Aksesori Watch">
-                    </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">Watch</span>
-                        <h3 class="nama-aksesori">Aksesori Watch</h3>
-                        <p class="deskripsi-aksesori">Personalisasikan Apple Watch dengan koleksi strap eksklusif dan charger portable yang stylish.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Mulai Rp399.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
+                <!-- Card Lihat Semua -->
+                <div class="content-aksesori" onclick="location.href='products/products.php'" style="cursor: pointer; background: #f5f5f7;">
+                    <div class="header-card-aksesori" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;">
+                        <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
+                            <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/IMG-17900036_m_jpeg_1.webp" alt="Aksesori iPhone">
-                    </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">iPhone</span>
-                        <h3 class="nama-aksesori">Aksesori iPhone</h3>
-                        <p class="deskripsi-aksesori">Lindungi dan tingkatkan pengalaman iPhone dengan case premium, charger MagSafe, dan earphone terbaru.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Mulai Rp200.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/MU8F2?wid=572&hei=572&fmt=jpeg&qlt=95&.v=1542406417329" alt="Apple Pencil">
-                    </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">iPad</span>
-                        <h3 class="nama-aksesori">Apple Pencil (2nd Gen)</h3>
-                        <p class="deskripsi-aksesori">Alat tulis presisi untuk iPad dengan latensi rendah dan pengisian nirkabel yang mudah.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Rp2.199.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 6 -->
-                <div class="content-aksesori">
-                    <div class="header-card-aksesori">
-                        <img src="https://store.storeimages.cdn-apple.com/8756/as-images.apple.com/is/airpods-pro-2-hero-select-202409?wid=940&hei=1112&fmt=jpeg&qlt=90&.v=1723507647577" alt="AirPods Pro">
-                    </div>
-                    <div class="footer-card-aksesori">
-                        <span class="badge-category">Audio</span>
-                        <h3 class="nama-aksesori">AirPods Pro (2nd Gen)</h3>
-                        <p class="deskripsi-aksesori">Pengalaman audio terbaik dengan Active Noise Cancellation dan Adaptive Audio.</p>
-                        <div class="harga-container">
-                            <span class="harga-aksesori">Rp3.999.000</span>
-                            <button class="btn-beli">
-                                <i class="bi bi-cart-plus"></i> Beli Sekarang
-                            </button>
-                        </div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 5px;">Lihat Semua</h3>
+                        <p style="color: #86868b; text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan aksesori lainnya</p>
                     </div>
                 </div>
             </div>
@@ -7452,26 +7418,7 @@ require '../db/db.php';
                     setTimeout(equalizeCardHeights, 100);
                 }
 
-                // Event listener untuk tombol beli
-                document.querySelectorAll('.btn-beli').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        // Animasi klik
-                        this.style.transform = 'scale(0.95)';
-                        this.style.transition = 'transform 0.2s ease';
-
-                        setTimeout(() => {
-                            this.style.transform = '';
-
-                            // Simulasi aksi beli
-                            const productName = this.closest('.content-aksesori').querySelector('.nama-aksesori').textContent;
-                            const productPrice = this.closest('.content-aksesori').querySelector('.harga-aksesori').textContent;
-                            alert(`Terima kasih! Anda akan membeli:\n\n${productName}\n${productPrice}`);
-                        }, 200);
-                    });
-                });
+                // Tombol beli menggunakan onclick inline untuk redirect ke checkout/checkout.php
             });
         </script>
     </div>
