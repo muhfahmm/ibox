@@ -46,14 +46,11 @@ try {
 
     // Insert data produk utama
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
-    // Handle deskripsi produk - prevent '0' from being saved
-    $deskripsi_produk = trim($_POST['deskripsi_produk'] ?? '');
-    // If the value is '0' or empty, save as empty string instead of '0'
-    if ($deskripsi_produk === '0' || $deskripsi_produk === 0) {
-        $deskripsi_produk = '';
-    }
-    $deskripsi_produk = mysqli_real_escape_string($db, $deskripsi_produk);
+    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
     $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
+
+    // Debug values
+    error_log("Deskripsi produk: " . $deskripsi_produk);
 
     $query = "INSERT INTO admin_produk_music (nama_produk, deskripsi_produk, kategori) 
               VALUES ('$nama_produk', '$deskripsi_produk', '$kategori')";

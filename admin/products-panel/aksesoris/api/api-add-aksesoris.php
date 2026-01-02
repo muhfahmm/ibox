@@ -45,6 +45,18 @@ try {
         }
     }
 
+    // Validasi dan sanitasi kategori
+    $kategori_input = mysqli_real_escape_string($db, $_POST['kategori'] ?? '');
+    $allowed_categories = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'trackpad', 'adapter', 'other'];
+    
+    // Jika kategori tidak ada dalam daftar yang diizinkan, gunakan default 'case'
+    if (!in_array($kategori_input, $allowed_categories)) {
+        $kategori = 'case';
+        error_log("Kategori tidak valid: $kategori_input, menggunakan default 'case'");
+    } else {
+        $kategori = $kategori_input;
+    }
+
     // Validasi minimal data
     if (empty($_POST['warna']) || !is_array($_POST['warna'])) {
         throw new Exception("Minimal satu warna harus diisi");
@@ -57,7 +69,6 @@ try {
     // Insert data produk utama
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
-    $kategori = mysqli_real_escape_string($db, $_POST['kategori'] ?? '');
     $kompatibel_dengan = mysqli_real_escape_string($db, $_POST['kompatibel_dengan'] ?? '');
     
     // Format kompatibel_dengan sebagai array JSON jika ada
@@ -70,6 +81,8 @@ try {
     $query = "INSERT INTO admin_produk_aksesoris 
               (nama_produk, deskripsi_produk, kategori, kompatibel_dengan) 
               VALUES ('$nama_produk', '$deskripsi_produk', '$kategori', '$kompatibel_json')";
+    
+    error_log("Query INSERT: " . $query);
     
     if (!mysqli_query($db, $query)) {
         throw new Exception("Gagal menyimpan data produk: " . mysqli_error($db));

@@ -43,17 +43,35 @@ try {
     // Start Transaction
     mysqli_begin_transaction($db);
 
-    // 1. Update Produk Utama
+    // 1. Update Produk Utama - FIX: handle kompatibel_dengan dengan benar
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
     $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
-    $kompatibel_dengan = !empty($_POST['kompatibel_dengan']) ? mysqli_real_escape_string($db, $_POST['kompatibel_dengan']) : '[]';
+    
+    // Handle kompatibel_dengan - bisa berupa string JSON atau array
+    $kompatibel_dengan = $_POST['kompatibel_dengan'] ?? '[]';
+    $kompatibel_json = '[]';
+    
+    if (!empty($kompatibel_dengan)) {
+        if (is_string($kompatibel_dengan) && $kompatibel_dengan !== '[]') {
+            // Decode untuk memastikan valid JSON
+            $decoded = json_decode($kompatibel_dengan, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $kompatibel_json = mysqli_real_escape_string($db, json_encode($decoded));
+            } else {
+                // Jika bukan JSON, anggap sebagai string biasa
+                $kompatibel_json = mysqli_real_escape_string($db, json_encode([$kompatibel_dengan]));
+            }
+        } elseif (is_array($kompatibel_dengan)) {
+            $kompatibel_json = mysqli_real_escape_string($db, json_encode($kompatibel_dengan));
+        }
+    }
     
     $query_update_produk = "UPDATE admin_produk_aksesoris SET 
                            nama_produk = '$nama_produk', 
                            deskripsi_produk = '$deskripsi_produk',
                            kategori = '$kategori',
-                           kompatibel_dengan = '$kompatibel_dengan',
+                           kompatibel_dengan = '$kompatibel_json',
                            updated_at = NOW() 
                            WHERE id = '$product_id'";
     
@@ -61,7 +79,7 @@ try {
         throw new Exception("Gagal update produk: " . mysqli_error($db));
     }
 
-    // 2. Update Gambar
+    // 2. Update Gambar - Hapus yang lama dan insert yang baru
     mysqli_query($db, "DELETE FROM admin_produk_aksesoris_gambar WHERE produk_id = '$product_id'");
 
     $warna_data = $_POST['warna'];
@@ -97,7 +115,21 @@ try {
         }
 
         // --- Handle Product Images ---
-        $product_images = $color_info['existing_images'] ?? [];
+        $product_images = [];
+        
+        // Process existing images
+        if (!empty($color_info['existing_images'])) {
+            if (is_string($color_info['existing_images'])) {
+                // Jika berupa JSON string
+                $existing = json_decode($color_info['existing_images'], true);
+                if (is_array($existing)) {
+                    $product_images = array_merge($product_images, $existing);
+                }
+            } elseif (is_array($color_info['existing_images'])) {
+                // Jika sudah berupa array
+                $product_images = array_merge($product_images, $color_info['existing_images']);
+            }
+        }
         
         // Check for new uploads
         if (isset($_FILES['warna']['name'][$color_index]['product_images'])) {
@@ -121,7 +153,7 @@ try {
             }
         }
 
-        $product_images_json = json_encode(array_values($product_images));
+        $product_images_json = json_encode(array_values(array_filter($product_images)));
 
         // Insert into DB
         $query_gambar = "INSERT INTO admin_produk_aksesoris_gambar 
@@ -133,7 +165,7 @@ try {
         }
     }
 
-    // 3. Update Kombinasi
+    // 3. Update Kombinasi - Hapus yang lama dan insert yang baru
     mysqli_query($db, "DELETE FROM admin_produk_aksesoris_kombinasi WHERE produk_id = '$product_id'");
 
     $combinations = $_POST['combinations'] ?? [];
@@ -145,14 +177,20 @@ try {
         $type_index = $parts[1] ?? 0;
         $size_index = $parts[2] ?? 0;
         
+        // Dapatkan nilai dari form
         $warna = mysqli_real_escape_string($db, $_POST['warna'][$color_index]['nama'] ?? '');
         $tipe = mysqli_real_escape_string($db, $_POST['tipe'][$type_index] ?? '');
         $ukuran = mysqli_real_escape_string($db, $_POST['ukuran'][$size_index] ?? '');
         
-        $harga = mysqli_real_escape_string($db, $combo['harga']);
+        $harga = mysqli_real_escape_string($db, $combo['harga'] ?? 0);
         $harga_diskon = !empty($combo['harga_diskon']) ? mysqli_real_escape_string($db, $combo['harga_diskon']) : "NULL";
-        $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok']);
+        $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok'] ?? 0);
         $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
+
+        // Validasi data kombinasi
+        if (empty($warna) || empty($tipe) || empty($harga)) {
+            continue;
+        }
 
         $query_kombinasi = "INSERT INTO admin_produk_aksesoris_kombinasi 
                            (produk_id, warna, tipe, ukuran, harga, harga_diskon, jumlah_stok, status_stok) 
@@ -163,6 +201,10 @@ try {
         if (mysqli_query($db, $query_kombinasi)) {
             $count++;
         }
+    }
+
+    if ($count === 0) {
+        throw new Exception("Tidak ada kombinasi yang berhasil disimpan. Periksa data harga dan stok.");
     }
 
     mysqli_commit($db);

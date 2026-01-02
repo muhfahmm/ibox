@@ -49,6 +49,11 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             font-weight: 600;
         }
         
+        .card-header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        
         .card-body {
             padding: 30px;
         }
@@ -240,7 +245,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         <div class="card">
             <div class="card-header">
                 <h2><i class="fas fa-plus-circle me-2"></i> Tambah Produk Music Baru</h2>
-                <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk Music baru (AirPods, HomePod, dll)</p>
+                <p>Isi formulir lengkap untuk menambahkan produk Music baru (AirPods, HomePod, dll)</p>
             </div>
             
             <form id="addProductForm" enctype="multipart/form-data" autocomplete="off">
@@ -494,6 +499,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             // Validate required fields
             const namaProduk = document.getElementById('nama_produk').value;
             const kategori = document.getElementById('kategori').value;
+            const deskripsiProduk = document.getElementById('deskripsi_produk').value;
             
             if (!namaProduk.trim()) {
                 showFeedback('Nama produk harus diisi', 'error');
@@ -526,6 +532,9 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             }
             
             const formData = new FormData(this);
+            // Add deskripsi produk to form data
+            formData.append('deskripsi_produk', deskripsiProduk);
+            
             document.getElementById('loadingOverlay').classList.add('show');
 
             fetch('api/api-add-music.php', {
