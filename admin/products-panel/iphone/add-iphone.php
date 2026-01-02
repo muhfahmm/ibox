@@ -242,7 +242,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk iPhone baru</p>
             </div>
             
-            <form id="addProductForm" enctype="multipart/form-data">
+            <form id="addProductForm" enctype="multipart/form-data" autocomplete="off">
                 <div class="card-body">
                     
                     <div class="row mb-4">
@@ -250,6 +250,11 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <div class="mb-3">
                                 <label for="nama_produk" class="form-label">Nama Produk</label>
                                 <input type="text" class="form-control" id="nama_produk" name="nama_produk" placeholder="Contoh: iPhone 15 Pro" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="kategori" class="form-label">Kategori</label>
+                                <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Contoh: iPhone 15, iPhone 15 Pro, iPhone 14" required>
                             </div>
                             
                             <div class="mb-3">
@@ -457,7 +462,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${conn}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${conn}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${s.price}" required></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${s.discount}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;
                         tbody.appendChild(tr);

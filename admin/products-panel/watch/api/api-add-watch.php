@@ -36,7 +36,7 @@ try {
     error_log("Jumlah Kombinasi: " . (is_array($_POST['combinations'] ?? []) ? count($_POST['combinations']) : 0));
 
     // Validasi data
-    $required_fields = ['nama_produk'];
+    $required_fields = ['nama_produk', 'kategori'];
     foreach ($required_fields as $field) {
         if (empty($_POST[$field])) {
             throw new Exception("Field $field harus diisi");
@@ -56,9 +56,10 @@ try {
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
     $seri = mysqli_real_escape_string($db, $_POST['seri'] ?? '');
+    $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
 
-    $query = "INSERT INTO admin_produk_watch (nama_produk, deskripsi_produk, seri) 
-              VALUES ('$nama_produk', '$deskripsi_produk', '$seri')";
+    $query = "INSERT INTO admin_produk_watch (nama_produk, deskripsi_produk, seri, kategori) 
+              VALUES ('$nama_produk', '$deskripsi_produk', '$seri', '$kategori')";
     
     if (!mysqli_query($db, $query)) {
         throw new Exception("Gagal menyimpan data produk: " . mysqli_error($db));

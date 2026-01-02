@@ -104,7 +104,7 @@ $initialData = [
         </div>
         <div class="card">
             <div class="card-header"><h2><i class="fas fa-edit me-2"></i> Edit AirTag</h2></div>
-            <form id="editForm" enctype="multipart/form-data">
+            <form id="editForm" enctype="multipart/form-data" autocomplete="off">
                 <div class="card-body">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                     <div class="row mb-4">
@@ -112,6 +112,10 @@ $initialData = [
                             <div class="mb-3">
                                 <label class="form-label">Nama Produk</label>
                                 <input type="text" class="form-control" name="nama_produk" value="<?php echo htmlspecialchars($product['nama_produk']); ?>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Kategori</label>
+                                <input type="text" class="form-control" name="kategori" value="<?php echo htmlspecialchars($product['kategori'] ?? ''); ?>" placeholder="Contoh: AirTag, AirTag 4 Pack, Aksesoris AirTag" required>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Deskripsi Produk</label>
@@ -230,7 +234,7 @@ $initialData = [
                             <td>${a}<input type="hidden" name="combinations[${idx}][aksesoris]" value="${a}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${p.price}" required></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${p.discount||0}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;
                         tbody.appendChild(tr);

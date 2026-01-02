@@ -469,7 +469,7 @@ $initialData = [
                 <h2><i class="fas fa-edit"></i> Edit Produk Apple Watch</h2>
             </div>
             <div class="card-body">
-                <form id="editWatchForm" action="api/api-edit-watch.php" method="POST" enctype="multipart/form-data">
+                <form id="editWatchForm" action="api/api-edit-watch.php" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                     
                     <!-- Informasi Produk -->
@@ -479,6 +479,11 @@ $initialData = [
                         <div class="mb-3">
                             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="nama_produk" value="<?php echo htmlspecialchars($product['nama_produk']); ?>" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <input type="text" class="form-control" name="kategori" value="<?php echo htmlspecialchars($product['kategori'] ?? ''); ?>" placeholder="Contoh: Watch Series 9, Watch SE, Watch Ultra" required>
                         </div>
                         
                         <div class="mb-3">
@@ -992,7 +997,7 @@ $initialData = [
                                         <td>
                                             <input type="number" class="form-control" style="width: 100px;" 
                                                    name="combinations[${uniqueId}][jumlah_stok]" 
-                                                   value="${existingStock}" min="0" required>
+                                                   value="${existingStock || ''}" placeholder="0" min="0" required>
                                         </td>
                                     </tr>
                                 `;

@@ -242,7 +242,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk aksesoris baru</p>
             </div>
             
-            <form id="addProductForm" enctype="multipart/form-data">
+            <form id="addProductForm" enctype="multipart/form-data" autocomplete="off">
                 <div class="card-body">
                     
                     <div class="row mb-4">
@@ -256,17 +256,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label for="kategori" class="form-label">Kategori</label>
-                                        <select class="form-select" id="kategori" name="kategori" required>
-                                            <option value="">Pilih Kategori</option>
-                                            <option value="case">Case</option>
-                                            <option value="charger">Charger</option>
-                                            <option value="headphone">Headphone</option>
-                                            <option value="keyboard">Keyboard</option>
-                                            <option value="mouse">Mouse</option>
-                                            <option value="trackpad">Trackpad</option>
-                                            <option value="adapter">Adapter</option>
-                                            <option value="other">Lainnya</option>
-                                        </select>
+                                        <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Contoh: Case, Charger, Headphone, Keyboard" required>
                                     </div>
                                 </div>
                             </div>
@@ -480,7 +470,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${s}<input type="hidden" name="combinations[${idx}][ukuran]" value="${s}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${t.price}" required></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0" required></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0" required></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;
                         tbody.appendChild(tr);

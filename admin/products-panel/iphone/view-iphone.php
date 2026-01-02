@@ -331,6 +331,22 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
                 <!-- Product Header -->
                 <div class="product-header">
                     <h1 class="product-title"><?php echo htmlspecialchars($product['nama_produk']); ?></h1>
+                    <?php if(!empty($product['kategori'])): 
+                        $kategori_labels = [
+                            'iphone-15' => 'iPhone 15',
+                            'iphone-15-pro' => 'iPhone 15 Pro',
+                            'iphone-14' => 'iPhone 14',
+                            'iphone-13' => 'iPhone 13',
+                            'iphone-se' => 'iPhone SE'
+                        ];
+                        $kategori_display = isset($kategori_labels[$product['kategori']]) ? $kategori_labels[$product['kategori']] : $product['kategori'];
+                    ?>
+                        <div class="mb-3">
+                            <span class="badge bg-primary" style="padding: 8px 15px; font-size: 14px;">
+                                <i class="fas fa-tag me-1"></i> Kategori: <?php echo htmlspecialchars($kategori_display); ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
                     <div class="stats-container">
                         <div class="stat-card">
                             <div class="stat-number"><?php echo $total_combinations; ?></div>

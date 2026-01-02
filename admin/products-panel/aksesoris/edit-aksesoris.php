@@ -504,7 +504,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
                 <h2><i class="fas fa-edit"></i> Edit Produk Aksesoris</h2>
             </div>
             <div class="card-body">
-                <form id="editAksesorisForm" action="api/api-edit-aksesoris.php" method="POST" enctype="multipart/form-data">
+                <form id="editAksesorisForm" action="api/api-edit-aksesoris.php" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                     
                     <!-- Informasi Produk -->
@@ -521,14 +521,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
                             <div class="form-col col-6">
                                 <div class="mb-3">
                                     <label class="form-label">Kategori <span class="text-danger">*</span></label>
-                                    <select class="form-control" name="kategori" required>
-                                        <option value="">Pilih Kategori</option>
-                                        <?php foreach($kategori_options as $option): ?>
-                                            <option value="<?php echo $option; ?>" <?php echo ($product['kategori'] == $option) ? 'selected' : ''; ?>>
-                                                <?php echo ucfirst($option); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                    <input type="text" class="form-control" name="kategori" value="<?php echo htmlspecialchars($product['kategori'] ?? ''); ?>" placeholder="Contoh: Case, Charger, Headphone, Keyboard" required>
                                 </div>
                             </div>
                         </div>
@@ -1038,7 +1031,7 @@ $kategori_options = ['case', 'charger', 'headphone', 'keyboard', 'mouse', 'track
                                     <td>
                                         <input type="number" class="form-control" style="width: 100px;" 
                                                name="combinations[${uniqueId}][jumlah_stok]" 
-                                               value="${existingData.jumlah_stok || 0}" min="0" required>
+                                               value="${existingData.jumlah_stok || ''}" placeholder="0" min="0" required>
                                     </td>
                                 </tr>
                             `;

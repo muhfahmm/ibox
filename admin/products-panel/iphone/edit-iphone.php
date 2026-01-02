@@ -546,7 +546,7 @@ foreach ($combinations as $c) {
                 <h2><i class="fas fa-edit"></i> Edit Produk iPhone</h2>
             </div>
             <div class="card-body">
-                <form id="editIphoneForm" action="api/api-edit-iphone.php" method="POST" enctype="multipart/form-data">
+                <form id="editIphoneForm" action="api/api-edit-iphone.php" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
 
                     <!-- Informasi Produk -->
@@ -555,6 +555,10 @@ foreach ($combinations as $c) {
                         <div class="mb-3">
                             <label class="form-label">Nama Produk <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="nama_produk" value="<?php echo htmlspecialchars($product['nama_produk']); ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Kategori</label>
+                            <input type="text" class="form-control" name="kategori" value="<?php echo htmlspecialchars($product['kategori'] ?? ''); ?>" placeholder="Contoh: iPhone 15, iPhone 15 Pro, iPhone 14" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Deskripsi Produk</label>

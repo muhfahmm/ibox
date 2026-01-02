@@ -33,8 +33,13 @@ try {
     // 1. Update Produk Utama
     $nama = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $desc = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    $kategori = mysqli_real_escape_string($db, $_POST['kategori'] ?? '');
     
-    mysqli_query($db, "UPDATE admin_produk_airtag SET nama_produk='$nama', deskripsi_produk='$desc' WHERE id='$product_id'");
+    if (empty($kategori)) {
+        throw new Exception('Kategori harus dipilih');
+    }
+    
+    mysqli_query($db, "UPDATE admin_produk_airtag SET nama_produk='$nama', deskripsi_produk='$desc', kategori='$kategori' WHERE id='$product_id'");
 
     // 2. Update Gambar
     mysqli_query($db, "DELETE FROM admin_produk_airtag_gambar WHERE produk_id='$product_id'");

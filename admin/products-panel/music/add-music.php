@@ -243,7 +243,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <p class="mb-0 opacity-75">Isi formulir lengkap untuk menambahkan produk Music baru (AirPods, HomePod, dll)</p>
             </div>
             
-            <form id="addProductForm" enctype="multipart/form-data">
+            <form id="addProductForm" enctype="multipart/form-data" autocomplete="off">
                 <div class="card-body">
                     
                     <div class="row mb-4">
@@ -255,13 +255,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             
                             <div class="mb-3">
                                 <label for="kategori" class="form-label">Kategori</label>
-                                <select class="form-select" id="kategori" name="kategori" required>
-                                    <option value="">Pilih Kategori</option>
-                                    <option value="airpods">AirPods</option>
-                                    <option value="homepod">HomePod</option>
-                                    <option value="beats">Beats</option>
-                                    <option value="aksesoris-audio">Aksesoris Audio</option>
-                                </select>
+                                <input type="text" class="form-control" id="kategori" name="kategori" placeholder="Contoh: AirPods, HomePod, Beats, Aksesoris Audio" required>
                             </div>
                             
                             <div class="mb-3">
@@ -299,7 +293,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
                     <!-- Pilihan Konektivitas -->
                     <div class="section-title">
-                        <i class="fas fa-bluetooth me-2"></i> Pilihan Konektivitas
+                        <i class="fa-brands fa-bluetooth me-2"></i> Pilihan Konektivitas
                     </div>
                     
                     <div id="konektivitas-container">
@@ -452,7 +446,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${konektivitas}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${konektivitas}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="0" required></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value=""></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                         `;
                         tbody.appendChild(tr);
                         idx++;

@@ -354,11 +354,26 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
                 <!-- Product Header -->
                 <div class="product-header">
                     <h1 class="product-title"><?php echo htmlspecialchars($product['nama_produk']); ?></h1>
-                    <?php if(!empty($product['seri'])): ?>
-                        <div class="product-meta">
-                            <span class="badge bg-primary"><?php echo htmlspecialchars($product['seri']); ?></span>
-                        </div>
-                    <?php endif; ?>
+                    <div class="product-meta mb-3">
+                        <?php if(!empty($product['kategori'])): 
+                            $kategori_labels = [
+                                'watch-series-9' => 'Watch Series 9',
+                                'watch-series-8' => 'Watch Series 8',
+                                'watch-se' => 'Watch SE',
+                                'watch-ultra' => 'Watch Ultra',
+                                'watch-hermes' => 'Watch Hermès',
+                                'watch-nike' => 'Watch Nike'
+                            ];
+                            $kategori_display = isset($kategori_labels[$product['kategori']]) ? $kategori_labels[$product['kategori']] : $product['kategori'];
+                        ?>
+                            <span class="badge bg-primary me-2">
+                                <i class="fas fa-tag me-1"></i> Kategori: <?php echo htmlspecialchars($kategori_display); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if(!empty($product['seri'])): ?>
+                            <span class="badge bg-secondary"><?php echo htmlspecialchars($product['seri']); ?></span>
+                        <?php endif; ?>
+                    </div>
                     
                     <div class="stats-container">
                         <div class="stat-card">

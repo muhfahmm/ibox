@@ -46,11 +46,17 @@ try {
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
     $seri = mysqli_real_escape_string($db, $_POST['seri'] ?? '');
+    $kategori = mysqli_real_escape_string($db, $_POST['kategori'] ?? '');
+    
+    if (empty($kategori)) {
+        throw new Exception('Kategori harus dipilih');
+    }
     
     $query_update_produk = "UPDATE admin_produk_watch SET 
                            nama_produk = '$nama_produk', 
                            seri = '$seri',
                            deskripsi_produk = '$deskripsi_produk',
+                           kategori = '$kategori',
                            updated_at = NOW() 
                            WHERE id = '$product_id'";
     

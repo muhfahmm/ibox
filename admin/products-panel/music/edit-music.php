@@ -494,7 +494,7 @@ foreach($combinations as $c) {
                 <h2><i class="fas fa-edit"></i> Edit Produk Music</h2>
             </div>
             <div class="card-body">
-                <form id="editMusicForm" action="api/api-edit-music.php" method="POST" enctype="multipart/form-data">
+                <form id="editMusicForm" action="api/api-edit-music.php" method="POST" enctype="multipart/form-data" autocomplete="off">
                     <input type="hidden" name="product_id" value="<?php echo $product_id; ?>">
                     
                     <!-- Informasi Produk -->
@@ -507,12 +507,7 @@ foreach($combinations as $c) {
                         
                         <div class="mb-3">
                             <label class="form-label">Kategori Music</label>
-                            <select class="form-control" name="kategori">
-                                <option value="airpods" <?php echo $product['kategori'] == 'airpods' ? 'selected' : ''; ?>>AirPods</option>
-                                <option value="homepod" <?php echo $product['kategori'] == 'homepod' ? 'selected' : ''; ?>>HomePod</option>
-                                <option value="beats" <?php echo $product['kategori'] == 'beats' ? 'selected' : ''; ?>>Beats</option>
-                                <option value="aksesoris-audio" <?php echo $product['kategori'] == 'aksesoris-audio' ? 'selected' : ''; ?>>Aksesoris Audio</option>
-                            </select>
+                            <input type="text" class="form-control" name="kategori" value="<?php echo htmlspecialchars($product['kategori'] ?? ''); ?>" placeholder="Contoh: AirPods, HomePod, Beats, Aksesoris Audio" required>
                         </div>
                         
                         <div class="mb-3">
@@ -948,7 +943,7 @@ foreach($combinations as $c) {
                                     <td>
                                         <input type="number" class="form-control" style="width: 100px;" 
                                                name="combinations[${uniqueId}][jumlah_stok]" 
-                                               value="${existingStock}" min="0" required>
+                                               value="${existingStock || ''}" placeholder="0" min="0" required>
                                     </td>
                                     <!-- Hidden Inputs -->
                                     <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">

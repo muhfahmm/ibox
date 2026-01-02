@@ -45,11 +45,17 @@ try {
     // 1. Update Produk Utama - TABEL MAC
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    $kategori = mysqli_real_escape_string($db, $_POST['kategori'] ?? '');
+    
+    if (empty($kategori)) {
+        throw new Exception('Kategori harus dipilih');
+    }
     
     // Query tanpa kolom 'tipe' dan 'updated_at'
     $query_update_produk = "UPDATE admin_produk_mac SET 
                            nama_produk = '$nama_produk', 
-                           deskripsi_produk = '$deskripsi_produk'
+                           deskripsi_produk = '$deskripsi_produk',
+                           kategori = '$kategori'
                            WHERE id = '$product_id'";
     
     if (!mysqli_query($db, $query_update_produk)) {

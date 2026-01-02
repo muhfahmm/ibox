@@ -333,6 +333,21 @@ if ($min_price === PHP_INT_MAX) $min_price = 0;
                 <div class="product-header">
                     <h1 class="product-title"><?php echo htmlspecialchars($product['nama_produk']); ?></h1>
                     
+                    <?php if(!empty($product['kategori'])): 
+                        $kategori_labels = [
+                            'airtag' => 'AirTag',
+                            'airtag-4-pack' => 'AirTag 4 Pack',
+                            'airtag-accessories' => 'Aksesoris AirTag'
+                        ];
+                        $kategori_display = isset($kategori_labels[$product['kategori']]) ? $kategori_labels[$product['kategori']] : $product['kategori'];
+                    ?>
+                        <div class="mb-3">
+                            <span class="badge bg-primary" style="padding: 8px 15px; font-size: 14px;">
+                                <i class="fas fa-tag me-1"></i> Kategori: <?php echo htmlspecialchars($kategori_display); ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+                    
                     <div class="stats-container">
                         <div class="stat-card">
                             <div class="stat-number"><?php echo $total_combinations; ?></div>

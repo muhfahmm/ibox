@@ -10,22 +10,58 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
 
 $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
-// Ambil data produk AirTag dengan kombinasi
-$query = "SELECT p.*, 
-                 COUNT(DISTINCT k.id) as total_kombinasi,
-                 COUNT(DISTINCT g.id) as total_warna,
-                 MIN(k.harga) as harga_terendah,
-                 MAX(k.harga) as harga_tertinggi,
-                 SUM(k.jumlah_stok) as total_stok
-          FROM admin_produk_airtag p
-          LEFT JOIN admin_produk_airtag_kombinasi k ON p.id = k.produk_id
-          LEFT JOIN admin_produk_airtag_gambar g ON p.id = g.produk_id
-          GROUP BY p.id
-          ORDER BY p.id DESC";
+// Ambil data checkout dari tabel home_checkout dengan JOIN
+$query = "SELECT 
+            hc.*,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN iphone.nama_produk
+                WHEN hc.tipe_produk = 'ipad' THEN ipad.nama_produk
+                WHEN hc.tipe_produk = 'mac' THEN mac.nama_produk
+                WHEN hc.tipe_produk = 'music' THEN music.nama_produk
+                WHEN hc.tipe_produk = 'watch' THEN watch.nama_produk
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
+                WHEN hc.tipe_produk = 'airtag' THEN airtag.nama_produk
+            END as nama_produk,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
+            END as foto_thumbnail,
+            CASE 
+                WHEN hc.deskripsi_produk IS NOT NULL AND hc.deskripsi_produk != '' THEN hc.deskripsi_produk
+                WHEN hc.tipe_produk = 'iphone' THEN iphone.deskripsi_produk
+                WHEN hc.tipe_produk = 'ipad' THEN ipad.deskripsi_produk
+                WHEN hc.tipe_produk = 'mac' THEN mac.deskripsi_produk
+                WHEN hc.tipe_produk = 'music' THEN music.deskripsi_produk
+                WHEN hc.tipe_produk = 'watch' THEN watch.deskripsi_produk
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris.deskripsi_produk
+                WHEN hc.tipe_produk = 'airtag' THEN airtag.deskripsi_produk
+            END as deskripsi_produk
+          FROM home_checkout hc
+          LEFT JOIN admin_produk_iphone iphone ON hc.tipe_produk = 'iphone' AND hc.produk_id = iphone.id
+          LEFT JOIN admin_produk_ipad ipad ON hc.tipe_produk = 'ipad' AND hc.produk_id = ipad.id
+          LEFT JOIN admin_produk_mac mac ON hc.tipe_produk = 'mac' AND hc.produk_id = mac.id
+          LEFT JOIN admin_produk_music music ON hc.tipe_produk = 'music' AND hc.produk_id = music.id
+          LEFT JOIN admin_produk_watch watch ON hc.tipe_produk = 'watch' AND hc.produk_id = watch.id
+          LEFT JOIN admin_produk_aksesoris aksesoris ON hc.tipe_produk = 'aksesoris' AND hc.produk_id = aksesoris.id
+          LEFT JOIN admin_produk_airtag airtag ON hc.tipe_produk = 'airtag' AND hc.produk_id = airtag.id
+          LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hc.tipe_produk = 'iphone' AND hc.produk_id = iphone_gambar.produk_id
+          LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hc.tipe_produk = 'ipad' AND hc.produk_id = ipad_gambar.produk_id
+          LEFT JOIN admin_produk_mac_gambar mac_gambar ON hc.tipe_produk = 'mac' AND hc.produk_id = mac_gambar.produk_id
+          LEFT JOIN admin_produk_music_gambar music_gambar ON hc.tipe_produk = 'music' AND hc.produk_id = music_gambar.produk_id
+          LEFT JOIN admin_produk_watch_gambar watch_gambar ON hc.tipe_produk = 'watch' AND hc.produk_id = watch_gambar.produk_id
+          LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hc.tipe_produk = 'aksesoris' AND hc.produk_id = aksesoris_gambar.produk_id
+          LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hc.tipe_produk = 'airtag' AND hc.produk_id = airtag_gambar.produk_id
+          GROUP BY hc.id
+          ORDER BY hc.urutan ASC, hc.created_at DESC";
 $result = mysqli_query($db, $query);
 
-// Hitung jumlah produk AirTag
-$airtag_count = mysqli_num_rows($result);
+// Hitung jumlah produk di checkout
+$checkout_items_count = mysqli_num_rows($result);
 
 // Hitung jumlah produk kategori lain untuk sidebar DAN AMBIL ID PERTAMA
 $tables = [
@@ -56,6 +92,9 @@ $airtag_first_id_query = "SELECT MIN(id) as first_id FROM admin_produk_airtag";
 $airtag_first_id_result = mysqli_query($db, $airtag_first_id_query);
 $airtag_first_id_data = mysqli_fetch_assoc($airtag_first_id_result);
 $airtag_first_id = $airtag_first_id_data['first_id'];
+
+// Hitung jumlah produk AirTag
+$airtag_count = mysqli_num_rows($result);
 
 // Hitung jumlah untuk Homepage Panel
 $populer_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total FROM home_produk_populer"))['total'];
@@ -365,32 +404,12 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             margin-bottom: 5px;
         }
 
-        .product-desc {
-            font-size: 13px;
-            color: #666;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .product-stats {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .stat-badge {
-            background: #f8f9fa;
-            border: 1px solid #eaeaea;
-            border-radius: 15px;
-            padding: 3px 10px;
+        .product-category {
             font-size: 12px;
-            color: #666;
-        }
-
-        .stat-badge i {
-            margin-right: 4px;
+            color: #4a6cf7;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
         }
 
         .action-buttons {
@@ -450,27 +469,13 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             color: #ddd;
         }
 
-        .price-range {
-            font-weight: 600;
-            color: #4a6cf7;
-        }
-
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
+        .badge-info {
+            background-color: #4a6cf7;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 5px;
             font-size: 12px;
-            font-weight: 500;
-            display: inline-block;
-        }
-
-        .status-tersedia {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .status-habis {
-            background-color: #f8d7da;
-            color: #721c24;
+            font-weight: 600;
         }
 
         /* Responsive Styles */
@@ -674,16 +679,35 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
         <!-- Main Content -->
         <main class="main-content">
+            <?php if (isset($_GET['success'])): ?>
+                <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <?php 
+                        if ($_GET['success'] == 'added') echo "Checkout berhasil ditambahkan!";
+                        if ($_GET['success'] == 'updated') echo "Checkout berhasil diperbarui!";
+                        if ($_GET['success'] == 'deleted') echo "Checkout berhasil dihapus!";
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (isset($_GET['error'])): ?>
+                <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <?php 
+                        if ($_GET['error'] == 'already_exists') echo "Produk ini sudah ada dalam daftar checkout!";
+                        if ($_GET['error'] == 'db_error') echo "Terjadi kesalahan database!";
+                    ?>
+                </div>
+            <?php endif; ?>
+
             <div class="page-header">
-                <h1><i class="fas fa-tag me-2"></i> Kelola Produk AirTag</h1>
-                <a href="add-airtag.php" class="btn-add">
-                    <i class="fas fa-plus"></i> Tambah Produk AirTag
+                <h1><i class="fas fa-shopping-bag me-2"></i> Kelola Checkout Sekarang</h1>
+                <a href="add-checkout-sekarang.php" class="btn-add">
+                    <i class="fas fa-plus"></i> Tambah Produk Checkout
                 </a>
             </div>
 
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-list me-2"></i> Daftar Produk AirTag</h3>
+                    <h3><i class="fas fa-list me-2"></i> Daftar Produk Checkout Sekarang</h3>
                 </div>
                 <div class="card-body">
                     <div class="table-container">
@@ -693,33 +717,20 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                     <tr>
                                         <th>ID</th>
                                         <th>Produk</th>
-                                        <th>Statistik</th>
-                                        <th>Harga Range</th>
-                                        <th>Total Stok</th>
+                                        <th>Label Tampil</th>
+                                        <th>Urutan</th>
+                                        <th>Deskripsi</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($product = mysqli_fetch_assoc($result)): 
-                                        // Ambil thumbnail pertama untuk produk
-                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
-                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
-                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-                                        
-                                        // Ambil semua warna untuk produk ini
-                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
-                                        $result_warna = mysqli_query($db, $query_warna);
-                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-                                        
-                                        // Check if product has stock
-                                        $has_stock = $product['total_stok'] > 0;
-                                    ?>
+                                    <?php while($item = mysqli_fetch_assoc($result)): ?>
                                     <tr>
-                                        <td><strong>#<?php echo $product['id']; ?></strong></td>
+                                        <td><strong>#<?php echo $item['id']; ?></strong></td>
                                         <td>
                                             <div class="product-info">
-                                                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                                                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
+                                                <?php if(!empty($item['foto_thumbnail'])): ?>
+                                                    <img src="../../uploads/<?php echo htmlspecialchars($item['foto_thumbnail']); ?>" 
                                                          alt="Thumbnail" class="thumbnail-img">
                                                 <?php else: ?>
                                                     <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
@@ -727,69 +738,36 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                                     </div>
                                                 <?php endif; ?>
                                                 <div class="product-details">
+                                                    <div class="product-category"><?php echo strtoupper($item['tipe_produk']); ?></div>
                                                     <div class="product-title">
-                                                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                                                    </div>
-                                                    <div class="product-desc">
-                                                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                                                    </div>
-                                                    <div class="product-stats">
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-palette"></i>
-                                                            <?php echo $product['total_warna']; ?> Warna
-                                                        </span>
-                                                        <span class="stat-badge">
-                                                            <i class="fas fa-layer-group"></i>
-                                                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                        </span>
+                                                        <?php echo htmlspecialchars($item['nama_produk'] ?? 'Produk Tidak Ditemukan'); ?>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="product-stats">
-                                                <span class="stat-badge">
-                                                    <i class="fas fa-boxes"></i>
-                                                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                                                </span>
-                                                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                                                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <?php if($product['harga_terendah']): ?>
-                                                <div class="price-range">
-                                                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                                                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                                                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
-                                                    <?php endif; ?>
-                                                </div>
-                                                <small class="text-muted">
-                                                    Mulai dari
-                                                </small>
+                                            <?php if(!empty($item['label'])): ?>
+                                                <span class="badge-info"><?php echo htmlspecialchars($item['label']); ?></span>
                                             <?php else: ?>
-                                                <span class="text-muted">Belum ada harga</span>
+                                                <span class="text-muted">-</span>
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                                                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-                                            </div>
-                                            <small class="text-muted">
-                                                Stok total semua kombinasi
-                                            </small>
+                                            <strong><?php echo $item['urutan']; ?></strong>
+                                        </td>
+                                        <td>
+                                            <p><?php echo $item['deskripsi_produk']; ?></p>
                                         </td>
                                         <td>
                                             <div class="action-buttons">
-                                                <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
+                                                <a href="view-checkout-sekarang.php?id=<?php echo $item['id']; ?>" class="btn-view">
                                                     <i class="fas fa-eye"></i> Lihat
                                                 </a>
-                                                <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
+                                                <a href="edit-checkout-sekarang.php?id=<?php echo $item['id']; ?>" class="btn-edit">
                                                     <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                                <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                                                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
+                                                <a href="delete-acheckout-sekarang.php?id=<?php echo $item['id']; ?>" class="btn-delete" 
+                                                   onclick="return confirm('Yakin ingin menghapus checkout ini?')">
                                                     <i class="fas fa-trash"></i> Hapus
                                                 </a>
                                             </div>
@@ -800,12 +778,8 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             </table>
                         <?php else: ?>
                             <div class="no-data">
-                                <i class="fas fa-tag" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
-                                <h4>Belum ada produk AirTag</h4>
-                                <p>Mulai dengan menambahkan produk AirTag pertama Anda</p>
-                                <a href="add-airtag.php" class="btn-add mt-3" style="display: inline-flex;">
-                                    <i class="fas fa-plus"></i> Tambah Produk Pertama
-                                </a>
+                                <i class="fas fa-shopping-bag"></i>
+                                <p>Belum ada checkout yang ditambahkan.</p>
                             </div>
                         <?php endif; ?>
                     </div>

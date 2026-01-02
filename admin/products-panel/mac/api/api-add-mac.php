@@ -35,6 +35,14 @@ try {
         }
     }
 
+    // Validasi data
+    if (empty($_POST['nama_produk'])) {
+        throw new Exception("Nama produk harus diisi");
+    }
+    if (empty($_POST['kategori'])) {
+        throw new Exception("Kategori harus dipilih");
+    }
+
     // Validasi minimal data
     if (empty($_POST['warna']) || empty($_POST['processor']) || empty($_POST['penyimpanan']) || empty($_POST['ram'])) {
         throw new Exception("Minimal satu warna, processor, penyimpanan, dan RAM harus diisi");
@@ -43,8 +51,9 @@ try {
     // Insert data produk utama
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
     $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
 
-    $query = "INSERT INTO admin_produk_mac (nama_produk, deskripsi_produk) VALUES ('$nama_produk', '$deskripsi_produk')";
+    $query = "INSERT INTO admin_produk_mac (nama_produk, deskripsi_produk, kategori) VALUES ('$nama_produk', '$deskripsi_produk', '$kategori')";
     
     if (!mysqli_query($db, $query)) {
         throw new Exception("Gagal menyimpan data produk: " . mysqli_error($db));

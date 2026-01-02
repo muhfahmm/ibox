@@ -28,12 +28,6 @@ require '../db/db.php';
 <body>
     <nav class="navbar-container">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background-color: #f9f9f9;
@@ -1732,8 +1726,8 @@ require '../db/db.php';
             window.addEventListener('resize', adjustSearchBar);
         </script>
     </nav>
-
-    <div class="slider-container">
+    
+    <div class="image-slider-container">
         <?php
         // Query untuk mengambil data slider dari database
         $query = "SELECT * FROM home_image_slider ORDER BY id ASC";
@@ -1755,19 +1749,12 @@ require '../db/db.php';
         ?>
 
         <style>
-            /* CSS untuk image slider */
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background-color: #f5f5f7;
             }
 
-            .slider-container {
+            .image-slider-container {
                 position: relative;
                 width: 100%;
                 max-width: 1400px;
@@ -1775,7 +1762,7 @@ require '../db/db.php';
                 overflow: hidden;
                 border-radius: 12px;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-                height: 500px;
+                height: 611px;
             }
 
             .slider {
@@ -1927,14 +1914,14 @@ require '../db/db.php';
 
             /* Mobile-first responsive styles */
             @media (max-width: 1400px) {
-                .slider-container {
+                .image-slider-container {
                     max-width: 1200px;
                     height: 450px;
                 }
             }
 
             @media (max-width: 1200px) {
-                .slider-container {
+                .image-slider-container {
                     max-width: 1000px;
                     height: 400px;
                 }
@@ -1956,7 +1943,7 @@ require '../db/db.php';
             }
 
             @media (max-width: 992px) {
-                .slider-container {
+                .image-slider-container {
                     height: 350px;
                     border-radius: 10px;
                 }
@@ -1990,7 +1977,7 @@ require '../db/db.php';
             }
 
             @media (max-width: 768px) {
-                .slider-container {
+                .image-slider-container {
                     height: 320px;
                     border-radius: 8px;
                 }
@@ -2037,7 +2024,7 @@ require '../db/db.php';
                     padding: 10px;
                 }
 
-                .slider-container {
+                .image-slider-container {
                     height: 280px;
                     border-radius: 6px;
                 }
@@ -2076,7 +2063,7 @@ require '../db/db.php';
             }
 
             @media (max-width: 480px) {
-                .slider-container {
+                .image-slider-container {
                     height: 250px;
                 }
 
@@ -2111,7 +2098,7 @@ require '../db/db.php';
             }
 
             @media (max-width: 400px) {
-                .slider-container {
+                .image-slider-container {
                     height: 220px;
                 }
 
@@ -2432,13 +2419,6 @@ require '../db/db.php';
 
     <div class="category-products-container">
         <style>
-            * {
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f7f7f7;
                 color: #333;
@@ -3019,8 +2999,7 @@ require '../db/db.php';
     <div class="all-products-container">
         <?php
         // Fungsi untuk mengambil produk populer dari tabel home_produk_populer
-        function getPopularProducts($db, $limit = 12)
-        {
+        function getPopularProducts($db, $limit = 12) {
             $products = [];
 
             // 1. Ambil data dasar dari home_produk_populer
@@ -3086,8 +3065,7 @@ require '../db/db.php';
         }
 
         // Fungsi untuk mengambil produk terbaru dari tabel home_produk_terbaru (STRUKTUR BARU)
-        function getLatestProducts($db, $limit = 12)
-        {
+        function getLatestProducts($db, $limit = 12) {
             $products = [];
 
             // 1. Ambil data dasar dari home_produk_terbaru
@@ -3152,8 +3130,7 @@ require '../db/db.php';
         }
 
         // Fungsi untuk mengambil semua produk dari semua kategori (untuk filter kategori)
-        function getAllProductsForFilter($db)
-        {
+        function getAllProductsForFilter($db) {
             $allProducts = [];
 
             // Ambil produk dari semua kategori untuk filter (dengan LIMIT untuk performa)
@@ -3235,13 +3212,6 @@ require '../db/db.php';
         $allProductsJSON = json_encode($allProductsForFilter);
         ?>
         <style>
-            * {
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f7f7f7;
                 color: #333;
@@ -3428,7 +3398,7 @@ require '../db/db.php';
             }
 
             /* SLIDER CONTAINER UNTUK SEMUA PRODUK */
-            .all-products-slider-container {
+            .all-products-image-slider-container {
                 position: relative;
                 overflow: hidden;
                 border-radius: 12px;
@@ -3438,7 +3408,7 @@ require '../db/db.php';
                 margin-bottom: 40px;
             }
 
-            .all-products-slider-container.single-slide {
+            .all-products-image-slider-container.single-slide {
                 padding-bottom: 30px;
             }
 
@@ -3712,7 +3682,7 @@ require '../db/db.php';
                     height: 36px;
                 }
 
-                .all-products-slider-container {
+                .all-products-image-slider-container {
                     padding: 25px 15px 50px;
                 }
 
@@ -3743,7 +3713,7 @@ require '../db/db.php';
                     font-size: 15px;
                 }
 
-                .all-products-slider-container {
+                .all-products-image-slider-container {
                     padding: 20px 10px 50px;
                 }
 
@@ -3786,7 +3756,7 @@ require '../db/db.php';
                     font-size: 13px;
                 }
 
-                .all-products-slider-container {
+                .all-products-image-slider-container {
                     padding: 15px 5px 40px;
                 }
 
@@ -4179,7 +4149,7 @@ require '../db/db.php';
                     const isSingleSlide = slideCount <= 1;
 
                     let html = `
-                <div class="all-products-slider-container ${isSingleSlide ? 'single-slide' : ''}">
+                <div class="all-products-image-slider-container ${isSingleSlide ? 'single-slide' : ''}">
                     <div class="all-products-slider-nav ${isSingleSlide ? 'hidden' : ''}" id="${containerId}-nav">
                         <button class="all-products-nav-btn all-products-prev-btn ${isSingleSlide ? 'hidden' : ''}" id="${containerId}-prev-btn">
                             <i class="bi bi-chevron-left"></i>
@@ -4281,7 +4251,7 @@ require '../db/db.php';
                     const prevBtn = document.getElementById(`${containerId}-prev-btn`);
                     const nextBtn = document.getElementById(`${containerId}-next-btn`);
                     const dotsContainer = document.getElementById(`${containerId}-dots`);
-                    const sliderContainer = document.querySelector(`#${containerId} .all-products-slider-container`);
+                    const sliderContainer = document.querySelector(`#${containerId} .all-products-image-slider-container`);
                     const navContainer = document.getElementById(`${containerId}-nav`);
 
                     if (slideCount <= 1) {
@@ -4474,7 +4444,7 @@ require '../db/db.php';
                         const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
                         const productId = productBtn.getAttribute('data-product-id');
                         const productCategory = productBtn.getAttribute('data-product-category');
-                        
+
                         // Redirect ke halaman checkout
                         window.location.href = `checkout/checkout.php?id=${productId}&type=${productCategory}`;
                     }
@@ -4593,7 +4563,7 @@ require '../db/db.php';
                 if ($detail_result && $d = mysqli_fetch_assoc($detail_result)) {
                     $base_price = (float)($d['harga_terendah'] ?? 0);
                     $promo_value = $item['label_promo'] ?: "0";
-                    
+
                     // Ambil hanya angka/desimal dari label (cth: "10%" atau "10" menjadi 10)
                     $percentage = (float) preg_replace('/[^0-9.]/', '', $promo_value);
                     $discount_amount = $base_price * ($percentage / 100);
@@ -4616,8 +4586,8 @@ require '../db/db.php';
         }
 
         $tradeInProductsFromDB = getTradeInProducts($db);
- 
-         ?>
+
+        ?>
         <style>
             /* Variabel Warna Apple */
             :root {
@@ -4631,12 +4601,6 @@ require '../db/db.php';
                 --apple-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 --apple-card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
                 --apple-border-color: rgba(0, 0, 0, 0.1);
-            }
-
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
             }
 
             body {
@@ -5091,13 +5055,6 @@ require '../db/db.php';
 
     <div class="tradein-container">
         <style>
-            * {
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f7f7f7;
             }
@@ -5779,8 +5736,6 @@ require '../db/db.php';
     <div class="simple-services-container">
         <style>
             .simple-services-container * {
-                margin: 0;
-                padding: 0;
                 box-sizing: border-box;
                 font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             }
@@ -6472,13 +6427,6 @@ require '../db/db.php';
         $homeAksesoriFromDB = getHomeAksesori($db);
         ?>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f8f9fa;
                 color: #1d1d1f;
@@ -7139,33 +7087,33 @@ require '../db/db.php';
             <!-- SLIDER TRACK -->
             <div class="aksesori-slider-track" id="aksesoriSliderTrack">
                 <?php if (empty($homeAksesoriFromDB)): ?>
-                <!-- Empty State -->
-                <div class="content-aksesori" style="width: 100%; min-width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; border-radius: 24px; padding: 60px;">
-                    <div style="width: 100px; height: 100px; background: #f5f5f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
-                        <i class="bi bi-inbox" style="font-size: 3rem; color: #d2d2d7;"></i>
+                    <!-- Empty State -->
+                    <div class="content-aksesori" style="width: 100%; min-width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; border-radius: 24px; padding: 60px;">
+                        <div style="width: 100px; height: 100px; background: #f5f5f7; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 24px;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; color: #d2d2d7;"></i>
+                        </div>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px; text-align: center;">Belum Ada Aksesori Pilihan</h3>
+                        <p style="color: #86868b; text-align: center; max-width: 400px; font-size: 1rem;">Kami sedang menyiapkan aksesori terbaik untuk melengkapi perangkat Apple Anda. Cek kembali segera!</p>
                     </div>
-                    <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 12px; text-align: center;">Belum Ada Aksesori Pilihan</h3>
-                    <p style="color: #86868b; text-align: center; max-width: 400px; font-size: 1rem;">Kami sedang menyiapkan aksesori terbaik untuk melengkapi perangkat Apple Anda. Cek kembali segera!</p>
-                </div>
                 <?php else: ?>
                     <?php foreach ($homeAksesoriFromDB as $aksesori): ?>
-                    <!-- Card Dynamic -->
-                    <div class="content-aksesori">
-                        <div class="header-card-aksesori">
-                            <img src="<?= $aksesori['image'] ?>" alt="<?= htmlspecialchars($aksesori['name']) ?>" onerror="this.src='https://via.placeholder.com/400?text=No+Image'">
-                        </div>
-                        <div class="footer-card-aksesori">
-                            <span class="badge-category"><?= htmlspecialchars($aksesori['label']) ?></span>
-                            <h3 class="nama-aksesori"><?= htmlspecialchars($aksesori['name']) ?></h3>
-                            <p class="deskripsi-aksesori"><?= htmlspecialchars(mb_strimwidth($aksesori['description'], 0, 100, "...")) ?></p>
-                            <div class="harga-container">
-                                <span class="harga-aksesori">Mulai Rp<?= number_format($aksesori['price'], 0, ',', '.') ?></span>
-                                <button class="btn-beli" onclick="location.href='checkout/checkout.php?id=<?= $aksesori['id'] ?>&type=<?= $aksesori['tipe'] ?>'">
-                                    <i class="bi bi-cart-plus"></i> Beli Sekarang
-                                </button>
+                        <!-- Card Dynamic -->
+                        <div class="content-aksesori">
+                            <div class="header-card-aksesori">
+                                <img src="<?= $aksesori['image'] ?>" alt="<?= htmlspecialchars($aksesori['name']) ?>" onerror="this.src='https://via.placeholder.com/400?text=No+Image'">
+                            </div>
+                            <div class="footer-card-aksesori">
+                                <span class="badge-category"><?= htmlspecialchars($aksesori['label']) ?></span>
+                                <h3 class="nama-aksesori"><?= htmlspecialchars($aksesori['name']) ?></h3>
+                                <p class="deskripsi-aksesori"><?= htmlspecialchars(mb_strimwidth($aksesori['description'], 0, 100, "...")) ?></p>
+                                <div class="harga-container">
+                                    <span class="harga-aksesori">Mulai Rp<?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                    <button class="btn-beli" onclick="location.href='checkout/checkout.php?id=<?= $aksesori['id'] ?>&type=<?= $aksesori['tipe'] ?>'">
+                                        <i class="bi bi-cart-plus"></i> Beli Sekarang
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
 
@@ -7425,13 +7373,6 @@ require '../db/db.php';
 
     <div class="kelas-layanan-container">
         <style>
-            * {
-                padding: 0;
-                margin: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f7f7f7;
             }
@@ -8207,13 +8148,6 @@ require '../db/db.php';
 
     <div class="layanan-lengkap-untuk-anda-container">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f8f9fa;
                 color: #333;
@@ -8632,13 +8566,6 @@ require '../db/db.php';
 
     <div class="container-about-apple-care">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', system-ui, sans-serif;
-            }
-
             body {
                 background: #f8f9fa;
                 color: #1d1d1f;
@@ -9179,14 +9106,71 @@ require '../db/db.php';
     </div>
 
     <div class="container-checkout">
+        <?php
+        // Query untuk mengambil data checkout dari database
+        $checkout_query = "SELECT 
+            hc.*,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN iphone.nama_produk
+                WHEN hc.tipe_produk = 'ipad' THEN ipad.nama_produk
+                WHEN hc.tipe_produk = 'mac' THEN mac.nama_produk
+                WHEN hc.tipe_produk = 'music' THEN music.nama_produk
+                WHEN hc.tipe_produk = 'watch' THEN watch.nama_produk
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris.nama_produk
+                WHEN hc.tipe_produk = 'airtag' THEN airtag.nama_produk
+            END as nama_produk,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN iphone_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'ipad' THEN ipad_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'mac' THEN mac_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'music' THEN music_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'watch' THEN watch_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris_gambar.foto_thumbnail
+                WHEN hc.tipe_produk = 'airtag' THEN airtag_gambar.foto_thumbnail
+            END as foto_thumbnail,
+            CASE 
+                WHEN hc.deskripsi_produk IS NOT NULL AND hc.deskripsi_produk != '' THEN hc.deskripsi_produk
+                WHEN hc.tipe_produk = 'iphone' THEN iphone.deskripsi_produk
+                WHEN hc.tipe_produk = 'ipad' THEN ipad.deskripsi_produk
+                WHEN hc.tipe_produk = 'mac' THEN mac.deskripsi_produk
+                WHEN hc.tipe_produk = 'music' THEN music.deskripsi_produk
+                WHEN hc.tipe_produk = 'watch' THEN watch.deskripsi_produk
+                WHEN hc.tipe_produk = 'aksesoris' THEN aksesoris.deskripsi_produk
+                WHEN hc.tipe_produk = 'airtag' THEN airtag.deskripsi_produk
+            END as deskripsi_produk,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN (SELECT MIN(harga) FROM admin_produk_iphone_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'ipad' THEN (SELECT MIN(harga) FROM admin_produk_ipad_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'mac' THEN (SELECT MIN(harga) FROM admin_produk_mac_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'music' THEN (SELECT MIN(harga) FROM admin_produk_music_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'watch' THEN (SELECT MIN(harga) FROM admin_produk_watch_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'aksesoris' THEN (SELECT MIN(harga) FROM admin_produk_aksesoris_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'airtag' THEN (SELECT MIN(harga) FROM admin_produk_airtag_kombinasi WHERE produk_id = hc.produk_id)
+            END as harga_terendah
+          FROM home_checkout hc
+          LEFT JOIN admin_produk_iphone iphone ON hc.tipe_produk = 'iphone' AND hc.produk_id = iphone.id
+          LEFT JOIN admin_produk_ipad ipad ON hc.tipe_produk = 'ipad' AND hc.produk_id = ipad.id
+          LEFT JOIN admin_produk_mac mac ON hc.tipe_produk = 'mac' AND hc.produk_id = mac.id
+          LEFT JOIN admin_produk_music music ON hc.tipe_produk = 'music' AND hc.produk_id = music.id
+          LEFT JOIN admin_produk_watch watch ON hc.tipe_produk = 'watch' AND hc.produk_id = watch.id
+          LEFT JOIN admin_produk_aksesoris aksesoris ON hc.tipe_produk = 'aksesoris' AND hc.produk_id = aksesoris.id
+          LEFT JOIN admin_produk_airtag airtag ON hc.tipe_produk = 'airtag' AND hc.produk_id = airtag.id
+          LEFT JOIN admin_produk_iphone_gambar iphone_gambar ON hc.tipe_produk = 'iphone' AND hc.produk_id = iphone_gambar.produk_id
+          LEFT JOIN admin_produk_ipad_gambar ipad_gambar ON hc.tipe_produk = 'ipad' AND hc.produk_id = ipad_gambar.produk_id
+          LEFT JOIN admin_produk_mac_gambar mac_gambar ON hc.tipe_produk = 'mac' AND hc.produk_id = mac_gambar.produk_id
+          LEFT JOIN admin_produk_music_gambar music_gambar ON hc.tipe_produk = 'music' AND hc.produk_id = music_gambar.produk_id
+          LEFT JOIN admin_produk_watch_gambar watch_gambar ON hc.tipe_produk = 'watch' AND hc.produk_id = watch_gambar.produk_id
+          LEFT JOIN admin_produk_aksesoris_gambar aksesoris_gambar ON hc.tipe_produk = 'aksesoris' AND hc.produk_id = aksesoris_gambar.produk_id
+          LEFT JOIN admin_produk_airtag_gambar airtag_gambar ON hc.tipe_produk = 'airtag' AND hc.produk_id = airtag_gambar.produk_id
+          GROUP BY hc.id
+          ORDER BY hc.urutan ASC, hc.created_at DESC";
+        $checkout_result = mysqli_query($db, $checkout_query);
+        $checkout_items = [];
+        while ($row = mysqli_fetch_assoc($checkout_result)) {
+            $checkout_items[] = $row;
+        }
+        ?>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-                font-family: 'Poppins', sans-serif;
-            }
-
             body {
                 background-color: #f8f9fa;
                 color: #1d1d1f;
@@ -9874,77 +9858,51 @@ require '../db/db.php';
 
             <!-- SLIDER TRACK -->
             <div class="checkout-slider-track" id="checkoutSliderTrack">
-                <!-- Card 1 -->
-                <div class="content-checkout">
-                    <div class="header-card-checkout">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-mac.png" alt="MacBook Pro M3">
-                    </div>
-                    <div class="footer-card-checkout">
-                        <span class="badge-checkout stock">Ready Stock</span>
-                        <h3 class="nama-checkout">MacBook Pro 14" M3</h3>
-                        <p class="deskripsi-checkout">Laptop premium dengan chip M3, layar Liquid Retina XDR, dan baterai tahan lama hingga 18 jam. Cocok untuk profesional kreatif.</p>
-                        <div class="harga-container-checkout">
-                            <span class="harga-checkout">Rp 24.999.000</span>
-                            <button class="btn-checkout">
-                                <i class="bi bi-bag-check"></i> Checkout
-                            </button>
+                <?php if (!empty($checkout_items)): ?>
+                    <?php foreach ($checkout_items as $item):
+                        $thumbnail_path = !empty($item['foto_thumbnail']) ? '../admin/uploads/' . htmlspecialchars($item['foto_thumbnail']) : 'https://via.placeholder.com/300x300?text=No+Image';
+                        $nama_produk = htmlspecialchars($item['nama_produk'] ?? 'Produk Tidak Ditemukan');
+                        // Gunakan deskripsi_produk dari home_checkout jika ada, jika tidak gunakan dari produk
+                        $deskripsi_full = $item['deskripsi_produk'] ?? '';
+                        $deskripsi = htmlspecialchars(substr($deskripsi_full, 0, 120));
+                        if (strlen($deskripsi_full) > 120) {
+                            $deskripsi .= '...';
+                        }
+                        $harga = $item['harga_terendah'] ? 'Rp ' . number_format($item['harga_terendah'], 0, ',', '.') : 'Harga tidak tersedia';
+                        $label = htmlspecialchars($item['label'] ?? '');
+                        $label_class = '';
+                        if (stripos($label, 'stock') !== false || stripos($label, 'ready') !== false) {
+                            $label_class = 'stock';
+                        } elseif (stripos($label, 'bestseller') !== false || stripos($label, 'best') !== false) {
+                            $label_class = 'bestseller';
+                        } elseif (stripos($label, 'new') !== false || stripos($label, 'baru') !== false) {
+                            $label_class = 'new';
+                        }
+                    ?>
+                        <div class="content-checkout">
+                            <div class="header-card-checkout">
+                                <img src="<?php echo $thumbnail_path; ?>" alt="<?php echo $nama_produk; ?>">
+                            </div>
+                            <div class="footer-card-checkout">
+                                <?php if ($label): ?>
+                                    <span class="badge-checkout <?php echo $label_class; ?>"><?php echo $label; ?></span>
+                                <?php endif; ?>
+                                <h3 class="nama-checkout"><?php echo $nama_produk; ?></h3>
+                                <p class="deskripsi-checkout"><?php echo $deskripsi; ?></p>
+                                <div class="harga-container-checkout">
+                                    <span class="harga-checkout"><?php echo $harga; ?></span>
+                                    <button class="btn-checkout" onclick="location.href='checkout/checkout.php?id=<?php echo $item['produk_id']; ?>&type=<?php echo $item['tipe_produk']; ?>'">
+                                        <i class="bi bi-bag-check"></i> Checkout
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div style="text-align: center; padding: 40px; color: #999; width: 100%;">
+                        <p>Belum ada produk checkout yang tersedia.</p>
                     </div>
-                </div>
-
-                <!-- Card 2 -->
-                <div class="content-checkout">
-                    <div class="header-card-checkout">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-ipad.png" alt="iPad Pro M2">
-                    </div>
-                    <div class="footer-card-checkout">
-                        <span class="badge-checkout bestseller">Best Seller</span>
-                        <h3 class="nama-checkout">iPad Pro 12.9" M2</h3>
-                        <p class="deskripsi-checkout">Tablet paling canggih dengan chip M2, layar Liquid Retina XDR, dan dukungan Apple Pencil (2nd gen).</p>
-                        <div class="harga-container-checkout">
-                            <span class="harga-checkout">Rp 19.499.000</span>
-                            <button class="btn-checkout">
-                                <i class="bi bi-bag-check"></i> Checkout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="content-checkout">
-                    <div class="header-card-checkout">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/aksesori-unggulan/aksesori-watch.png" alt="Apple Watch Ultra 2">
-                    </div>
-                    <div class="footer-card-checkout">
-                        <span class="badge-checkout">Limited Edition</span>
-                        <h3 class="nama-checkout">Apple Watch Ultra 2</h3>
-                        <p class="deskripsi-checkout">Smartwatch tahan banting dengan fitur diving, GPS presisi tinggi, dan baterai hingga 36 jam. Untuk petualang sejati.</p>
-                        <div class="harga-container-checkout">
-                            <span class="harga-checkout">Rp 12.999.000</span>
-                            <button class="btn-checkout">
-                                <i class="bi bi-bag-check"></i> Checkout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card 4 -->
-                <div class="content-checkout">
-                    <div class="header-card-checkout">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/IMG-17900036_m_jpeg_1.webp" alt="iPhone 15 Pro">
-                    </div>
-                    <div class="footer-card-checkout">
-                        <span class="badge-checkout new">New Arrival</span>
-                        <h3 class="nama-checkout">iPhone 15 Pro Max</h3>
-                        <p class="deskripsi-checkout">Smartphone flagship dengan titanium aerospace, chip A17 Pro, dan kamera 48MP. Warna Natural Titanium.</p>
-                        <div class="harga-container-checkout">
-                            <span class="harga-checkout">Rp 21.999.000</span>
-                            <button class="btn-checkout">
-                                <i class="bi bi-bag-check"></i> Checkout
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
         </div>
 
@@ -10171,65 +10129,12 @@ require '../db/db.php';
                 if (images.length === 0) {
                     setTimeout(equalizeCheckoutCardHeights, 100);
                 }
-
-                // Tambahkan efek klik untuk tombol checkout
-                document.querySelectorAll('.btn-checkout').forEach(btn => {
-                    btn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        this.style.transform = 'scale(0.95)';
-                        this.style.transition = 'transform 0.2s ease';
-
-                        setTimeout(() => {
-                            this.style.transform = '';
-
-                            const productName = this.closest('.content-checkout').querySelector('.nama-checkout').textContent;
-                            const harga = this.closest('.content-checkout').querySelector('.harga-checkout').textContent;
-                            const badge = this.closest('.content-checkout').querySelector('.badge-checkout').textContent;
-
-                            // Simulasi proses checkout dengan tema iBox
-                            const modalHTML = `
-                            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;">
-                                <div style="background:white;border-radius:16px;padding:30px;max-width:400px;width:90%;box-shadow:0 10px 30px rgba(0,0,0,0.15);">
-                                    <div style="text-align:center;margin-bottom:20px;">
-                                        <div style="width:60px;height:60px;background:linear-gradient(135deg, #007aff, #0056d6);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 15px;">
-                                            <i class="bi bi-bag-check" style="color:white;font-size:24px;"></i>
-                                        </div>
-                                        <h3 style="color:#1d1d1f;margin-bottom:10px;">Checkout Berhasil!</h3>
-                                        <p style="color:#86868b;font-size:14px;">Produk telah ditambahkan ke keranjang belanja</p>
-                                    </div>
-                                    <div style="background:#f8f9fa;border-radius:12px;padding:15px;margin-bottom:20px;">
-                                        <p style="font-weight:600;color:#1d1d1f;margin-bottom:5px;">${productName}</p>
-                                        <p style="color:#007aff;font-weight:700;margin-bottom:5px;">${harga}</p>
-                                        <span style="display:inline-block;background:rgba(0,122,255,0.1);color:#007aff;padding:4px 10px;border-radius:12px;font-size:12px;">${badge}</span>
-                                    </div>
-                                    <div style="display:flex;gap:10px;">
-                                        <button onclick="this.closest('div[style*=\"position:fixed\"]').remove()" style="flex:1;padding:12px;background:#f5f5f7;border:none;border-radius:12px;color:#1d1d1f;font-weight:600;cursor:pointer;">Lanjut Belanja</button>
-                                        <button onclick="alert('Proses pembayaran akan dilakukan...');this.closest('div[style*=\"position:fixed\"]').remove()" style="flex:1;padding:12px;background:linear-gradient(135deg, #007aff, #0056d6);border:none;border-radius:12px;color:white;font-weight:600;cursor:pointer;">Bayar Sekarang</button>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-
-                            const modal = document.createElement('div');
-                            modal.innerHTML = modalHTML;
-                            document.body.appendChild(modal.firstElementChild);
-                        }, 200);
-                    });
-                });
             });
         </script>
     </div>
 
     <footer class="ibox-footer">
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                 background-color: #f9f9f9;
