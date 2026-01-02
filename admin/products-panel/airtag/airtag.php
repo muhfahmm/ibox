@@ -44,7 +44,7 @@ foreach ($tables as $key => $table_name) {
     $count_query = "SELECT COUNT(*) as total, MIN(id) as first_id FROM $table_name";
     $count_result = mysqli_query($db, $count_query);
     $data = mysqli_fetch_assoc($count_result);
-    
+
     $category_data[$key] = [
         'count' => $data['total'],
         'first_id' => $data['first_id']
@@ -69,6 +69,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
 
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -398,7 +399,9 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             gap: 8px;
         }
 
-        .btn-edit, .btn-delete, .btn-view {
+        .btn-edit,
+        .btn-delete,
+        .btn-view {
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 13px;
@@ -491,11 +494,11 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
             .action-buttons {
                 flex-direction: column;
             }
-            
+
             .product-info {
                 flex-direction: column;
             }
-            
+
             .product-stats {
                 flex-direction: column;
                 gap: 5px;
@@ -503,6 +506,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
         }
     </style>
 </head>
+
 <body>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -687,7 +691,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                 </div>
                 <div class="card-body">
                     <div class="table-container">
-                        <?php if(mysqli_num_rows($result) > 0): ?>
+                        <?php if (mysqli_num_rows($result) > 0): ?>
                             <table>
                                 <thead>
                                     <tr>
@@ -700,106 +704,106 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                     </tr>
                                 </thead>
                                 <tbody>
-    <?php 
-    $no = 1; // Tambahkan counter di sini, sebelum loop dimulai
-    while($product = mysqli_fetch_assoc($result)): 
-        // Ambil thumbnail pertama untuk produk
-        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
-        $result_thumbnail = mysqli_query($db, $query_thumbnail);
-        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
-        
-        // Ambil semua warna untuk produk ini
-        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
-        $result_warna = mysqli_query($db, $query_warna);
-        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
-        
-        // Check if product has stock
-        $has_stock = $product['total_stok'] > 0;
-    ?>
-    <tr>
-        <!-- Ubah dari menampilkan ID menjadi nomor urut -->
-        <td><strong><?php echo $no++; ?></strong></td>
-        <td>
-            <div class="product-info">
-                <?php if(!empty($thumbnail['foto_thumbnail'])): ?>
-                    <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>" 
-                         alt="Thumbnail" class="thumbnail-img">
-                <?php else: ?>
-                    <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
-                        <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
-                    </div>
-                <?php endif; ?>
-                <div class="product-details">
-                    <div class="product-title">
-                        <?php echo htmlspecialchars($product['nama_produk']); ?>
-                    </div>
-                    <div class="product-desc">
-                        <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
-                    </div>
-                    <div class="product-stats">
-                        <span class="stat-badge">
-                            <i class="fas fa-palette"></i>
-                            <?php echo $product['total_warna']; ?> Warna
-                        </span>
-                        <span class="stat-badge">
-                            <i class="fas fa-layer-group"></i>
-                            <?php echo $product['total_kombinasi']; ?> Kombinasi
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </td>
-        <td>
-            <div class="product-stats">
-                <span class="stat-badge">
-                    <i class="fas fa-boxes"></i>
-                    <?php echo $product['total_kombinasi']; ?> Kombinasi
-                </span>
-                <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
-                    <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
-                </span>
-            </div>
-        </td>
-        <td>
-            <?php if($product['harga_terendah']): ?>
-                <div class="price-range">
-                    Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
-                    <?php if($product['harga_tertinggi'] > $product['harga_terendah']): ?>
-                        - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
-                    <?php endif; ?>
-                </div>
-                <small class="text-muted">
-                    Mulai dari
-                </small>
-            <?php else: ?>
-                <span class="text-muted">Belum ada harga</span>
-            <?php endif; ?>
-        </td>
-        <td>
-            <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
-                <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
-            </div>
-            <small class="text-muted">
-                Stok total semua kombinasi
-            </small>
-        </td>
-        <td>
-            <div class="action-buttons">
-                <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
-                    <i class="fas fa-eye"></i> Lihat
-                </a>
-                <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
-                    <i class="fas fa-edit"></i> Edit
-                </a>
-                <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete" 
-                   onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
-                    <i class="fas fa-trash"></i> Hapus
-                </a>
-            </div>
-        </td>
-    </tr>
-    <?php endwhile; ?>
-</tbody>
+                                    <?php
+                                    $no = 1; // Tambahkan counter di sini, sebelum loop dimulai
+                                    while ($product = mysqli_fetch_assoc($result)):
+                                        // Ambil thumbnail pertama untuk produk
+                                        $query_thumbnail = "SELECT foto_thumbnail FROM admin_produk_airtag_gambar WHERE produk_id = '{$product['id']}' LIMIT 1";
+                                        $result_thumbnail = mysqli_query($db, $query_thumbnail);
+                                        $thumbnail = mysqli_fetch_assoc($result_thumbnail);
+
+                                        // Ambil semua warna untuk produk ini
+                                        $query_warna = "SELECT DISTINCT warna FROM admin_produk_airtag_kombinasi WHERE produk_id = '{$product['id']}'";
+                                        $result_warna = mysqli_query($db, $query_warna);
+                                        $warna_list = mysqli_fetch_all($result_warna, MYSQLI_ASSOC);
+
+                                        // Check if product has stock
+                                        $has_stock = $product['total_stok'] > 0;
+                                    ?>
+                                        <tr>
+                                            <!-- Ubah dari menampilkan ID menjadi nomor urut -->
+                                            <td><strong><?php echo $no++; ?></strong></td>
+                                            <td>
+                                                <div class="product-info">
+                                                    <?php if (!empty($thumbnail['foto_thumbnail'])): ?>
+                                                        <img src="../../uploads/<?php echo htmlspecialchars($thumbnail['foto_thumbnail']); ?>"
+                                                            alt="Thumbnail" class="thumbnail-img">
+                                                    <?php else: ?>
+                                                        <div class="thumbnail-img" style="background: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-image" style="color: #ccc; font-size: 24px;"></i>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="product-details">
+                                                        <div class="product-title">
+                                                            <?php echo htmlspecialchars($product['nama_produk']); ?>
+                                                        </div>
+                                                        <div class="product-desc">
+                                                            <?php echo htmlspecialchars(substr($product['deskripsi_produk'] ?? '', 0, 100)) . '...'; ?>
+                                                        </div>
+                                                        <div class="product-stats">
+                                                            <span class="stat-badge">
+                                                                <i class="fas fa-palette"></i>
+                                                                <?php echo $product['total_warna']; ?> Warna
+                                                            </span>
+                                                            <span class="stat-badge">
+                                                                <i class="fas fa-layer-group"></i>
+                                                                <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="product-stats">
+                                                    <span class="stat-badge">
+                                                        <i class="fas fa-boxes"></i>
+                                                        <?php echo $product['total_kombinasi']; ?> Kombinasi
+                                                    </span>
+                                                    <span class="status-badge status-<?php echo $has_stock ? 'tersedia' : 'habis'; ?>">
+                                                        <?php echo $has_stock ? 'Tersedia' : 'Habis'; ?>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <?php if ($product['harga_terendah']): ?>
+                                                    <div class="price-range">
+                                                        Rp <?php echo number_format($product['harga_terendah'], 0, ',', '.'); ?>
+                                                        <?php if ($product['harga_tertinggi'] > $product['harga_terendah']): ?>
+                                                            - Rp <?php echo number_format($product['harga_tertinggi'], 0, ',', '.'); ?>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        Mulai dari
+                                                    </small>
+                                                <?php else: ?>
+                                                    <span class="text-muted">Belum ada harga</span>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td>
+                                                <div class="fw-bold <?php echo $has_stock ? 'text-success' : 'text-danger'; ?>">
+                                                    <?php echo number_format($product['total_stok'], 0, ',', '.'); ?> unit
+                                                </div>
+                                                <small class="text-muted">
+                                                    Stok total semua kombinasi
+                                                </small>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="view-airtag.php?id=<?php echo $product['id']; ?>" class="btn-view">
+                                                        <i class="fas fa-eye"></i> Lihat
+                                                    </a>
+                                                    <a href="edit-airtag.php?id=<?php echo $product['id']; ?>" class="btn-edit">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="delete-airtag.php?id=<?php echo $product['id']; ?>" class="btn-delete"
+                                                        onclick="return confirm('Yakin ingin menghapus produk ini? Semua kombinasi dan gambar akan terhapus.')">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
                             </table>
                         <?php else: ?>
                             <div class="no-data">
@@ -829,4 +833,5 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
         }, 30 * 60 * 1000);
     </script>
 </body>
+
 </html>
