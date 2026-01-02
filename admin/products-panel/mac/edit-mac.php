@@ -73,12 +73,35 @@ foreach ($combinations as $combination) {
     }
 }
 
+// Group combinations by RAM
+$ram_data = [];
+$processor_data = [];
+foreach ($combinations as $combination) {
+    $ram = $combination['ram'];
+    if (!isset($ram_data[$ram])) {
+        $ram_data[$ram] = [
+            'size' => $ram,
+            'harga' => 0, // Default 0
+            'harga_diskon' => 0
+        ];
+    }
+    
+    $proc = $combination['processor'];
+    if (!isset($processor_data[$proc])) {
+        $processor_data[$proc] = [
+            'name' => $proc,
+            'harga' => 0, // Default 0
+            'harga_diskon' => 0
+        ];
+    }
+}
+
 // Prepare initial data for JavaScript
 $initialData = [
     'colors' => [],
-    'processors' => $unique_processors,
+    'processors' => array_values($processor_data),
     'storages' => array_values($storage_data),
-    'rams' => $unique_rams,
+    'rams' => array_values($ram_data),
     'stocks' => []
 ];
 
@@ -794,8 +817,23 @@ foreach($combinations as $c) {
             newProcessor.className = 'processor-option';
             newProcessor.dataset.processorIndex = newIndex;
             newProcessor.innerHTML = `
-                <input type="text" class="form-control" name="processor[${newIndex}]" 
-                       placeholder="Processor (Contoh: Apple M3)" required value="${data ? data : ''}" onchange="generateCombinations()">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label">Processor</label>
+                        <input type="text" class="form-control processor-value" name="processor[${newIndex}][name]" 
+                               placeholder="Contoh: M3 Pro" required value="${data ? data.name : ''}" onchange="generateCombinations()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga (Rp)</label>
+                        <input type="number" class="form-control" name="processor[${newIndex}][harga]" 
+                               placeholder="0" required value="${data ? data.harga : 0}" onchange="generateCombinations()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga Diskon (Opsional)</label>
+                        <input type="number" class="form-control" name="processor[${newIndex}][harga_diskon]" 
+                               placeholder="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                    </div>
+                </div>
                 <button type="button" class="btn-danger-sm" onclick="removeProcessor(${newIndex})">
                     ×
                 </button>
@@ -879,9 +917,25 @@ foreach($combinations as $c) {
             const newRam = document.createElement('div');
             newRam.className = 'ram-option';
             newRam.dataset.ramIndex = newIndex;
+            
             newRam.innerHTML = `
-                <input type="text" class="form-control" name="ram[${newIndex}]" 
-                       placeholder="RAM (Contoh: 16GB)" required value="${data ? data : ''}" onchange="generateCombinations()">
+                <div class="row align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label">RAM</label>
+                        <input type="text" class="form-control ram-value" name="ram[${newIndex}][size]" 
+                               placeholder="Contoh: 16GB" required value="${data ? data.size : ''}" onchange="generateCombinations()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga (Rp)</label>
+                        <input type="number" class="form-control" name="ram[${newIndex}][harga]" 
+                               placeholder="0" required value="${data ? data.harga : 0}" onchange="generateCombinations()">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Harga Diskon (Opsional)</label>
+                        <input type="number" class="form-control" name="ram[${newIndex}][harga_diskon]" 
+                               placeholder="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                    </div>
+                </div>
                 <button type="button" class="btn-danger-sm" onclick="removeRam(${newIndex})">
                     ×
                 </button>
@@ -906,161 +960,112 @@ foreach($combinations as $c) {
             }
         }
         
-        // Preview functions
-        function previewThumbnail(index, input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const previewNew = document.getElementById(`thumbnailNewPreview-${index}`);
-                    const imgNew = document.getElementById(`thumbnailNewImg-${index}`);
-                    if (previewNew && imgNew) {
-                        imgNew.src = e.target.result;
-                        previewNew.style.display = 'block';
-                    }
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-        
-        function previewProductImages(index, input) {
-            const container = document.getElementById(`productImagesPreview-${index}`);
-            
-            if (input.files) {
-                // Remove only previous newly added previews (with class 'new-preview')
-                const existingNew = container.querySelectorAll('.new-preview');
-                existingNew.forEach(el => el.remove());
-
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const div = document.createElement('div');
-                        div.className = 'preview-item new-preview';
-                        div.innerHTML = `<img src="${e.target.result}" alt="New Image">`;
-                        container.appendChild(div);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
-        
-        // Generate Combinations
+        // Generate Combinations Table
         function generateCombinations() {
-            const container = document.getElementById('combinationsContainer');
-            const totalContainer = document.getElementById('totalCombinations');
+            const colors = Array.from(document.querySelectorAll('input[name^="warna"][name$="[nama]"]')).map(i => i.value).filter(v => v);
             
-            // Collect data from DOM inputs
-            const colors = [];
-            document.querySelectorAll('.color-option input[name*="[nama]"]').forEach(input => {
-                if (input.value.trim()) colors.push(input.value.trim());
-            });
+            const processors = Array.from(document.querySelectorAll('.processor-option')).map(row => {
+                return {
+                    name: row.querySelector('input[name*="[name]"]')?.value || '',
+                    price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                };
+            }).filter(p => p.name);
+
+            const storages = Array.from(document.querySelectorAll('.storage-option')).map(row => {
+                return {
+                    size: row.querySelector('input[name*="[size]"]').value,
+                    price: Number(row.querySelector('input[name*="[harga]"]').value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]').value) || 0
+                };
+            }).filter(s => s.size);
             
-            const processors = [];
-            document.querySelectorAll('.processor-option input').forEach(input => {
-                const val = input.value.trim();
-                if (val) processors.push(val);
-            });
+            const rams = Array.from(document.querySelectorAll('.ram-option')).map(row => {
+                return {
+                    size: row.querySelector('input[name*="[size]"]').value,
+                    price: Number(row.querySelector('input[name*="[harga]"]').value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]').value) || 0
+                };
+            }).filter(r => r.size);
             
-            const storages = [];
-            document.querySelectorAll('.storage-option').forEach(option => {
-                const sizeInput = option.querySelector('input[name*="[size]"]');
-                const hargaInput = option.querySelector('input[name*="[harga]"]');
-                const diskonInput = option.querySelector('input[name*="[harga_diskon]"]');
-                
-                if (sizeInput && hargaInput && sizeInput.value.trim() && hargaInput.value) {
-                    storages.push({
-                        size: sizeInput.value.trim(),
-                        harga: hargaInput.value,
-                        harga_diskon: diskonInput ? diskonInput.value : ''
-                    });
-                }
-            });
+            const tbody = document.getElementById('combinationsContainer');
+            const totalInfo = document.getElementById('totalCombinations');
             
-            const rams = [];
-            document.querySelectorAll('.ram-option input').forEach(input => {
-                const val = input.value.trim();
-                if (val) rams.push(val);
-            });
+            if (colors.length === 0 || processors.length === 0 || storages.length === 0 || rams.length === 0) {
+                tbody.innerHTML = '<div class="text-center p-4 text-muted">Lengkapi data di atas untuk melihat kombinasi</div>';
+                totalInfo.textContent = 'Menunggu data lengkap...';
+                return;
+            }
+
+            const totalCount = colors.length * processors.length * storages.length * rams.length;
             
-            // Generate table
-            const totalCombinations = colors.length * processors.length * storages.length * rams.length;
-            totalContainer.innerHTML = 
-                `Total Kombinasi: <strong>${totalCombinations}</strong> (${colors.length} warna × ${processors.length} processor × ${storages.length} penyimpanan × ${rams.length} RAM)`;
+            let html = `
+                <table class="combination-table">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Warna</th>
+                            <th>Processor</th>
+                            <th>Penyimpanan</th>
+                            <th>RAM</th>
+                            <th>Harga</th>
+                            <th>Diskon</th>
+                            <th>Jumlah Stok</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
             
-            if (totalCombinations > 0) {
-                let tableHTML = `
-                    <table class="combination-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Warna</th>
-                                <th>Processor</th>
-                                <th>Penyimpanan</th>
-                                <th>RAM</th>
-                                <th>Harga</th>
-                                <th>Jumlah Stok</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
-                
-                let counter = 1;
-                colors.forEach((color, cIdx) => {
-                    processors.forEach((processor, pIdx) => {
-                        storages.forEach((storage, sIdx) => {
-                            rams.forEach((ram, rIdx) => {
-                                const uniqueId = `${cIdx}_${pIdx}_${sIdx}_${rIdx}`; // Just for DOM uniqueness
-                                
-                                // Try to find existing stock
-                                const stockKey = `${color}|${processor}|${storage.size}|${ram}`;
-                                const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
-                                
-                                tableHTML += `
-                                    <tr>
-                                        <td>${counter}</td>
-                                        <td>${color}</td>
-                                        <td>${processor}</td>
-                                        <td>${storage.size}</td>
-                                        <td>${ram}</td>
-                                        <td>
-                                            <div style="font-weight: bold; color: #28a745;">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
-                                            ${storage.harga_diskon ? `<small style="color: #dc3545; text-decoration: line-through;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
-                                            
-                                            <!-- Hidden Inputs for Combination Data -->
-                                            <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">
-                                            <input type="hidden" name="combinations[${uniqueId}][processor]" value="${processor}">
-                                            <input type="hidden" name="combinations[${uniqueId}][penyimpanan]" value="${storage.size}">
-                                            <input type="hidden" name="combinations[${uniqueId}][ram]" value="${ram}">
-                                            <input type="hidden" name="combinations[${uniqueId}][harga]" value="${storage.harga}">
-                                            <input type="hidden" name="combinations[${uniqueId}][harga_diskon]" value="${storage.harga_diskon || ''}">
-                                        </td>
-                                        <td>
-                                            <input type="number" class="form-control" style="width: 100px;" 
-                                                   name="combinations[${uniqueId}][jumlah_stok]" 
-                                                   value="${existingStock}" min="0" required>
-                                        </td>
-                                    </tr>
-                                `;
-                                counter++;
-                            });
+            let counter = 1;
+            
+            colors.forEach((color, cIdx) => {
+                processors.forEach((processor, pIdx) => {
+                    storages.forEach((storage, sIdx) => {
+                        rams.forEach((ram, rIdx) => {
+                            const uniqueId = `${cIdx}_${pIdx}_${sIdx}_${rIdx}`;
+                            
+                            const stockKey = `${color}|${processor.name}|${storage.size}|${ram.size}`;
+                            const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
+                            
+                            const totalPrice = storage.price + ram.price + processor.price;
+                            let totalDiscount = null;
+                            if (storage.discount > 0 || ram.discount > 0 || processor.discount > 0) {
+                                const sPrice = storage.discount > 0 ? storage.discount : storage.price;
+                                const rPrice = ram.discount > 0 ? ram.discount : ram.price;
+                                const pPrice = processor.discount > 0 ? processor.discount : processor.price;
+                                totalDiscount = sPrice + rPrice + pPrice;
+                            }
+                            
+                            html += `
+                                <tr>
+                                    <td>${counter}</td>
+                                    <td>${color}<input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}"></td>
+                                    <td>${processor.name}<input type="hidden" name="combinations[${uniqueId}][processor]" value="${processor.name}"></td>
+                                    <td>${storage.size}<input type="hidden" name="combinations[${uniqueId}][penyimpanan]" value="${storage.size}"></td>
+                                    <td>${ram.size}<input type="hidden" name="combinations[${uniqueId}][ram]" value="${ram.size}"></td>
+                                    <td><input type="number" name="combinations[${uniqueId}][harga]" value="${totalPrice}" required></td>
+                                    <td><input type="number" name="combinations[${uniqueId}][harga_diskon]" value="${totalDiscount || ''}" placeholder="Opsional"></td>
+                                    <td><input type="number" name="combinations[${uniqueId}][jumlah_stok]" value="${existingStock}" placeholder="0"></td>
+                                </tr>
+                            `;
+                            counter++;
                         });
                     });
                 });
-                
-                tableHTML += `</tbody></table>`;
-                container.innerHTML = tableHTML;
-            } else {
-                container.innerHTML = '<div class="text-center p-4 text-muted">Lengkapi data warna, processor, penyimpanan, dan RAM untuk melihat tabel kombinasi</div>';
-            }
+            });
+            
+            html += `</tbody></table>`;
+            tbody.innerHTML = html;
+            totalInfo.textContent = `Total Kombinasi: ${totalCount}`;
         }
         
         // Listen for input changes to update combinations
         document.addEventListener('input', function(e) {
-            if (e.target.matches('input[name*="[nama]"], input[name*="[size]"], input[name*="[harga]"], input[name*="processor"], input[name*="ram"]')) {
+            if (e.target.matches('input[name*="[nama]"], input[name*="[size]"], input[name*="[harga]"], input[name*="processor"]')) {
                if (!e.target.name.includes('jumlah_stok')) {
                    generateCombinations();
                }
             }
         });
-    </script>
 </body>
 </html>

@@ -440,7 +440,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Harga Tambahan (Rp)</label>
-                            <input type="number" class="form-control connectivity-price" name="tipe_koneksi_harga[]" value="0" placeholder="0" onkeyup="updateCombinations()">
+                            <input type="number" class="form-control connectivity-price" name="tipe_koneksi_harga[]" value="" placeholder="0" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -462,7 +462,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Harga Tambahan (Rp)</label>
-                            <input type="number" class="form-control material-price" name="material_harga[]" value="0" placeholder="0" onkeyup="updateCombinations()">
+                            <input type="number" class="form-control material-price" name="material_harga[]" value="" placeholder="0" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -517,7 +517,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                 <td>${s.size}<input type="hidden" name="combinations[${idx}][ukuran_case]" value="${s.size}"></td>
                                 <td>${conn}<input type="hidden" name="combinations[${idx}][tipe_koneksi]" value="${conn}"></td>
                                 <td>${material}<input type="hidden" name="combinations[${idx}][material]" value="${material}"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice}" required readonly></td>
+                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice || ''}" required readonly></td>
                                 <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
                                 <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0" required></td>
                                 <td><span class="badge bg-secondary">Draft</span></td>

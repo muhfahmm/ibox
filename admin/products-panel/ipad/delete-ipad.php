@@ -17,7 +17,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $product_id = escape($_GET['id']);
 
 // Ambil data gambar untuk dihapus filenya
-$query_images = "SELECT * FROM admin_gambar_produk WHERE produk_id = '$product_id' AND tipe_produk = 'ipad'";
+$query_images = "SELECT * FROM admin_produk_ipad_gambar WHERE produk_id = '$product_id'";
 $result_images = mysqli_query($db, $query_images);
 
 // Hapus file gambar dari server
@@ -38,8 +38,12 @@ while ($image = mysqli_fetch_assoc($result_images)) {
 }
 
 // Hapus data gambar dari database
-$delete_images = "DELETE FROM admin_gambar_produk WHERE produk_id = '$product_id' AND tipe_produk = 'ipad'";
+$delete_images = "DELETE FROM admin_produk_ipad_gambar WHERE produk_id = '$product_id'";
 mysqli_query($db, $delete_images);
+
+// Hapus data kombinasi
+$delete_combinations = "DELETE FROM admin_produk_ipad_kombinasi WHERE produk_id = '$product_id'";
+mysqli_query($db, $delete_combinations);
 
 // Hapus data produk
 $delete_product = "DELETE FROM admin_produk_ipad WHERE id = '$product_id'";

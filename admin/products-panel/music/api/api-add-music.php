@@ -27,6 +27,10 @@ function generateFileName($original_name) {
 $response = ['success' => false, 'message' => ''];
 
 try {
+    // Debug data
+    error_log("=== DEBUG MUSIC POST DATA ===");
+    error_log("POST: " . print_r($_POST, true));
+
     // Validasi data
     $required_fields = ['nama_produk', 'kategori'];
     foreach ($required_fields as $field) {
@@ -42,13 +46,23 @@ try {
 
     // Insert data produk utama
     $nama_produk = mysqli_real_escape_string($db, $_POST['nama_produk']);
-    $deskripsi_produk = mysqli_real_escape_string($db, $_POST['deskripsi_produk'] ?? '');
+    // Handle deskripsi produk - prevent '0' from being saved
+    $deskripsi_produk = trim($_POST['deskripsi_produk'] ?? '');
+    // If the value is '0' or empty, save as empty string instead of '0'
+    if ($deskripsi_produk === '0' || $deskripsi_produk === 0) {
+        $deskripsi_produk = '';
+    }
+    $deskripsi_produk = mysqli_real_escape_string($db, $deskripsi_produk);
     $kategori = mysqli_real_escape_string($db, $_POST['kategori']);
 
     $query = "INSERT INTO admin_produk_music (nama_produk, deskripsi_produk, kategori) 
               VALUES ('$nama_produk', '$deskripsi_produk', '$kategori')";
     
+    // Log the query to verify values
+    error_log("QUERY INSERT MUSIC: $query");
+    
     if (!mysqli_query($db, $query)) {
+        error_log("SQL Error Music: " . mysqli_error($db));
         throw new Exception("Gagal menyimpan data produk: " . mysqli_error($db));
     }
 
@@ -147,7 +161,8 @@ try {
     $konektivitas_list = [];
     
     foreach ($konektivitas_data as $kon) {
-        $kon_clean = mysqli_real_escape_string($db, $kon);
+        $kon_val = is_array($kon) ? ($kon['nama'] ?? '') : $kon;
+        $kon_clean = mysqli_real_escape_string($db, $kon_val);
         if (!empty($kon_clean)) {
             $konektivitas_list[] = $kon_clean;
         }

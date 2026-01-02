@@ -404,8 +404,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="option-card processor-option position-relative">
                     <button type="button" class="btn-remove" onclick="removeOption(this, 'processor')"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
-                        <div class="col-md-11">
-                            <input type="text" class="form-control processor-value" name="processor[]" placeholder="Contoh: Apple M3 Pro (11-core)" required onkeyup="updateCombinations()">
+                        <div class="col-md-3">
+                            <label class="form-label">Processor</label>
+                            <input type="text" class="form-control processor-value" name="processor[${processorIndex}][name]" placeholder="Contoh: M3 Pro" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga (Rp)</label>
+                            <input type="number" class="form-control processor-price" name="processor[${processorIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga Diskon (Opsional)</label>
+                            <input type="number" class="form-control processor-discount" name="processor[${processorIndex}][harga_diskon]" placeholder="0">
                         </div>
                     </div>
                 </div>`;
@@ -447,8 +456,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="option-card ram-option position-relative">
                     <button type="button" class="btn-remove" onclick="removeOption(this, 'ram')"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
-                        <div class="col-md-11">
-                            <input type="text" class="form-control ram-value" name="ram[]" placeholder="Contoh: 16GB" required onkeyup="updateCombinations()">
+                        <div class="col-md-3">
+                            <label class="form-label">RAM</label>
+                            <input type="text" class="form-control ram-value" name="ram[${ramIndex}][size]" placeholder="Contoh: 16GB" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga (Rp)</label>
+                            <input type="number" class="form-control ram-price" name="ram[${ramIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga Diskon (Opsional)</label>
+                            <input type="number" class="form-control ram-discount" name="ram[${ramIndex}][harga_diskon]" placeholder="0">
                         </div>
                     </div>
                 </div>`;
@@ -464,16 +482,30 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
         function generateCombinations() {
             const colors = Array.from(document.querySelectorAll('.color-name')).map(i => i.value).filter(v => v);
-            const processors = Array.from(document.querySelectorAll('.processor-value')).map(i => i.value).filter(v => v);
+            
+            const processors = Array.from(document.querySelectorAll('.processor-option')).map(row => {
+                return {
+                    name: row.querySelector('input[name*="[name]"]')?.value || '',
+                    price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                };
+            }).filter(p => p.name);
+
             const storages = Array.from(document.querySelectorAll('.storage-option')).map(row => {
                 return {
-                    size: row.querySelector('input[name*="[size]"]').value,
-                    price: row.querySelector('input[name*="[harga]"]').value,
-                    discount: row.querySelector('input[name*="[harga_diskon]"]').value
+                    size: row.querySelector('input[name*="[size]"]')?.value || '',
+                    price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
                 };
             }).filter(s => s.size);
             
-            const rams = Array.from(document.querySelectorAll('.ram-value')).map(i => i.value).filter(v => v);
+            const rams = Array.from(document.querySelectorAll('.ram-option')).map(row => {
+                return {
+                    size: row.querySelector('input[name*="[size]"]')?.value || '',
+                    price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                };
+            }).filter(r => r.size);
 
             const tbody = document.getElementById('combinations-body');
             tbody.innerHTML = '';
@@ -488,14 +520,24 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 processors.forEach(processor => {
                     storages.forEach(storage => {
                         rams.forEach(ram => {
+                            const totalPrice = storage.price + ram.price + processor.price;
+                            
+                            let totalDiscount = null;
+                            if (storage.discount > 0 || ram.discount > 0 || processor.discount > 0) {
+                                const sPrice = storage.discount > 0 ? storage.discount : storage.price;
+                                const rPrice = ram.discount > 0 ? ram.discount : ram.price;
+                                const pPrice = processor.discount > 0 ? processor.discount : processor.price;
+                                totalDiscount = sPrice + rPrice + pPrice;
+                            }
+
                             const tr = document.createElement('tr');
                             tr.innerHTML = `
                                 <td>${color}<input type="hidden" name="combinations[${idx}][warna]" value="${color}"></td>
-                                <td>${processor}<input type="hidden" name="combinations[${idx}][processor]" value="${processor}"></td>
+                                <td>${processor.name}<input type="hidden" name="combinations[${idx}][processor]" value="${processor.name}"></td>
                                 <td>${storage.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${storage.size}"></td>
-                                <td>${ram}<input type="hidden" name="combinations[${idx}][ram]" value="${ram}"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${storage.price}" required></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${storage.discount}"></td>
+                                <td>${ram.size}<input type="hidden" name="combinations[${idx}][ram]" value="${ram.size}"></td>
+                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice}" required></td>
+                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}"></td>
                                 <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             `;
                             tbody.appendChild(tr);

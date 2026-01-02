@@ -407,8 +407,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="option-card konektivitas-option position-relative">
                     <button type="button" class="btn-remove" onclick="removeOption(this, 'konektivitas')"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
-                        <div class="col-md-11">
-                            <input type="text" class="form-control konektivitas-value" name="konektivitas[]" placeholder="Contoh: Bluetooth, Lightning, USB-C" required onkeyup="updateCombinations()">
+                        <div class="col-md-3">
+                            <label class="form-label">Tipe Konektivitas</label>
+                            <input type="text" class="form-control konektivitas-value" name="konektivitas[${konektivitasIndex}][nama]" placeholder="Contoh: Bluetooth" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga (Rp)</label>
+                            <input type="number" class="form-control konektivitas-price" name="konektivitas[${konektivitasIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Harga Diskon (Opsional)</label>
+                            <input type="number" class="form-control konektivitas-discount" name="konektivitas[${konektivitasIndex}][harga_diskon]" placeholder="0">
                         </div>
                     </div>
                 </div>`;
@@ -425,7 +434,14 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
         function generateCombinations() {
             const colors = Array.from(document.querySelectorAll('.color-name')).map(i => i.value).filter(v => v);
             const tipes = Array.from(document.querySelectorAll('.tipe-value')).map(i => i.value).filter(v => v);
-            const konektivitases = Array.from(document.querySelectorAll('.konektivitas-value')).map(i => i.value).filter(v => v);
+            
+            const konektivitases = Array.from(document.querySelectorAll('.konektivitas-option')).map(row => {
+                return {
+                    name: row.querySelector('input[name*="[nama]"]')?.value || '',
+                    price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
+                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                };
+            }).filter(k => k.name);
 
             const tbody = document.getElementById('combinations-body');
             tbody.innerHTML = '';
@@ -439,13 +455,16 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             colors.forEach(color => {
                 tipes.forEach(tipe => {
                     konektivitases.forEach(konektivitas => {
+                        const totalPrice = konektivitas.price;
+                        const totalDiscount = konektivitas.discount > 0 ? konektivitas.discount : null;
+
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${color}<input type="hidden" name="combinations[${idx}][warna]" value="${color}"></td>
                             <td>${tipe}<input type="hidden" name="combinations[${idx}][tipe]" value="${tipe}"></td>
-                            <td>${konektivitas}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${konektivitas}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="0" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value=""></td>
+                            <td>${konektivitas.name}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${konektivitas.name}"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice || ''}" required placeholder="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}" placeholder="0"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                         `;
                         tbody.appendChild(tr);

@@ -45,6 +45,10 @@ while ($image = mysqli_fetch_assoc($result_images)) {
     }
 }
 
+// Hapus data kombinasi
+$delete_combinations = "DELETE FROM admin_produk_mac_kombinasi WHERE produk_id = '$product_id'";
+mysqli_query($db, $delete_combinations);
+
 // Hapus data produk (Cascade akan menghapus data di tabel kombinasi dan gambar)
 $delete_product = "DELETE FROM admin_produk_mac WHERE id = '$product_id'";
 

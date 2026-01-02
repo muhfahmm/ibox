@@ -143,7 +143,8 @@ try {
     $processor_list = [];
     
     foreach ($processor_data as $proc) {
-        $proc_clean = mysqli_real_escape_string($db, $proc);
+        $proc_val = is_array($proc) ? ($proc['name'] ?? '') : $proc;
+        $proc_clean = mysqli_real_escape_string($db, $proc_val);
         if (!empty($proc_clean)) {
             $processor_list[] = $proc_clean;
         }
@@ -172,7 +173,10 @@ try {
     $ram_list = [];
     
     foreach ($ram_data as $ram) {
-        $ram_clean = mysqli_real_escape_string($db, $ram);
+        // Handle if ram is array (new format) or string (old format fallback)
+        $ram_val = is_array($ram) ? ($ram['size'] ?? '') : $ram;
+        $ram_clean = mysqli_real_escape_string($db, $ram_val);
+        
         if (!empty($ram_clean)) {
             $ram_list[] = $ram_clean;
         }

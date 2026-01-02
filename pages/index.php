@@ -4208,7 +4208,7 @@ require '../db/db.php';
                     const stars = getProductStarRating(product.rating);
 
                     return `
-                <div class="product-card" data-category="${product.category}">
+                <div class="product-card" data-category="${product.category}" data-product-id="${product.id}" data-product-category="${product.category}" style="cursor: pointer;">
                     <img src="${product.image}" alt="${product.name}" class="product-image" 
                          onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
                     ${badgeHTML}
@@ -4438,15 +4438,19 @@ require '../db/db.php';
                     });
                 });
 
-                // Add click event to all buy buttons
+                // Add click event to product cards
                 document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('product-btn') || e.target.closest('.product-btn')) {
-                        const productBtn = e.target.classList.contains('product-btn') ? e.target : e.target.closest('.product-btn');
-                        const productId = productBtn.getAttribute('data-product-id');
-                        const productCategory = productBtn.getAttribute('data-product-category');
+                    const productCard = e.target.closest('.product-card');
+                    
+                    // If clicked on product card (or its children)
+                    if (productCard) {
+                        const productId = productCard.getAttribute('data-product-id');
+                        const productCategory = productCard.getAttribute('data-product-category');
 
                         // Redirect ke halaman checkout
-                        window.location.href = `checkout/checkout.php?id=${productId}&type=${productCategory}`;
+                        if (productId && productCategory) {
+                             window.location.href = `checkout/checkout.php?id=${productId}&type=${productCategory}`;
+                        }
                     }
                 });
 
@@ -5614,7 +5618,7 @@ require '../db/db.php';
 
             function createTradeinCard(product) {
                 return `
-                <div class="tradein-product">
+                <div class="tradein-product" data-product-id="${product.id}" data-product-type="${product.tipe}" style="cursor: pointer;">
                     <img src="${product.image}" alt="${product.name}" class="tradein-image" onerror="this.src='https://via.placeholder.com/200x180?text=No+Image'">
                     <div class="tradein-name">${product.name}</div>
                     
@@ -5633,7 +5637,7 @@ require '../db/db.php';
                         </div>
                     </div>
                     
-                    <button class="tradein-btn" onclick="location.href='checkout/checkout.php?id=${product.id}&type=${product.tipe}'">
+                    <button class="tradein-btn">
                         <i class="bi bi-bag"></i> Beli Sekarang
                     </button>
                 </div>
@@ -5730,6 +5734,20 @@ require '../db/db.php';
                     timeout = setTimeout(later, wait);
                 };
             }
+
+            // ADDED: Event listener for trade-in product clicks
+            document.addEventListener('click', function(e) {
+                const tradeinProduct = e.target.closest('.tradein-product');
+                
+                if (tradeinProduct) {
+                    const productId = tradeinProduct.getAttribute('data-product-id');
+                    const productType = tradeinProduct.getAttribute('data-product-type');
+
+                    if (productId && productType) {
+                        window.location.href = `checkout/checkout.php?id=${productId}&type=${productType}`;
+                    }
+                }
+            });
         </script>
     </div>
 

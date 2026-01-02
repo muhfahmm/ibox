@@ -28,6 +28,10 @@ while($row = mysqli_fetch_assoc($q)) {
     }
 }
 
+
+// Delete combinations
+mysqli_query($db, "DELETE FROM admin_produk_airtag_kombinasi WHERE produk_id='$id'");
+
 // Delete record
 if (mysqli_query($db, "DELETE FROM admin_produk_airtag WHERE id='$id'")) {
     header('Location: airtag.php?success=deleted');
