@@ -28,7 +28,7 @@ $colors = [];
 $res = mysqli_query($db, "SELECT * FROM admin_produk_airtag_gambar WHERE produk_id='$product_id'");
 while ($row = mysqli_fetch_assoc($res)) {
     $colors[] = [
-        'warna' => $row['warna'],
+        'warna' => trim($row['warna']),
         'thumbnail' => $row['foto_thumbnail'],
         'gallery' => json_decode($row['foto_produk'], true) ?? []
     ];
@@ -38,13 +38,33 @@ while ($row = mysqli_fetch_assoc($res)) {
 $packs = [];
 $aksesoris = [];
 $combos = [];
+$stocks_map = [];
+$prices_map = [];
+$discounts_map = [];
+
 $res = mysqli_query($db, "SELECT * FROM admin_produk_airtag_kombinasi WHERE produk_id='$product_id'");
 while ($row = mysqli_fetch_assoc($res)) {
     $combos[] = $row;
-    $packs[$row['pack']] = $row['pack'];
+    
+    $trimmed_pack = trim($row['pack']);
+    $packs[$trimmed_pack] = $trimmed_pack;
+    
     if (!empty($row['aksesoris'])) {
-        $aksesoris[$row['aksesoris']] = $row['aksesoris'];
+        $trimmed_aks = trim($row['aksesoris']);
+        $aksesoris[$trimmed_aks] = $trimmed_aks;
     }
+    
+    // Create maps for stock, price, and discount lookup
+    // Normalize aksesoris: use '-' if empty to match JavaScript
+    $aks_value = trim($row['aksesoris']);
+    if (empty($aks_value)) {
+        $aks_value = '-';
+    }
+    
+    $key = trim($row['warna']) . '|' . $trimmed_pack . '|' . $aks_value;
+    $stocks_map[$key] = $row['jumlah_stok'];
+    $prices_map[$key] = $row['harga'];
+    $discounts_map[$key] = (!empty($row['harga_diskon']) && $row['harga_diskon'] > 0) ? $row['harga_diskon'] : '';
 }
 $packs = array_values($packs);
 $aksesoris = array_values($aksesoris);
@@ -55,7 +75,10 @@ $initialData = [
     'colors' => $colors,
     'packs' => $packs,
     'aksesoris' => $aksesoris,
-    'combos' => $combos
+    'combos' => $combos,
+    'stocks' => $stocks_map,
+    'prices' => $prices_map,
+    'discounts' => $discounts_map
 ];
 ?>
 <!DOCTYPE html>
@@ -182,15 +205,19 @@ $initialData = [
             generateCombinations();
         }
         // Add pack option
-        function addPackOption(val = '') {
+        function addPackOption(data = null) {
+            const val = typeof data === 'string' ? data : (data?.val || '');
+            const price = data?.price || '';
+            const discount = data?.discount || '';
+            
             const container = document.getElementById('pack-container');
             const html = `
                 <div class="option-card pack-option">
                     <button type="button" class="btn-remove" onclick="removeOption(this)"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
                         <div class="col-md-4"><label class="form-label">Pack</label><input type="text" class="form-control pack-value" name="pack[]" value="${val}" required onkeyup="generateCombinations()"></div>
-                        <div class="col-md-4"><label class="form-label">Harga</label><input type="number" class="form-control base-price" name="pack_harga[]" required onkeyup="generateCombinations()"></div>
-                        <div class="col-md-4"><label class="form-label">Diskon (Opsional)</label><input type="number" class="form-control" name="pack_harga_diskon[]"></div>
+                        <div class="col-md-4"><label class="form-label">Harga</label><input type="number" class="form-control base-price" name="pack_harga[]" value="${price}" required onkeyup="generateCombinations()"></div>
+                        <div class="col-md-4"><label class="form-label">Diskon (Opsional)</label><input type="number" class="form-control" name="pack_harga_diskon[]" value="${discount}"></div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
@@ -209,13 +236,15 @@ $initialData = [
         }
         function removeOption(btn){ btn.closest('.option-card').remove(); generateCombinations(); }
         function generateCombinations(){
-            const colors = Array.from(document.querySelectorAll('.color-name')).map(i=>i.value).filter(v=>v);
+            // Use colors from initialData to ensure exact match with database keys
+            const colors = initialData.colors.map(c => c.warna);
+            
             const packs = Array.from(document.querySelectorAll('.pack-option')).map(row=>({
-                val: row.querySelector('.pack-value').value,
+                val: row.querySelector('.pack-value').value.trim(),
                 price: row.querySelector('.base-price').value,
                 discount: row.querySelector('input[name*="diskon"]').value
             })).filter(p=>p.val);
-            let aks = Array.from(document.querySelectorAll('.aksesoris-value')).map(i=>i.value).filter(v=>v);
+            let aks = Array.from(document.querySelectorAll('.aksesoris-value')).map(i=>i.value.trim()).filter(v=>v);
             if(aks.length===0) aks=['-'];
             const tbody = document.getElementById('combinations-body');
             tbody.innerHTML='';
@@ -224,18 +253,34 @@ $initialData = [
                 return;
             }
             let idx=0;
+            
+            // Debug: Log the initialData once
+            console.log('=== DEBUG STOCKS ===');
+            console.log('initialData.stocks:', initialData.stocks);
+            console.log('initialData.prices:', initialData.prices);
+            
             colors.forEach(c=>{
                 packs.forEach(p=>{
                     aks.forEach(a=>{
+                        // Create key for lookup - exact match with PHP
+                        const key = `${c}|${p.val}|${a}`;
+                        console.log('Generated key:', key);
+                        
+                        const existingStock = initialData.stocks[key] !== undefined ? initialData.stocks[key] : '';
+                        const existingPrice = initialData.prices[key] !== undefined ? initialData.prices[key] : p.price;
+                        const existingDiscount = initialData.discounts[key] !== undefined ? initialData.discounts[key] : (p.discount || '');
+                        
+                        console.log('Stock found:', existingStock, 'for key:', key);
+                        
                         const tr=document.createElement('tr');
                         tr.innerHTML=`
                             <td>${c}<input type="hidden" name="combinations[${idx}][warna]" value="${c}"></td>
                             <td>${p.val}<input type="hidden" name="combinations[${idx}][pack]" value="${p.val}"></td>
                             <td>${a}<input type="hidden" name="combinations[${idx}][aksesoris]" value="${a}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${p.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${p.discount||0}"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
-                            <td><span class="badge bg-secondary">Draft</span></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${existingPrice}" required></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${existingDiscount}" placeholder="Opsional"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="${existingStock}" placeholder="0"></td>
+                            <td><span class="badge bg-${existingStock ? 'success' : 'secondary'}">${existingStock ? 'Ready' : 'Draft'}</span></td>
                         `;
                         tbody.appendChild(tr);
                         idx++;
@@ -247,9 +292,23 @@ $initialData = [
         window.addEventListener('DOMContentLoaded',()=>{
             // Colors
             initialData.colors.forEach(c=>addColorOption(c.warna, c.thumbnail, c.gallery));
-            // Packs
-            if(initialData.packs.length>0) initialData.packs.forEach(p=>addPackOption(p));
-            else addPackOption('1 Pack');
+            
+            // Packs - get price from combos
+            if(initialData.packs.length>0) {
+                initialData.packs.forEach(p=>{
+                    // Find first combo with this pack to get price
+                    const combo = initialData.combos.find(c => c.pack === p);
+                    const packData = {
+                        val: p,
+                        price: combo ? combo.harga : '',
+                        discount: combo && combo.harga_diskon > 0 ? combo.harga_diskon : ''
+                    };
+                    addPackOption(packData);
+                });
+            } else {
+                addPackOption('1 Pack');
+            }
+            
             // Aksesoris
             if(initialData.aksesoris.length>0) initialData.aksesoris.forEach(a=>addAksesorisOption(a));
             else addAksesorisOption('-');

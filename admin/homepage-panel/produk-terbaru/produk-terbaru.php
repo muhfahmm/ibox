@@ -766,7 +766,7 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                                     <?php $no = 1;?>
                                     <?php while($product = mysqli_fetch_assoc($result)): ?>
                                     <tr>
-                                        <td><strong><?php echo $no++?></strong></td>
+                                        <td><?php echo $no++; ?></td>
                                         <td>
                                             <div class="product-info">
                                                 <?php if(!empty($product['foto_thumbnail'])): ?>

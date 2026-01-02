@@ -29,7 +29,7 @@ $images_query = mysqli_query($db, "SELECT * FROM admin_produk_watch_gambar WHERE
 $colors_data = [];
 while($row = mysqli_fetch_assoc($images_query)) {
     $colors_data[] = [
-        'nama' => $row['warna_case'],
+        'nama' => trim($row['warna_case']),
         'thumbnail' => $row['foto_thumbnail'],
         'images' => json_decode($row['foto_produk'], true) ?? []
     ];
@@ -42,21 +42,30 @@ $sizes_map = [];
 $connections_map = [];
 $materials_map = [];
 $stocks_map = [];
+$prices_map = [];
+$discounts_map = [];
 
 foreach($combinations as $c) {
-    if (!isset($sizes_map[$c['ukuran_case']])) {
-        $sizes_map[$c['ukuran_case']] = true;
+    $trimmed_size = trim($c['ukuran_case']);
+    $trimmed_connection = trim($c['tipe_koneksi']);
+    $trimmed_material = trim($c['material']);
+    $trimmed_color = trim($c['warna_case']);
+    
+    if (!isset($sizes_map[$trimmed_size])) {
+        $sizes_map[$trimmed_size] = true;
     }
-    if (!isset($connections_map[$c['tipe_koneksi']])) {
-        $connections_map[$c['tipe_koneksi']] = true;
+    if (!isset($connections_map[$trimmed_connection])) {
+        $connections_map[$trimmed_connection] = true;
     }
-    if (!isset($materials_map[$c['material']])) {
-        $materials_map[$c['material']] = true;
+    if (!isset($materials_map[$trimmed_material])) {
+        $materials_map[$trimmed_material] = true;
     }
     
-    // Create a key for stock lookup
-    $key = $c['warna_case'] . '|' . $c['ukuran_case'] . '|' . $c['tipe_koneksi'] . '|' . $c['material'];
+    // Create a key for stock, price, and discount lookup dengan trim untuk mencocokkan dengan JavaScript
+    $key = $trimmed_color . '|' . $trimmed_size . '|' . $trimmed_connection . '|' . $trimmed_material;
     $stocks_map[$key] = $c['jumlah_stok'];
+    $prices_map[$key] = $c['harga'];
+    $discounts_map[$key] = (!empty($c['harga_diskon']) && $c['harga_diskon'] > 0) ? $c['harga_diskon'] : '';
 }
 
 $initialData = [
@@ -64,7 +73,9 @@ $initialData = [
     'sizes' => array_keys($sizes_map),
     'connections' => array_keys($connections_map),
     'materials' => array_keys($materials_map),
-    'stocks' => $stocks_map
+    'stocks' => $stocks_map,
+    'prices' => $prices_map,
+    'discounts' => $discounts_map
 ];
 ?>
 
@@ -973,9 +984,11 @@ $initialData = [
                             materials.forEach((material, mIdx) => {
                                 const uniqueId = `${cIdx}_${sIdx}_${kIdx}_${mIdx}`;
                                 
-                                // Try to find existing stock
+                                // Try to find existing stock, price, and discount
                                 const stockKey = `${color}|${size}|${connection}|${material}`;
                                 const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
+                                const existingPrice = initialData.prices[stockKey] !== undefined ? initialData.prices[stockKey] : '';
+                                const existingDiscount = initialData.discounts[stockKey] !== undefined ? initialData.discounts[stockKey] : '';
                                 
                                 tableHTML += `
                                     <tr>
@@ -987,11 +1000,13 @@ $initialData = [
                                         <td>
                                             <input type="number" class="form-control" style="width: 120px;" 
                                                    name="combinations[${uniqueId}][harga]" 
+                                                   value="${existingPrice}"
                                                    placeholder="Harga" min="0" required>
                                         </td>
                                         <td>
                                             <input type="number" class="form-control" style="width: 120px;" 
                                                    name="combinations[${uniqueId}][harga_diskon]" 
+                                                   value="${existingDiscount}"
                                                    placeholder="Diskon (opsional)" min="0">
                                         </td>
                                         <td>

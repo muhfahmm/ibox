@@ -680,7 +680,7 @@ function getProductDetail($db, $tipe, $produk_id)
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>No</th>
                                 <th>Produk</th>
                                 <th>Tipe</th>
                                 <th>Label</th>
@@ -690,11 +690,13 @@ function getProductDetail($db, $tipe, $produk_id)
                         </thead>
                         <tbody>
                             <?php if ($grid_count > 0): ?>
-                                <?php while ($item = mysqli_fetch_assoc($result_grid)):
+                                <?php 
+                                $no = 1;
+                                while ($item = mysqli_fetch_assoc($result_grid)):
                                     $detail = getProductDetail($db, $item['tipe_produk'], $item['produk_id']);
                                 ?>
                                     <tr>
-                                        <td><strong>#<?php echo $item['id']; ?></strong></td>
+                                        <td><?php echo $no++; ?></td>
                                         <td>
                                             <div class="product-cell">
                                                 <?php if (!empty($detail['thumbnail'])): ?>

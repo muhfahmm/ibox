@@ -32,7 +32,7 @@ $query_images = "SELECT * FROM admin_produk_iphone_gambar WHERE produk_id = '$pr
 $result_images = mysqli_query($db, $query_images);
 $images_by_color = [];
 while ($row = mysqli_fetch_assoc($result_images)) {
-    $images_by_color[$row['warna']] = $row;
+    $images_by_color[trim($row['warna'])] = $row;
 }
 
 // Ambil data kombinasi (untuk pre-fill penyimpanan, konektivitas, dan stok)
@@ -49,22 +49,26 @@ $unique_storages = []; // Associative: size => {price, discount}
 $unique_connectivities = [];
 
 foreach ($combinations as $combo) {
-    if (!in_array($combo['warna'], $unique_colors)) {
-        $unique_colors[] = $combo['warna'];
+    $trimmed_color = trim($combo['warna']);
+    $trimmed_storage = trim($combo['penyimpanan']);
+    $trimmed_connectivity = trim($combo['konektivitas']);
+    
+    if (!in_array($trimmed_color, $unique_colors)) {
+        $unique_colors[] = $trimmed_color;
     }
 
     // Store logic for storage prices might vary per color in complex systems, 
     // but here we simplify or take the first occurrence if inconsistent.
-    if (!isset($unique_storages[$combo['penyimpanan']])) {
-        $unique_storages[$combo['penyimpanan']] = [
-            'size' => $combo['penyimpanan'], // Tambahkan ini
+    if (!isset($unique_storages[$trimmed_storage])) {
+        $unique_storages[$trimmed_storage] = [
+            'size' => $trimmed_storage,
             'harga' => $combo['harga'],
             'harga_diskon' => $combo['harga_diskon']
         ];
     }
 
-    if (!in_array($combo['konektivitas'], $unique_connectivities)) {
-        $unique_connectivities[] = $combo['konektivitas'];
+    if (!in_array($trimmed_connectivity, $unique_connectivities)) {
+        $unique_connectivities[] = $trimmed_connectivity;
     }
 }
 
@@ -79,14 +83,15 @@ $initialData = [
 foreach ($images_by_color as $warna => $img_data) {
     $photos = json_decode($img_data['foto_produk'], true) ?? [];
     $initialData['colors'][] = [
-        'nama' => $warna,
+        'nama' => trim($warna),
         'thumbnail' => $img_data['foto_thumbnail'],
         'images' => $photos
     ];
 }
 
 foreach ($combinations as $c) {
-    $key = $c['warna'] . '|' . $c['penyimpanan'] . '|' . $c['konektivitas'];
+    // Create key with trim untuk mencocokkan dengan JavaScript
+    $key = trim($c['warna']) . '|' . trim($c['penyimpanan']) . '|' . trim($c['konektivitas']);
     $initialData['stocks'][$key] = $c['jumlah_stok'];
 }
 ?>

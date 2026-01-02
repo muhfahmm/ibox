@@ -46,29 +46,34 @@ $unique_storages = [];
 $unique_rams = [];
 
 foreach ($combinations as $combination) {
-    if (!in_array($combination['warna'], $unique_colors)) {
-        $unique_colors[] = $combination['warna'];
+    $trimmed_color = trim($combination['warna']);
+    $trimmed_processor = trim($combination['processor']);
+    $trimmed_storage = trim($combination['penyimpanan']);
+    $trimmed_ram = trim($combination['ram']);
+    
+    if (!in_array($trimmed_color, $unique_colors)) {
+        $unique_colors[] = $trimmed_color;
     }
-    if (!in_array($combination['processor'], $unique_processors)) {
-        $unique_processors[] = $combination['processor'];
+    if (!in_array($trimmed_processor, $unique_processors)) {
+        $unique_processors[] = $trimmed_processor;
     }
-    if (!in_array($combination['penyimpanan'], $unique_storages)) {
-        $unique_storages[] = $combination['penyimpanan'];
+    if (!in_array($trimmed_storage, $unique_storages)) {
+        $unique_storages[] = $trimmed_storage;
     }
-    if (!in_array($combination['ram'], $unique_rams)) {
-        $unique_rams[] = $combination['ram'];
+    if (!in_array($trimmed_ram, $unique_rams)) {
+        $unique_rams[] = $trimmed_ram;
     }
 }
 
 // Group combinations by storage for easier editing
 $storage_data = [];
 foreach ($combinations as $combination) {
-    $storage = $combination['penyimpanan'];
+    $storage = trim($combination['penyimpanan']);
     if (!isset($storage_data[$storage])) {
         $storage_data[$storage] = [
             'size' => $storage,
             'harga' => $combination['harga'],
-            'harga_diskon' => $combination['harga_diskon'] ?? ''
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
         ];
     }
 }
@@ -77,21 +82,23 @@ foreach ($combinations as $combination) {
 $ram_data = [];
 $processor_data = [];
 foreach ($combinations as $combination) {
-    $ram = $combination['ram'];
+    $ram = trim($combination['ram']);
     if (!isset($ram_data[$ram])) {
+        // Ambil harga dari kombinasi ini sebagai referensi
         $ram_data[$ram] = [
             'size' => $ram,
-            'harga' => 0, // Default 0
-            'harga_diskon' => 0
+            'harga' => $combination['harga'],
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
         ];
     }
     
-    $proc = $combination['processor'];
+    $proc = trim($combination['processor']);
     if (!isset($processor_data[$proc])) {
+        // Ambil harga dari kombinasi ini sebagai referensi
         $processor_data[$proc] = [
             'name' => $proc,
-            'harga' => 0, // Default 0
-            'harga_diskon' => 0
+            'harga' => $combination['harga'],
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
         ];
     }
 }
@@ -108,14 +115,15 @@ $initialData = [
 foreach($color_images as $color) {
     $photos = json_decode($color['foto_produk'], true) ?? [];
     $initialData['colors'][] = [
-        'nama' => $color['warna'],
+        'nama' => trim($color['warna']),
         'thumbnail' => $color['foto_thumbnail'],
         'images' => $photos
     ];
 }
 
 foreach($combinations as $c) {
-    $key = $c['warna'] . '|' . $c['processor'] . '|' . $c['penyimpanan'] . '|' . $c['ram'];
+    // Create key with trim untuk mencocokkan dengan JavaScript
+    $key = trim($c['warna']) . '|' . trim($c['processor']) . '|' . trim($c['penyimpanan']) . '|' . trim($c['ram']);
     $initialData['stocks'][$key] = $c['jumlah_stok'];
 }
 ?>
@@ -817,21 +825,21 @@ foreach($combinations as $c) {
             newProcessor.className = 'processor-option';
             newProcessor.dataset.processorIndex = newIndex;
             newProcessor.innerHTML = `
-                <div class="row align-items-center">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
                         <label class="form-label">Processor</label>
                         <input type="text" class="form-control processor-value" name="processor[${newIndex}][name]" 
                                placeholder="Contoh: M3 Pro" required value="${data ? data.name : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Harga (Rp)</label>
+                    <div class="form-col col-4">
+                        <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" name="processor[${newIndex}][harga]" 
-                               placeholder="0" required value="${data ? data.harga : 0}" onchange="generateCombinations()">
+                               placeholder="Harga" min="0" required value="${data ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Harga Diskon (Opsional)</label>
+                    <div class="form-col col-4">
+                        <label class="form-label">Harga Diskon</label>
                         <input type="number" class="form-control" name="processor[${newIndex}][harga_diskon]" 
-                               placeholder="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                               placeholder="Diskon (opsional)" min="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeProcessor(${newIndex})">
@@ -919,21 +927,21 @@ foreach($combinations as $c) {
             newRam.dataset.ramIndex = newIndex;
             
             newRam.innerHTML = `
-                <div class="row align-items-center">
-                    <div class="col-md-3">
+                <div class="form-row">
+                    <div class="form-col col-3">
                         <label class="form-label">RAM</label>
                         <input type="text" class="form-control ram-value" name="ram[${newIndex}][size]" 
                                placeholder="Contoh: 16GB" required value="${data ? data.size : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Harga (Rp)</label>
+                    <div class="form-col col-4">
+                        <label class="form-label">Harga Normal <span class="text-danger">*</span></label>
                         <input type="number" class="form-control" name="ram[${newIndex}][harga]" 
-                               placeholder="0" required value="${data ? data.harga : 0}" onchange="generateCombinations()">
+                               placeholder="Harga" min="0" required value="${data ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Harga Diskon (Opsional)</label>
+                    <div class="form-col col-4">
+                        <label class="form-label">Harga Diskon</label>
                         <input type="number" class="form-control" name="ram[${newIndex}][harga_diskon]" 
-                               placeholder="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                               placeholder="Diskon (opsional)" min="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeRam(${newIndex})">
@@ -1067,5 +1075,6 @@ foreach($combinations as $c) {
                }
             }
         });
+    </script>
 </body>
 </html>

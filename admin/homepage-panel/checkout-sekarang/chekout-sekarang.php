@@ -715,7 +715,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>No</th>
                                         <th>Produk</th>
                                         <th>Label Tampil</th>
                                         <th>Urutan</th>
@@ -724,9 +724,12 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while($item = mysqli_fetch_assoc($result)): ?>
+                                    <?php 
+                                    $no = 1;
+                                    while($item = mysqli_fetch_assoc($result)): 
+                                    ?>
                                     <tr>
-                                        <td><strong>#<?php echo $item['id']; ?></strong></td>
+                                        <td><?php echo $no++; ?></td>
                                         <td>
                                             <div class="product-info">
                                                 <?php if(!empty($item['foto_thumbnail'])): ?>

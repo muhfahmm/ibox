@@ -820,7 +820,7 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>No</th>
                                         <th>Produk</th>
                                         <th>Tipe</th>
                                         <th>Label</th>
@@ -830,11 +830,13 @@ $airtag_first_id = $airtag_first_id_data['first_id'];
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php while ($item = mysqli_fetch_assoc($result_populer)):
+                                    <?php 
+                                    $no = 1;
+                                    while ($item = mysqli_fetch_assoc($result_populer)):
                                         $detail = getProductDetail($db, $item['tipe_produk'], $item['produk_id']);
                                     ?>
                                         <tr>
-                                            <td><strong>#<?php echo $item['id']; ?></strong></td>
+                                            <td><?php echo $no++; ?></td>
                                             <td>
                                                 <div class="product-info">
                                                     <?php if (!empty($detail['thumbnail'])): ?>

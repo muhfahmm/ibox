@@ -29,7 +29,7 @@ $images_query = mysqli_query($db, "SELECT * FROM admin_produk_ipad_gambar WHERE 
 $colors_data = [];
 while($row = mysqli_fetch_assoc($images_query)) {
     $colors_data[] = [
-        'nama' => $row['warna'],
+        'nama' => trim($row['warna']),
         'thumbnail' => $row['foto_thumbnail'],
         'images' => json_decode($row['foto_produk'], true) ?? []
     ];
@@ -43,17 +43,18 @@ $connectivities_map = [];
 $stocks_map = [];
 
 foreach($combinations as $c) {
-    if (!isset($storages_map[$c['penyimpanan']])) {
-        $storages_map[$c['penyimpanan']] = [
-            'size' => $c['penyimpanan'],
+    $trimmed_storage = trim($c['penyimpanan']);
+    if (!isset($storages_map[$trimmed_storage])) {
+        $storages_map[$trimmed_storage] = [
+            'size' => $trimmed_storage,
             'harga' => $c['harga'],
             'harga_diskon' => $c['harga_diskon']
         ];
     }
-    $connectivities_map[$c['konektivitas']] = true;
+    $connectivities_map[trim($c['konektivitas'])] = true;
     
-    // Create a key for stock lookup
-    $key = $c['warna'] . '|' . $c['penyimpanan'] . '|' . $c['konektivitas'];
+    // Create a key for stock lookup (dengan trim untuk mencocokkan dengan JavaScript)
+    $key = trim($c['warna']) . '|' . trim($c['penyimpanan']) . '|' . trim($c['konektivitas']);
     $stocks_map[$key] = $c['jumlah_stok'];
 }
 

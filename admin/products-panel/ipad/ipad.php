@@ -708,7 +708,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>No</th>
                                         <th>Produk</th>
                                         <th>Statistik</th>
                                         <th>Harga Range</th>
@@ -734,7 +734,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                         $has_stock = $product['total_stok'] > 0;
                                     ?>
                                         <tr>
-                                            <td><strong><?php echo $no++; ?></strong></td> <!-- Gunakan $no++ di sini -->
+                                            <td><?php echo $no++; ?></td> <!-- Gunakan $no++ di sini -->
                                             <td>
                                                 <div class="product-info">
                                                     <?php if (!empty($thumbnail['foto_thumbnail'])): ?>

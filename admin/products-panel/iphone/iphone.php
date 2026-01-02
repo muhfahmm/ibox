@@ -708,7 +708,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th>No</th>
                                         <th>Produk</th>
                                         <th>Statistik</th>
                                         <th>Harga Range</th>
@@ -735,7 +735,7 @@ $checkout_count = mysqli_fetch_assoc(mysqli_query($db, "SELECT COUNT(*) as total
                                     ?>
                                         <tr>
                                             <!-- Ubah dari menampilkan ID menjadi nomor urut -->
-                                            <td><strong><?php echo $no++; ?></strong></td>
+                                            <td><?php echo $no++; ?></td>
                                             <td>
                                                 <div class="product-info">
                                                     <?php if (!empty($thumbnail['foto_thumbnail'])): ?>
