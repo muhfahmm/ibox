@@ -422,7 +422,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control konektivitas-discount" name="konektivitas[${konektivitasIndex}][harga_diskon]" placeholder="0">
+                            <input type="number" class="form-control konektivitas-discount" name="konektivitas[${konektivitasIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;

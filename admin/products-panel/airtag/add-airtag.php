@@ -399,7 +399,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         </div>
                         <div class="col-md-4">
                             <label class="form-label">Harga Diskon Bawaan (Optional)</label>
-                            <input type="number" class="form-control" name="pack_harga_diskon[]" placeholder="0">
+                            <input type="number" class="form-control" name="pack_harga_diskon[]" placeholder="0" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;

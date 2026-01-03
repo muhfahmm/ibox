@@ -7,33 +7,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $tipe_produk = $_POST['tipe_produk'];
-    $produk_id = $_POST['produk_id'];
-    $label = mysqli_real_escape_string($db, $_POST['label']);
-    $urutan = $_POST['urutan'] ?? 0;
-
-    // Cek apakah sudah ada
-    $check_query = "SELECT * FROM home_grid 
-                    WHERE produk_id = '$produk_id' AND tipe_produk = '$tipe_produk'";
-    $check_result = mysqli_query($db, $check_query);
-
-    if (mysqli_num_rows($check_result) > 0) {
-        header('Location: image-grid.php?error=already_exists');
-        exit();
-    }
-
-    $insert_query = "INSERT INTO home_grid 
-                    (produk_id, tipe_produk, label, urutan) 
-                    VALUES ('$produk_id', '$tipe_produk', '$label', '$urutan')";
-    
-    if (mysqli_query($db, $insert_query)) {
-        header('Location: image-grid.php?success=added');
-    } else {
-        header('Location: image-grid.php?error=db_error');
-    }
-    exit();
-}
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
 // Ambil daftar produk dari semua kategori
 $products = [];
@@ -51,12 +25,14 @@ foreach ($categories as $key => $table) {
     $query = "SELECT id, nama_produk FROM $table ORDER BY nama_produk";
     $result = mysqli_query($db, $query);
     
-    while ($row = mysqli_fetch_assoc($result)) {
-        $products[] = [
-            'id' => $row['id'],
-            'nama' => $row['nama_produk'],
-            'tipe' => $key
-        ];
+    if ($result) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            $products[] = [
+                'id' => $row['id'],
+                'nama' => $row['nama_produk'],
+                'tipe' => $key
+            ];
+        }
     }
 }
 ?>
@@ -68,6 +44,7 @@ foreach ($categories as $key => $table) {
     <title>Tambah Produk ke Grid</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -75,120 +52,100 @@ foreach ($categories as $key => $table) {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-
         body {
             background-color: #f5f7fb;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
             padding: 40px;
-            width: 100%;
-            max-width: 600px;
         }
-
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
         h1 {
             font-size: 24px;
-            font-weight: 700;
-            color: #1a1a2e;
             margin-bottom: 30px;
+            color: #333;
             display: flex;
             align-items: center;
             gap: 15px;
         }
-
-        h1 i {
-            color: #4a6cf7;
-        }
-
         .form-group {
             margin-bottom: 25px;
         }
-
         label {
             display: block;
             margin-bottom: 10px;
             font-weight: 500;
-            color: #333;
+            color: #444;
             font-size: 14px;
         }
-
         select, input {
             width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: all 0.3s;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #fcfcfc;
         }
-
         select:focus, input:focus {
             outline: none;
             border-color: #4a6cf7;
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.1);
         }
-
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 35px;
-        }
-
         .btn-submit {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            padding: 12px 25px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 10px;
-            cursor: pointer;
+            border-radius: 12px;
             font-weight: 600;
-            flex: 1;
+            cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.2);
+            width: 100%;
+            margin-top: 10px;
         }
-
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+            box-shadow: 0 8px 20px rgba(74, 108, 247, 0.3);
         }
-
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
         .btn-back {
-            background: #f1f3f5;
-            color: #495057;
-            padding: 12px 25px;
-            border: none;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
+            display: block;
             text-align: center;
-            flex: 1;
-            transition: all 0.3s;
+            text-decoration: none;
+            color: #888;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
         }
-
         .btn-back:hover {
-            background: #e9ecef;
+            color: #333;
         }
-
-        .form-hint {
-            font-size: 12px;
-            color: #777;
+        .help-text {
+            display: block;
             margin-top: 6px;
+            font-size: 12px;
+            color: #999;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-plus-circle"></i> Tambah Produk Grid</h1>
+        <h1><i class="fas fa-th" style="color: #4a6cf7;"></i> Tambah Produk ke Grid</h1>
         
-        <form method="POST" action="">
+        <form id="addGridForm">
             <div class="form-group">
-                <label>Pilih Tipe Produk:</label>
+                <label><i class="fas fa-layer-group me-2"></i>Tipe Produk</label>
                 <select name="tipe_produk" id="tipe_produk" required>
                     <option value="">-- Pilih Tipe --</option>
                     <option value="iphone">iPhone</option>
@@ -202,9 +159,9 @@ foreach ($categories as $key => $table) {
             </div>
 
             <div class="form-group">
-                <label>Pilih Produk:</label>
+                <label><i class="fas fa-box me-2"></i>Produk</label>
                 <select name="produk_id" id="produk_id" required disabled>
-                    <option value="">-- Pilih Tipe Terlebih Dahulu --</option>
+                    <option value="">Pilih Tipe Produk Terlebih Dahulu</option>
                     <?php foreach ($products as $product): ?>
                         <option value="<?php echo $product['id']; ?>" data-tipe="<?php echo $product['tipe']; ?>">
                             <?php echo $product['nama']; ?>
@@ -214,45 +171,96 @@ foreach ($categories as $key => $table) {
             </div>
 
             <div class="form-group">
-                <label>Label Grid (opsional):</label>
-                <input type="text" name="label" placeholder="Contoh: Baru, Promo, Hot Item...">
-                <div class="form-hint">Akan muncul sebagai badge pada produk.</div>
+                <label><i class="fas fa-tag me-2"></i>Label Grid (Opsional)</label>
+                <input type="text" name="label" placeholder="Contoh: Baru, Promo, Hot Item">
+                <small class="help-text">Label ini akan muncul sebagai badge pada produk di grid.</small>
             </div>
 
             <div class="form-group">
-                <label>Urutan Tampil:</label>
+                <label><i class="fas fa-sort me-2"></i>Urutan</label>
                 <input type="number" name="urutan" value="0" min="0">
-                <div class="form-hint">Angka lebih kecil akan muncul lebih awal.</div>
+                <small class="help-text">Angka lebih kecil akan tampil lebih awal di grid.</small>
             </div>
 
-            <div class="btn-group">
-                <button type="submit" class="btn-submit">Simpan Produk</button>
-                <a href="image-grid.php" class="btn-back">Batal</a>
-            </div>
+            <button type="submit" class="btn-submit" id="btnSubmit">
+                <i class="fas fa-save me-2"></i> Simpan Produk Grid
+            </button>
+            <a href="image-grid.php" class="btn-back">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+            </a>
         </form>
     </div>
 
     <script>
         const tipeSelect = document.getElementById('tipe_produk');
         const produkSelect = document.getElementById('produk_id');
-        const allOptions = Array.from(produkSelect.options);
 
         tipeSelect.addEventListener('change', function() {
             const selectedTipe = this.value;
             
             if (selectedTipe === "") {
                 produkSelect.disabled = true;
-                produkSelect.innerHTML = '<option value="">-- Pilih Tipe Terlebih Dahulu --</option>';
+                produkSelect.innerHTML = '<option value="">Pilih Tipe Produk Terlebih Dahulu</option>';
                 return;
             }
 
             produkSelect.disabled = false;
             produkSelect.innerHTML = '<option value="">-- Pilih Produk --</option>';
             
-            allOptions.forEach(option => {
-                if (option.getAttribute('data-tipe') === selectedTipe) {
-                    produkSelect.appendChild(option.cloneNode(true));
+            <?php foreach ($products as $product): ?>
+                if ("<?php echo $product['tipe']; ?>" === selectedTipe) {
+                    const option = document.createElement('option');
+                    option.value = "<?php echo $product['id']; ?>";
+                    option.text = "<?php echo addslashes($product['nama']); ?>";
+                    produkSelect.appendChild(option);
                 }
+            <?php endforeach; ?>
+        });
+
+        document.getElementById('addGridForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+
+            const formData = new FormData(this);
+
+            fetch('api/api-add-image-grid.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = 'image-grid.php?success=added';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message
+                    });
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Produk Grid';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan sistem.'
+                });
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Produk Grid';
             });
         });
     </script>

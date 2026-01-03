@@ -7,33 +7,7 @@ if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== tru
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $tipe_produk = $_POST['tipe_produk'];
-    $produk_id = $_POST['produk_id'];
-    $label_promo = $_POST['label_promo'];
-    $urutan = $_POST['urutan'] ?? 0;
-
-    // Cek apakah sudah ada
-    $check_query = "SELECT * FROM home_trade_in 
-                    WHERE produk_id = '$produk_id' AND tipe_produk = '$tipe_produk'";
-    $check_result = mysqli_query($db, $check_query);
-
-    if (mysqli_num_rows($check_result) > 0) {
-        header('Location: trade-in.php?error=already_exists');
-        exit();
-    }
-
-    $insert_query = "INSERT INTO home_trade_in 
-                    (produk_id, tipe_produk, label_promo, urutan) 
-                    VALUES ('$produk_id', '$tipe_produk', '$label_promo', '$urutan')";
-    
-    if (mysqli_query($db, $insert_query)) {
-        header('Location: trade-in.php?success=added');
-    } else {
-        header('Location: trade-in.php?error=db_error');
-    }
-    exit();
-}
+$admin_username = $_SESSION['admin_username'] ?? 'Admin';
 
 // Ambil daftar produk dari semua kategori
 $products = [];
@@ -70,6 +44,7 @@ foreach ($categories as $key => $table) {
     <title>Tambah Produk Trade In</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -85,9 +60,9 @@ foreach ($categories as $key => $table) {
             max-width: 800px;
             margin: 0 auto;
             background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
         }
         h1 {
             font-size: 24px;
@@ -95,59 +70,82 @@ foreach ($categories as $key => $table) {
             color: #333;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
         label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: 500;
-            color: #555;
+            color: #444;
+            font-size: 14px;
         }
         select, input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
             font-size: 15px;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            background-color: #fcfcfc;
         }
         select:focus, input:focus {
             outline: none;
             border-color: #4a6cf7;
-            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.1);
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(74, 108, 247, 0.1);
         }
         .btn-submit {
             background: linear-gradient(135deg, #4a6cf7 0%, #6a11cb 100%);
             color: white;
-            padding: 12px 24px;
+            padding: 14px 28px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.2);
+            width: 100%;
+            margin-top: 10px;
         }
         .btn-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.3);
+            box-shadow: 0 8px 20px rgba(74, 108, 247, 0.3);
+        }
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
         .btn-back {
+            display: block;
+            text-align: center;
             text-decoration: none;
-            color: #666;
-            margin-left: 15px;
-            font-size: 15px;
+            color: #888;
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .btn-back:hover {
+            color: #333;
+        }
+        .help-text {
+            display: block;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #999;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-plus-circle"></i> Tambah Produk Trade In</h1>
+        <h1><i class="fas fa-exchange-alt" style="color: #4a6cf7;"></i> Tambah Produk Trade In</h1>
         
-        <form method="POST" action="">
+        <form id="addTradeInForm">
             <div class="form-group">
-                <label>Pilih Tipe Produk:</label>
+                <label><i class="fas fa-layer-group me-2"></i>Tipe Produk</label>
                 <select name="tipe_produk" id="tipe_produk" required>
                     <option value="">-- Pilih Tipe --</option>
                     <option value="iphone">iPhone</option>
@@ -161,32 +159,37 @@ foreach ($categories as $key => $table) {
             </div>
 
             <div class="form-group">
-                <label>Pilih Produk:</label>
-                <select name="produk_id" id="produk_id" required>
-                    <option value="">-- Pilih Produk --</option>
+                <label><i class="fas fa-box me-2"></i>Produk</label>
+                <select name="produk_id" id="produk_id" required disabled>
+                    <option value="">Pilih Tipe Produk Terlebih Dahulu</option>
                     <?php foreach ($products as $product): ?>
                         <option value="<?php echo $product['id']; ?>" data-tipe="<?php echo $product['tipe']; ?>">
-                            [<?php echo strtoupper($product['tipe']); ?>] <?php echo $product['nama']; ?>
+                            <?php echo $product['nama']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
             </div>
 
             <div class="form-group">
-                <label>Potongan Harga (%):</label>
+                <label><i class="fas fa-percent me-2"></i>Potongan Harga (%)</label>
                 <input type="number" name="label_promo" placeholder="Contoh: 10" min="0" max="100" required>
-                <small style="color: #666; margin-top: 5px; display: block; line-height: 1.4;">
+                <small class="help-text">
                     Masukkan angka saja (persentase). Sistem akan otomatis menghitung potongan harga dan menampilkan tanda % di halaman depan.
                 </small>
             </div>
 
             <div class="form-group">
-                <label>Urutan Tampil (angka kecil = tampil pertama):</label>
+                <label><i class="fas fa-sort me-2"></i>Urutan</label>
                 <input type="number" name="urutan" value="0" min="0">
+                <small class="help-text">Angka lebih kecil akan tampil lebih awal di slider.</small>
             </div>
 
-            <button type="submit" class="btn-submit">Simpan Produk Trade In</button>
-            <a href="trade-in.php" class="btn-back">Kembali</a>
+            <button type="submit" class="btn-submit" id="btnSubmit">
+                <i class="fas fa-save me-2"></i> Simpan Produk Trade In
+            </button>
+            <a href="trade-in.php" class="btn-back">
+                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar
+            </a>
         </form>
     </div>
 
@@ -195,20 +198,70 @@ foreach ($categories as $key => $table) {
             const selectedTipe = this.value;
             const produkSelect = document.getElementById('produk_id');
             
-            for (let option of produkSelect.options) {
-                if (option.value === "") {
-                    option.style.display = 'block';
-                    continue;
-                }
-                
-                if (selectedTipe === "" || option.dataset.tipe === selectedTipe) {
-                    option.style.display = 'block';
-                } else {
-                    option.style.display = 'none';
-                }
+            if (selectedTipe === "") {
+                produkSelect.disabled = true;
+                produkSelect.innerHTML = '<option value="">Pilih Tipe Produk Terlebih Dahulu</option>';
+                return;
             }
+
+            produkSelect.disabled = false;
+            produkSelect.innerHTML = '<option value="">-- Pilih Produk --</option>';
             
-            produkSelect.value = '';
+            <?php foreach ($products as $product): ?>
+                if ("<?php echo $product['tipe']; ?>" === selectedTipe) {
+                    const option = document.createElement('option');
+                    option.value = "<?php echo $product['id']; ?>";
+                    option.text = "<?php echo addslashes($product['nama']); ?>";
+                    produkSelect.appendChild(option);
+                }
+            <?php endforeach; ?>
+        });
+
+        document.getElementById('addTradeInForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const btnSubmit = document.getElementById('btnSubmit');
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Menyimpan...';
+
+            const formData = new FormData(this);
+
+            fetch('api/add-trade-in.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        window.location.href = 'trade-in.php?success=added';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message
+                    });
+                    btnSubmit.disabled = false;
+                    btnSubmit.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Produk Trade In';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan sistem.'
+                });
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = '<i class="fas fa-save me-2"></i> Simpan Produk Trade In';
+            });
         });
     </script>
 </body>

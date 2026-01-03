@@ -1,24 +1,22 @@
 <?php
 session_start();
-require_once '../../db.php';
+require_once '../../../db.php';
 header('Content-Type: application/json');
-
-// Cek apakah request dari AJAX
-if (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) != 'xmlhttprequest') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Access denied']);
-    exit();
-}
 
 // Cek apakah admin sudah login
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     http_response_code(401);
-    echo json_encode(['error' => 'Unauthorized']);
+    echo json_encode(['success' => false, 'message' => 'Unauthorized']);
     exit();
 }
 
-// Get action parameter
+// Get action parameter - jika tidak ada dan method POST, anggap sebagai add_slider
 $action = isset($_GET['action']) ? $_GET['action'] : '';
+
+// Jika tidak ada action tapi method POST, anggap sebagai add_slider
+if (empty($action) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = 'add_slider';
+}
 
 switch ($action) {
     case 'get_sliders':
@@ -47,7 +45,7 @@ switch ($action) {
     
     default:
         http_response_code(400);
-        echo json_encode(['error' => 'Invalid action']);
+        echo json_encode(['success' => false, 'message' => 'Invalid action']);
         break;
 }
 
@@ -104,7 +102,7 @@ function addSlider() {
     
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
-        echo json_encode(['error' => 'Method not allowed']);
+        echo json_encode(['success' => false, 'message' => 'Method not allowed']);
         return;
     }
     
@@ -116,7 +114,7 @@ function addSlider() {
     
     if (empty($nama_produk)) {
         http_response_code(400);
-        echo json_encode(['error' => 'Nama produk is required']);
+        echo json_encode(['success' => false, 'message' => 'Nama produk harus diisi!']);
         return;
     }
     
@@ -126,6 +124,13 @@ function addSlider() {
         $file_name = basename($_FILES["gambar_produk"]["name"]);
         $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
         $allowed_ext = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        // Check file size (max 5MB)
+        if ($_FILES['gambar_produk']['size'] > 5 * 1024 * 1024) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => 'Ukuran file maksimal 5MB!']);
+            return;
+        }
         
         if (in_array($file_ext, $allowed_ext)) {
             $new_filename = uniqid() . '_' . time() . '.' . $file_ext;
@@ -141,17 +146,17 @@ function addSlider() {
                 $gambar_produk = $new_filename;
             } else {
                 http_response_code(500);
-                echo json_encode(['error' => 'Failed to upload image']);
+                echo json_encode(['success' => false, 'message' => 'Gagal mengupload gambar!']);
                 return;
             }
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid file format']);
+            echo json_encode(['success' => false, 'message' => 'Format file tidak valid! Gunakan JPG, PNG, GIF, atau WebP.']);
             return;
         }
     } else {
         http_response_code(400);
-        echo json_encode(['error' => 'Image is required']);
+        echo json_encode(['success' => false, 'message' => 'Gambar slider harus diupload!']);
         return;
     }
     
@@ -165,12 +170,12 @@ function addSlider() {
         
         echo json_encode([
             'success' => true,
-            'message' => 'Slider added successfully',
+            'message' => 'Image Slider berhasil ditambahkan!',
             'id' => $id
         ]);
     } else {
         http_response_code(500);
-        echo json_encode(['error' => 'Database error: ' . mysqli_error($db)]);
+        echo json_encode(['success' => false, 'message' => 'Gagal menyimpan data: ' . mysqli_error($db)]);
     }
 }
 
