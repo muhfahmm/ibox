@@ -1,5 +1,104 @@
 <?php
 require '../../db/db.php';
+session_start();
+
+// Handle User ID (Fallback or Session)
+$user_id = isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 1; // Default to 1 for dev if not set
+$is_logged_in = isset($_SESSION['user_id']);
+$user_initials = '';
+if ($is_logged_in) {
+    $firstname = isset($_SESSION['user_firstname']) ? $_SESSION['user_firstname'] : '';
+    $lastname = isset($_SESSION['user_lastname']) ? $_SESSION['user_lastname'] : '';
+    $first_initial = !empty($firstname) ? strtoupper(substr($firstname, 0, 1)) : '';
+    $last_initial = !empty($lastname) ? strtoupper(substr($lastname, 0, 1)) : '';
+    $user_initials = $first_initial . $last_initial;
+}
+
+// --- Address Logic ---
+
+// Handle POST Actions
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['address_action'])) {
+    $action = $_POST['address_action'];
+    
+    if ($action === 'add' || $action === 'edit') {
+        $label = $_POST['label_alamat'];
+        $nama = $_POST['username'];
+        $email = $_POST['email'];
+        $hp = $_POST['no_hp'];
+        $alamat_lengkap = $_POST['alamat_lengkap'];
+        $kota = $_POST['kota'];
+        $provinsi = $_POST['provinsi'];
+        $kecamatan = $_POST['kecamatan'];
+        $kodepos = $_POST['kode_post'];
+        
+        if ($action === 'add') {
+            $stmt = $db->prepare("INSERT INTO user_alamat (user_id, label_alamat, username, email, no_hp, alamat_lengkap, kota, provinsi, kecamatan, kode_post) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("isssssssss", $user_id, $label, $nama, $email, $hp, $alamat_lengkap, $kota, $provinsi, $kecamatan, $kodepos);
+            if ($stmt->execute()) {
+                $_SESSION['selected_alamat_id'] = $stmt->insert_id;
+            }
+        } elseif ($action === 'edit') {
+            $id = $_POST['address_id'];
+            $stmt = $db->prepare("UPDATE user_alamat SET label_alamat=?, username=?, email=?, no_hp=?, alamat_lengkap=?, kota=?, provinsi=?, kecamatan=?, kode_post=? WHERE id=? AND user_id=?");
+            $stmt->bind_param("sssssssssii", $label, $nama, $email, $hp, $alamat_lengkap, $kota, $provinsi, $kecamatan, $kodepos, $id, $user_id);
+            $stmt->execute();
+            $_SESSION['selected_alamat_id'] = $id; // Keep selected
+        }
+    } elseif ($action === 'delete') {
+        $id = $_POST['address_id'];
+        $stmt = $db->prepare("DELETE FROM user_alamat WHERE id=? AND user_id=?");
+        $stmt->bind_param("ii", $id, $user_id);
+        $stmt->execute();
+        
+        // If deleted address was selected, unset it
+        if (isset($_SESSION['selected_alamat_id']) && $_SESSION['selected_alamat_id'] == $id) {
+            unset($_SESSION['selected_alamat_id']);
+        }
+    } elseif ($action === 'select') {
+        $_SESSION['selected_alamat_id'] = $_POST['address_id'];
+    }
+    
+    // Redirect to avoid resubmission (optional, but good practice)
+    // header("Location: " . $_SERVER['REQUEST_URI']);
+    // exit;
+}
+
+// Fetch Selected Address
+$selected_address = null;
+if (isset($_SESSION['selected_alamat_id'])) {
+    $stmt = $db->prepare("SELECT * FROM user_alamat WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ii", $_SESSION['selected_alamat_id'], $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows > 0) {
+        $selected_address = $res->fetch_assoc();
+    } else {
+        unset($_SESSION['selected_alamat_id']);
+    }
+}
+
+// Context: If no address selected, try to get the latest one
+if (!$selected_address) {
+    $stmt = $db->prepare("SELECT * FROM user_alamat WHERE user_id = ? ORDER BY id DESC LIMIT 1");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    if ($res->num_rows > 0) {
+        $selected_address = $res->fetch_assoc();
+        $_SESSION['selected_alamat_id'] = $selected_address['id'];
+    }
+}
+
+// Fetch All Addresses
+$all_addresses = [];
+$stmt = $db->prepare("SELECT * FROM user_alamat WHERE user_id = ? ORDER BY id DESC");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$res = $stmt->get_result();
+while ($row = $res->fetch_assoc()) {
+    $all_addresses[] = $row;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,17 +123,224 @@ require '../../db/db.php';
         }
         
         /* Breadcrumb CSS */
+        /* Breadcrumb CSS */
         .breadcrumb-container {
-            padding: 15px 5%;
-            background-color: #f7f7f7;
+            padding: 15px 0;
+            background-color: #fff;
             font-size: 14px;
-            color: #888;
-            border-bottom: 1px solid #e0e0e0;
+            color: #86868b;
+            border-bottom: 1px solid #e5e5e7;
         }
-        .breadcrumb-container a { color: #007aff; text-decoration: none; }
-        .breadcrumb-container a:hover { text-decoration: underline; }
-        .breadcrumb-separator { margin: 0 8px; color: #ccc; }
-        .breadcrumb-current { color: #333; font-weight: 500; }
+        .breadcrumb-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+        }
+        .breadcrumb-container a { 
+            color: #1d1d1f; 
+            text-decoration: none; 
+            transition: color 0.2s;
+        }
+        .breadcrumb-container a:hover { 
+            color: #007aff; 
+        }
+        .breadcrumb-separator { 
+            margin: 0 10px; 
+            color: #d2d2d7; 
+            font-size: 12px;
+        }
+        .breadcrumb-current { 
+            color: #86868b; 
+            font-weight: 400; 
+        }
+    </style>
+    <style>
+        /* Address Management Styles */
+        .address-display-card {
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 20px;
+            background: #fbfbfd;
+        }
+        .address-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .address-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+        .address-text {
+            font-size: 15px;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+        .address-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn-address-action {
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-change-address {
+            background: white;
+            border: 1px solid #d2d2d7;
+            color: #1d1d1f;
+        }
+        .btn-change-address:hover {
+            border-color: #007aff;
+            color: #007aff;
+        }
+        .btn-edit-address {
+            background: transparent;
+            border: none;
+            color: #007aff;
+            padding: 8px 0;
+        }
+        .btn-edit-address:hover {
+            text-decoration: underline;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            border-radius: 18px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+            animation: modalSlideUp 0.3s ease;
+        }
+        @keyframes modalSlideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+        .btn-close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #86868b;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+        }
+        .address-list-item {
+            border: 1px solid #e5e5e7;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .address-list-item:hover {
+            border-color: #007aff;
+            background: #f5f5f7;
+        }
+        .address-list-item.selected {
+            border-color: #007aff;
+            background: #f0f7ff;
+            box-shadow: 0 0 0 1px #007aff inset;
+        }
+        .address-content {
+            flex: 1;
+        }
+        .address-select-indicator {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid #d2d2d7;
+            margin-left: 15px;
+            position: relative;
+        }
+        .address-list-item.selected .address-select-indicator {
+            border-color: #007aff;
+            background: #007aff;
+        }
+        .address-list-item.selected .address-select-indicator::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px; height: 10px;
+            background: white;
+            border-radius: 50%;
+        }
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn-modal {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        .btn-secondary { background: #e5e5e7; color: #1d1d1f; }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-danger { background: #ff3b30; color: white; }
+        
+        /* Form Styles update */
+        .form-grid-modal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .full-width { grid-column: span 2; }
     </style>
 </head>
 
@@ -930,9 +1236,16 @@ require '../../db/db.php';
                         </form>
                     </div>
                     <div class="nav-other-menu">
-                        <a href="../auth/login.php" class="user-icon">
-                            <i class="bi bi-person-fill"></i>
-                        </a>
+                        <?php if ($is_logged_in): ?>
+                            <a href="../auth/profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-person-circle" style="font-size: 20px;"></i>
+                                <span><?php echo htmlspecialchars($user_initials); ?></span>
+                            </a>
+                        <?php else: ?>
+                            <a href="../auth/login.php" class="user-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </a>
+                        <?php endif; ?>
                         <div class="bag-icon">
                             <i class="bi bi-bag"></i>
                         </div>
@@ -2012,10 +2325,13 @@ require '../../db/db.php';
     </nav>
     
     <!-- Breadcrumb -->
+    <!-- Breadcrumb -->
     <div class="breadcrumb-container">
-        <a href="../index.php">Home</a>
-        <span class="breadcrumb-separator">/</span>
-        <span class="breadcrumb-current">Checkout</span>
+        <div class="breadcrumb-inner">
+            <a href="../index.php"><i class="fas fa-home" style="margin-right: 5px;"></i> Home</a>
+            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
+            <span class="breadcrumb-current">Checkout</span>
+        </div>
     </div>
 
     <?php
@@ -2488,8 +2804,76 @@ require '../../db/db.php';
                 padding: 30px;
                 box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
                 height: fit-content;
+                align-self: flex-start;
+                position: -webkit-sticky;
                 position: sticky;
-                top: 100px;
+                top: 150px;
+                z-index: 90;
+            }
+
+            .quantity-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 25px;
+                padding-bottom: 25px;
+                border-bottom: 2px solid #e5e5e7;
+            }
+
+            .quantity-selector {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background: #f5f5f7;
+                padding: 5px;
+                border-radius: 12px;
+            }
+
+            .qty-btn {
+                width: 32px;
+                height: 32px;
+                border: none;
+                background: white;
+                border-radius: 8px;
+                cursor: pointer;
+                font-weight: bold;
+                font-size: 16px;
+                color: #1d1d1f;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qty-btn:hover {
+                background: #007aff;
+                color: white;
+            }
+
+            .qty-btn:active {
+                transform: scale(0.95);
+            }
+
+            #productQuantity {
+                width: 40px;
+                text-align: center;
+                border: none;
+                background: transparent;
+                font-weight: 600;
+                font-size: 16px;
+                color: #1d1d1f;
+                -moz-appearance: textfield;
+            }
+            
+            #productQuantity:focus {
+                outline: none;
+            }
+
+            #productQuantity::-webkit-outer-spin-button,
+            #productQuantity::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
             }
 
             .sidebar-title {
@@ -2562,6 +2946,44 @@ require '../../db/db.php';
 
             .btn-checkout:active {
                 transform: translateY(-1px);
+            }
+
+            .btn-cart {
+                width: 100%;
+                padding: 18px;
+                background: white;
+                color: #007aff;
+                border: 2px solid #007aff;
+                border-radius: 14px;
+                font-size: 17px;
+                font-weight: 700;
+                cursor: pointer;
+                margin-top: 15px;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .btn-cart:hover {
+                background-color: #f0f7ff;
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 122, 255, 0.15);
+            }
+
+            .btn-cart:active {
+                transform: translateY(-1px);
+            }
+
+            .btn-cart.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                border-color: #e5e5e7;
+                color: #86868b;
+                background: #f5f5f7;
             }
 
             .security-badge {
@@ -2657,12 +3079,103 @@ require '../../db/db.php';
                     padding: 20px;
                 }
             }
+
+            /* Styles for new sections */
+            .checkout-section {
+                background: white;
+                border-radius: 20px;
+                padding: 40px;
+                margin-top: 30px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+            }
+
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group.full-width {
+                grid-column: span 2;
+            }
+
+            .form-label {
+                display: block;
+                font-size: 14px;
+                font-weight: 500;
+                color: #1d1d1f;
+                margin-bottom: 8px;
+            }
+
+            .form-input {
+                width: 100%;
+                padding: 12px 15px;
+                border: 1px solid #d2d2d7;
+                border-radius: 12px;
+                font-size: 15px;
+                color: #1d1d1f;
+                transition: all 0.2s;
+            }
+
+            .form-input:focus {
+                border-color: #007aff;
+                outline: none;
+                box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            }
+
+            .payment-methods {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 15px;
+            }
+
+            .payment-option {
+                border: 1px solid #d2d2d7;
+                border-radius: 12px;
+                padding: 15px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .payment-option:hover {
+                border-color: #007aff;
+                background-color: #f5f5f7;
+            }
+
+            .payment-option.selected {
+                border-color: #007aff;
+                background-color: #f0f7ff;
+                box-shadow: 0 0 0 1px #007aff inset;
+            }
+
+            .payment-icon {
+                font-size: 24px;
+                color: #1d1d1f;
+            }
+            
+            .payment-name {
+                font-size: 13px;
+                font-weight: 500;
+                color: #1d1d1f;
+            }
         </style>
 
         <?php if ($product): ?>
             <div class="checkout-grid">
-                <!-- Product Showcase -->
-                <div class="product-showcase">
+                <!-- Main Content Column -->
+                <div class="checkout-main">
+                    <!-- Product Showcase -->
+                    <div class="product-showcase">
                     <div class="product-header">
                         <span class="product-badge"><?php echo htmlspecialchars($product['kategori']); ?></span>
                         <h1 class="product-title"><?php echo htmlspecialchars($product['nama_produk']); ?></h1>
@@ -2737,10 +3250,84 @@ require '../../db/db.php';
                     </div>
                 </div>
 
+                <!-- Payment Method Section (Moved up) -->
+                <div class="checkout-section">
+                    <h2 class="section-title">Metode Pembayaran</h2>
+                    <div class="payment-methods">
+                        <div class="payment-option selected" onclick="selectPayment(this)">
+                            <i class="fas fa-university payment-icon"></i>
+                            <span class="payment-name">Transfer Bank</span>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment(this)">
+                            <i class="fas fa-credit-card payment-icon"></i>
+                            <span class="payment-name">Kartu Kredit</span>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment(this)">
+                            <i class="fas fa-wallet payment-icon"></i>
+                            <span class="payment-name">E-Wallet</span>
+                        </div>
+                        <div class="payment-option" onclick="selectPayment(this)">
+                            <i class="fas fa-store payment-icon"></i>
+                            <span class="payment-name">Gerai Retail</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address Section -->
+                <div class="checkout-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 class="section-title" style="margin-bottom: 0;">Alamat Pengiriman</h2>
+                        <?php if (!$selected_address): ?>
+                            <button class="btn-address-action btn-change-address" onclick="openAddressModal('add')">
+                                <i class="fas fa-plus"></i> Tambah Alamat
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                    
+                    <?php if ($selected_address): ?>
+                        <div class="address-display-card">
+                            <span class="address-label"><?php echo htmlspecialchars($selected_address['label_alamat'] ?: 'Alamat Utama'); ?></span>
+                            <div class="address-name"><?php echo htmlspecialchars($selected_address['username']); ?> <span style="font-weight: 400; color: #6e6e73;">| <?php echo htmlspecialchars($selected_address['no_hp']); ?></span></div>
+                            <div class="address-text">
+                                <?php echo nl2br(htmlspecialchars($selected_address['alamat_lengkap'])); ?><br>
+                                <?php echo htmlspecialchars($selected_address['kecamatan']); ?>, <?php echo htmlspecialchars($selected_address['kota']); ?><br>
+                                <?php echo htmlspecialchars($selected_address['provinsi']); ?>, <?php echo htmlspecialchars($selected_address['kode_post']); ?>
+                            </div>
+                            <div class="address-actions">
+                                <button class="btn-address-action btn-change-address" onclick="openAddressListModal()">
+                                    Ganti Alamat
+                                </button>
+                                <button class="btn-address-action btn-edit-address" onclick='openEditAddressModal(<?php echo json_encode($selected_address); ?>)'>
+                                    Edit Alamat
+                                </button>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="empty-state" style="padding: 40px; background: #fbfbfd; border: 1px dashed #d2d2d7; border-radius: 12px;">
+                            <i class="fas fa-map-marker-alt" style="font-size: 40px; color: #d2d2d7; margin-bottom: 15px;"></i>
+                            <p style="color: #86868b; margin-bottom: 20px;">Belum ada alamat pengiriman yang dipilih.</p>
+                            <button class="btn-address-action btn-change-address" onclick="openAddressModal('add')">
+                                Tambah Alamat Baru
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                </div> <!-- End of .checkout-main -->
+
                 <!-- Checkout Sidebar -->
                 <div class="checkout-sidebar">
                     <h2 class="sidebar-title">Ringkasan Belanja</h2>
                     
+                    <div class="quantity-container">
+                        <span class="summary-label">Jumlah</span>
+                        <div class="quantity-selector">
+                            <button class="qty-btn" onclick="updateQuantity(-1)">−</button>
+                            <input type="number" id="productQuantity" value="1" min="1" readonly>
+                            <button class="qty-btn" onclick="updateQuantity(1)">+</button>
+                        </div>
+                    </div>
+
                     <div class="summary-row">
                         <span class="summary-label">Harga Produk</span>
                         <span class="summary-value" id="productPrice">Rp 0</span>
@@ -2766,8 +3353,12 @@ require '../../db/db.php';
                         <span class="summary-value" id="totalPrice">Rp 0</span>
                     </div>
                     
-                    <button class="btn-checkout" onclick="processCheckout()">
+                    <button class="btn-checkout" onclick="processCheckout()" disabled style="opacity: 0.5; cursor: not-allowed;">
                         <i class="fas fa-lock"></i> Checkout Sekarang
+                    </button>
+
+                    <button class="btn-cart" onclick="addToCart()" disabled>
+                        <i class="fas fa-shopping-cart"></i> Tambah ke Keranjang
                     </button>
 
                     <div class="security-badge">
@@ -2799,6 +3390,8 @@ require '../../db/db.php';
            echo isset($product_config[$pType]['col_warna_img']) ? $product_config[$pType]['col_warna_img'] : 'warna';
         ?>";
         let selectedAttributes = {};
+        let currentQuantity = 1;
+        let currentVariant = null;
         
         function changeMainImage(thumbnail, element) {
             // Update main image
@@ -2864,8 +3457,10 @@ require '../../db/db.php';
                 });
 
                 if (matchedVariant) {
+                    currentVariant = matchedVariant;
                     updateCheckoutInfo(matchedVariant);
                 } else {
+                    currentVariant = null;
                     // Kombinasi tidak tersedia
                     showUnavailable();
                 }
@@ -2873,8 +3468,11 @@ require '../../db/db.php';
         }
 
         function updateCheckoutInfo(variant) {
-            const price = parseInt(variant.harga_diskon > 0 ? variant.harga_diskon : variant.harga);
-            const originalPrice = parseInt(variant.harga);
+            const unitPrice = parseInt(variant.harga_diskon > 0 ? variant.harga_diskon : variant.harga);
+            const unitOriginalPrice = parseInt(variant.harga);
+            
+            const price = unitPrice * currentQuantity;
+            const originalPrice = unitOriginalPrice * currentQuantity;
             const hasDiscount = variant.harga_diskon > 0 && variant.harga_diskon < variant.harga;
             
             // Hitung pajak dan total
@@ -2895,25 +3493,66 @@ require '../../db/db.php';
                 document.getElementById('discountRow').style.display = 'none';
             }
 
-            // Aktifkan tombol checkout
+            // Aktifkan tombol checkout dan cart
             const btnCheckout = document.querySelector('.btn-checkout');
+            const btnCart = document.querySelector('.btn-cart');
+            
             btnCheckout.disabled = false;
             btnCheckout.innerHTML = '<i class="fas fa-lock"></i> Checkout Sekarang';
             btnCheckout.style.opacity = '1';
             btnCheckout.style.cursor = 'pointer';
+
+            btnCart.disabled = false;
+            btnCart.classList.remove('disabled');
         }
 
         function showUnavailable() {
             const btnCheckout = document.querySelector('.btn-checkout');
+            const btnCart = document.querySelector('.btn-cart');
+
             btnCheckout.disabled = true;
             btnCheckout.innerHTML = '<i class="fas fa-times"></i> Stok Tidak Tersedia';
             btnCheckout.style.opacity = '0.5';
             btnCheckout.style.cursor = 'not-allowed';
+
+            btnCart.disabled = true;
+            btnCart.classList.add('disabled');
             
             // Reset harga
             document.getElementById('productPrice').textContent = '-';
             document.getElementById('taxAmount').textContent = '-';
             document.getElementById('totalPrice').textContent = '-';
+        }
+
+        function updateQuantity(change) {
+            const input = document.getElementById('productQuantity');
+            let newValue = currentQuantity + change;
+            
+            // Validate min 1
+            if (newValue < 1) newValue = 1;
+            
+            // Validate max stock if variant selected
+            if (currentVariant && currentVariant.jumlah_stok) {
+                // If stock is limited
+                const stock = parseInt(currentVariant.jumlah_stok);
+                if (newValue > stock) {
+                    alert('Maaf, stok hanya tersedia ' + stock);
+                    return;
+                }
+            }
+            
+            currentQuantity = newValue;
+            input.value = currentQuantity;
+            
+            // Update prices if variant selected
+            if (currentVariant) {
+                updateCheckoutInfo(currentVariant);
+            }
+        }
+
+        function selectPayment(element) {
+            document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
         }
 
         function processCheckout() {
@@ -2928,6 +3567,55 @@ require '../../db/db.php';
             alert('Fitur checkout akan segera tersedia!\n\nProduk Anda akan segera diproses.');
         }
 
+        function addToCart() {
+            const isComplete = requiredFields.every(field => selectedAttributes[field]);
+            
+            if (!isComplete) {
+                alert('Silakan lengkapi pilihan varian produk terlebih dahulu!');
+                return;
+            }
+
+            // Get thumbnail from current main image src
+            const mainImgSrc = document.getElementById('mainProductImage').src;
+            const thumbnail = mainImgSrc.split('/').pop(); // Extract filename
+
+            // Prepare data
+            const formData = new FormData();
+            formData.append('product_id', <?php echo $product_id; ?>);
+            formData.append('jumlah', currentQuantity);
+            formData.append('tipe', '<?php echo $product_type; ?>');
+            formData.append('thumbnail', thumbnail);
+
+            // Send to API
+            const btnCart = document.querySelector('.btn-cart');
+            const originalText = btnCart.innerHTML;
+            btnCart.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btnCart.disabled = true;
+
+            fetch('api/add_to_cart.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show custom success modal
+                    document.getElementById('cartSuccessModal').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    alert('Gagal: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghubungi server.');
+            })
+            .finally(() => {
+                btnCart.innerHTML = originalText;
+                btnCart.disabled = false;
+            });
+        }
+
         // Auto-select first options on load (optional)
         /*
         window.addEventListener('DOMContentLoaded', function() {
@@ -2936,5 +3624,201 @@ require '../../db/db.php';
         */
     </script>
 
+    <!-- Address List Modal -->
+    <div id="addressListModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title">Pilih Alamat Pengiriman</h3>
+                <button class="btn-close-modal" onclick="closeModal('addressListModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <button class="btn-address-action btn-change-address" style="width: 100%; border-style: dashed;" onclick="openAddressModal('add')">
+                        <i class="fas fa-plus" style="margin-right: 8px;"></i> Tambah Alamat Baru
+                    </button>
+                </div>
+                
+                <div class="address-list">
+                    <?php foreach ($all_addresses as $addr): ?>
+                        <div class="address-list-item <?php echo ($selected_address && $selected_address['id'] == $addr['id']) ? 'selected' : ''; ?>" 
+                             onclick="selectAddress(<?php echo $addr['id']; ?>)">
+                            <div class="address-content">
+                                <span class="address-label" style="font-size: 11px;"><?php echo htmlspecialchars($addr['label_alamat'] ?: 'Utama'); ?></span>
+                                <div style="font-weight: 600; margin-bottom: 4px;"><?php echo htmlspecialchars($addr['username']); ?></div>
+                                <div style="font-size: 14px; color: #6e6e73;"><?php echo htmlspecialchars($addr['no_hp']); ?></div>
+                                <div style="font-size: 14px; color: #6e6e73; margin-top: 4px;">
+                                    <?php echo htmlspecialchars($addr['alamat_lengkap']); ?>, <?php echo htmlspecialchars($addr['kota']); ?>
+                                </div>
+                            </div>
+                            <div class="address-select-indicator"></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Address Modal -->
+    <div id="addressFormModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalFormTitle">Tambah Alamat</h3>
+                <button class="btn-close-modal" onclick="closeModal('addressFormModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addressForm" method="POST">
+                    <input type="hidden" name="address_action" id="formAction" value="add">
+                    <input type="hidden" name="address_id" id="addressId" value="">
+                    
+                    <div class="form-grid-modal">
+                        <div class="form-group">
+                            <label class="form-label">Label Alamat</label>
+                            <input type="text" name="label_alamat" id="labelAlamat" class="form-input" placeholder="Rumah, Kantor, dll">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nama Penerima</label>
+                            <input type="text" name="username" id="namaUser" class="form-input" required placeholder="Nama Lengkap">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor HP</label>
+                            <input type="tel" name="no_hp" id="nomorHp" class="form-input" required placeholder="08xxxxxxxxxx">
+                        </div>
+                         <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="email" class="form-input" required placeholder="Email">
+                        </div>
+                        <div class="form-group full-width">
+                            <label class="form-label">Alamat Lengkap</label>
+                            <textarea name="alamat_lengkap" id="alamatLengkap" class="form-input" rows="3" required placeholder="Nama jalan, nomor rumah, detail lainnya"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Provinsi</label>
+                            <input type="text" name="provinsi" id="provinsi" class="form-input" required placeholder="Provinsi">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kota/Kabupaten</label>
+                            <input type="text" name="kota" id="kota" class="form-input" required placeholder="Kota">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kecamatan</label>
+                            <input type="text" name="kecamatan" id="kecamatan" class="form-input" required placeholder="Kecamatan">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kode Pos</label>
+                            <input type="text" name="kode_post" id="kodePost" class="form-input" required placeholder="Kode Pos">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnDeleteAddress" class="btn-modal btn-danger" style="margin-right: auto; display: none;" onclick="deleteAddress()">Hapus</button>
+                <button type="button" class="btn-modal btn-secondary" onclick="closeModal('addressFormModal')">Batal</button>
+                <button type="button" class="btn-modal btn-primary" onclick="document.getElementById('addressForm').submit()">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hidden Select Form -->
+    <form id="selectAddressForm" method="POST" style="display: none;">
+        <input type="hidden" name="address_action" value="select">
+        <input type="hidden" name="address_id" id="selectAddressId">
+    </form>
+    
+    <form id="deleteAddressForm" method="POST" style="display: none;">
+        <input type="hidden" name="address_action" value="delete">
+        <input type="hidden" name="address_id" id="deleteAddressId">
+    </form>
+
+    <!-- Cart Success Modal -->
+    <div id="cartSuccessModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 400px; text-align: center;">
+            <div class="modal-body" style="padding: 40px 30px;">
+                <div style="width: 70px; height: 70px; background: #34c759; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <i class="fas fa-check" style="font-size: 35px; color: white;"></i>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 10px;">Berhasil Disimpan</h3>
+                <p style="font-size: 15px; color: #6e6e73; margin-bottom: 30px;">Produk telah berhasil ditambahkan ke keranjang belanja Anda.</p>
+                <div style="display: flex; gap: 15px; flex-direction: column;">
+                     <button class="btn-modal btn-primary" onclick="closeModal('cartSuccessModal')" style="width: 100%; padding: 14px; font-size: 16px; border-radius: 12px; background: #007aff;">OK, Lanjut Belanja</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openAddressListModal() {
+            document.getElementById('addressListModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function openAddressModal(type) {
+            closeModal('addressListModal'); // Close list if open
+            const modal = document.getElementById('addressFormModal');
+            const form = document.getElementById('addressForm');
+            
+            // Reset form
+            form.reset();
+            document.getElementById('btnDeleteAddress').style.display = 'none';
+            
+            if (type === 'add') {
+                document.getElementById('modalFormTitle').textContent = 'Tambah Alamat Baru';
+                document.getElementById('formAction').value = 'add';
+                document.getElementById('addressId').value = '';
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function openEditAddressModal(data) {
+            openAddressModal('edit'); // Open and reset
+            
+            // Fill data
+            document.getElementById('modalFormTitle').textContent = 'Edit Alamat';
+            document.getElementById('formAction').value = 'edit';
+            document.getElementById('addressId').value = data.id;
+            
+            document.getElementById('labelAlamat').value = data.label_alamat || '';
+            document.getElementById('namaUser').value = data.username || '';
+            document.getElementById('nomorHp').value = data.no_hp || '';
+            document.getElementById('email').value = data.email || '';
+            document.getElementById('alamatLengkap').value = data.alamat_lengkap || '';
+            document.getElementById('provinsi').value = data.provinsi || '';
+            document.getElementById('kota').value = data.kota || '';
+            document.getElementById('kecamatan').value = data.kecamatan || '';
+            document.getElementById('kodePost').value = data.kode_post || '';
+            
+            // Show delete button
+            document.getElementById('btnDeleteAddress').style.display = 'block';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function selectAddress(id) {
+            document.getElementById('selectAddressId').value = id;
+            document.getElementById('selectAddressForm').submit();
+        }
+        
+        function deleteAddress() {
+            if(confirm('Apakah Anda yakin ingin menghapus alamat ini?')) {
+                const id = document.getElementById('addressId').value;
+                document.getElementById('deleteAddressId').value = id;
+                document.getElementById('deleteAddressForm').submit();
+            }
+        }
+        
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

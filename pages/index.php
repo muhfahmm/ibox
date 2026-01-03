@@ -1,5 +1,18 @@
 <?php
+session_start();
 require '../db/db.php';
+$is_logged_in = isset($_SESSION['user_id']);
+$user_initials = '';
+if ($is_logged_in) {
+    // Get firstname and lastname from session
+    $firstname = isset($_SESSION['user_firstname']) ? $_SESSION['user_firstname'] : '';
+    $lastname = isset($_SESSION['user_lastname']) ? $_SESSION['user_lastname'] : '';
+    
+    // Create initials (first letter of firstname + first letter of lastname)
+    $first_initial = !empty($firstname) ? strtoupper(substr($firstname, 0, 1)) : '';
+    $last_initial = !empty($lastname) ? strtoupper(substr($lastname, 0, 1)) : '';
+    $user_initials = $first_initial . $last_initial;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -915,9 +928,16 @@ require '../db/db.php';
                         </form>
                     </div>
                     <div class="nav-other-menu">
-                        <a href="auth/login.php" class="user-icon">
-                            <i class="bi bi-person-fill"></i>
-                        </a>
+                        <?php if ($is_logged_in): ?>
+                            <a href="auth/profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                                <i class="bi bi-person-circle" style="font-size: 20px;"></i>
+                                <span><?php echo htmlspecialchars($user_initials); ?></span>
+                            </a>
+                        <?php else: ?>
+                            <a href="auth/login.php" class="user-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </a>
+                        <?php endif; ?>
                         <div class="bag-icon">
                             <i class="bi bi-bag"></i>
                         </div>
