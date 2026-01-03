@@ -26,6 +26,7 @@ require '../db/db.php';
 </head>
 
 <body>
+    <!-- navbar -->
     <nav class="navbar-container">
         <style>
             body {
@@ -914,9 +915,9 @@ require '../db/db.php';
                         </form>
                     </div>
                     <div class="nav-other-menu">
-                        <div class="user-icon">
+                        <a href="auth/login.php" class="user-icon">
                             <i class="bi bi-person-fill"></i>
-                        </div>
+                        </a>
                         <div class="bag-icon">
                             <i class="bi bi-bag"></i>
                         </div>
@@ -929,7 +930,7 @@ require '../db/db.php';
                     <div class="list-menu">
                         <?php
                         // Query untuk mengambil kategori produk dari database
-                        
+
                         // Mac
                         $mac_categories_query = "SELECT DISTINCT kategori FROM admin_produk_mac WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $mac_categories_result = mysqli_query($db, $mac_categories_query);
@@ -937,7 +938,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($mac_categories_result)) {
                             $mac_categories[] = $row['kategori'];
                         }
-                        
+
                         // iPad
                         $ipad_categories_query = "SELECT DISTINCT kategori FROM admin_produk_ipad WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $ipad_categories_result = mysqli_query($db, $ipad_categories_query);
@@ -945,7 +946,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($ipad_categories_result)) {
                             $ipad_categories[] = $row['kategori'];
                         }
-                        
+
                         // iPhone
                         $iphone_categories_query = "SELECT DISTINCT kategori FROM admin_produk_iphone WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $iphone_categories_result = mysqli_query($db, $iphone_categories_query);
@@ -953,7 +954,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($iphone_categories_result)) {
                             $iphone_categories[] = $row['kategori'];
                         }
-                        
+
                         // Watch
                         $watch_categories_query = "SELECT DISTINCT kategori FROM admin_produk_watch WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $watch_categories_result = mysqli_query($db, $watch_categories_query);
@@ -961,7 +962,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($watch_categories_result)) {
                             $watch_categories[] = $row['kategori'];
                         }
-                        
+
                         // Music
                         $music_categories_query = "SELECT DISTINCT kategori FROM admin_produk_music WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $music_categories_result = mysqli_query($db, $music_categories_query);
@@ -969,7 +970,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($music_categories_result)) {
                             $music_categories[] = $row['kategori'];
                         }
-                        
+
                         // AirTag
                         $airtag_categories_query = "SELECT DISTINCT kategori FROM admin_produk_airtag WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $airtag_categories_result = mysqli_query($db, $airtag_categories_query);
@@ -977,7 +978,7 @@ require '../db/db.php';
                         while ($row = mysqli_fetch_assoc($airtag_categories_result)) {
                             $airtag_categories[] = $row['kategori'];
                         }
-                        
+
                         // Aksesori
                         $aksesori_categories_query = "SELECT DISTINCT kategori FROM admin_produk_aksesoris WHERE kategori IS NOT NULL AND kategori != '' ORDER BY kategori ASC";
                         $aksesori_categories_result = mysqli_query($db, $aksesori_categories_query);
@@ -997,11 +998,11 @@ require '../db/db.php';
                                     // Menampilkan kategori Mac dari database
                                     foreach ($mac_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1023,11 +1024,11 @@ require '../db/db.php';
                                     // Menampilkan kategori iPad dari database
                                     foreach ($ipad_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1049,11 +1050,11 @@ require '../db/db.php';
                                     // Menampilkan kategori iPhone dari database
                                     foreach ($iphone_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1075,11 +1076,11 @@ require '../db/db.php';
                                     // Menampilkan kategori Watch dari database
                                     foreach ($watch_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1101,11 +1102,11 @@ require '../db/db.php';
                                     // Menampilkan kategori Music dari database
                                     foreach ($music_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1127,11 +1128,11 @@ require '../db/db.php';
                                     // Menampilkan kategori AirTag dari database
                                     foreach ($airtag_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1153,11 +1154,11 @@ require '../db/db.php';
                                     // Menampilkan kategori Aksesori dari database
                                     foreach ($aksesori_categories as $kategori) {
                                         echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                        
+
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
-                                        
+
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
@@ -1287,11 +1288,11 @@ require '../db/db.php';
                             // Menampilkan kategori Mac dari database untuk sidebar
                             foreach ($mac_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1313,11 +1314,11 @@ require '../db/db.php';
                             // Menampilkan kategori iPad dari database untuk sidebar
                             foreach ($ipad_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1339,11 +1340,11 @@ require '../db/db.php';
                             // Menampilkan kategori iPhone dari database untuk sidebar
                             foreach ($iphone_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1365,11 +1366,11 @@ require '../db/db.php';
                             // Menampilkan kategori Watch dari database untuk sidebar
                             foreach ($watch_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1391,11 +1392,11 @@ require '../db/db.php';
                             // Menampilkan kategori Music dari database untuk sidebar
                             foreach ($music_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1417,11 +1418,11 @@ require '../db/db.php';
                             // Menampilkan kategori AirTag dari database untuk sidebar
                             foreach ($airtag_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1443,11 +1444,11 @@ require '../db/db.php';
                             // Menampilkan kategori Aksesori dari database untuk sidebar
                             foreach ($aksesori_categories as $kategori) {
                                 echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
-                                
+
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
                                 $produk_result = mysqli_query($db, $produk_query);
-                                
+
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
                                         echo '<a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a>';
@@ -1995,6 +1996,7 @@ require '../db/db.php';
         </script>
     </nav>
 
+    <!-- image-slider -->
     <div class="image-slider-container">
         <?php
         // Query untuk mengambil data slider dari database
@@ -2685,6 +2687,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- kategori produk tab -->
     <div class="category-products-container">
         <style>
             body {
@@ -2695,7 +2698,7 @@ require '../db/db.php';
             .category-products-container {
                 max-width: 1400px;
                 margin: 0 auto;
-                padding: 0 20px;
+                padding: 30px 0 20px;
             }
 
             .category-products-wrapper {
@@ -2890,104 +2893,63 @@ require '../db/db.php';
                     display: none;
                 }
             }
-
-            /* Header */
-            .category-header {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-
-            .category-header h1 {
-                font-size: 36px;
-                font-weight: 700;
-                color: #333;
-                margin-bottom: 15px;
-            }
-
-            .category-header p {
-                font-size: 16px;
-                color: #666;
-                max-width: 600px;
-                margin: 0 auto;
-                line-height: 1.6;
-            }
-
-            @media (max-width: 768px) {
-                .category-header h1 {
-                    font-size: 28px;
-                }
-            }
-
-            @media (max-width: 480px) {
-                .category-header h1 {
-                    font-size: 24px;
-                }
-            }
         </style>
         <div class="category-products-wrapper">
-            <div class="category-header">
-                <h1>Kategori Produk Apple</h1>
-                <p>Pilih kategori produk Apple yang Anda minati</p>
+            <div class="category-products" id="categoryProducts">
+                <div class="product-items" data-category="mac" data-category-name="Mac">
+                    <img src="https://cdnpro.eraspace.com/media/wysiwyg/banner/IMG_3966.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">Mac</p>
+                        <p class="product-items-price">Mulai dari Rp11 juta</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="iphone" data-category-name="iPhone">
+                    <img src="https://cdnpro.eraspace.com/media/wysiwyg/store_card_13_iphone_nav_202509_f4cfa37f_36ba_4094_9b94_e110f8a4e707.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">iPhone</p>
+                        <p class="product-items-price">Mulai dari Rp8 juta</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="ipad" data-category-name="iPad">
+                    <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/iPad_-_Cek_yang_terbaru.webp?rand=1720254832">
+                    <div class="product-items-title">
+                        <p class="product-items-name">iPad</p>
+                        <p class="product-items-price">Mulai dari Rp4 juta</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="watch" data-category-name="Apple Watch">
+                    <img src="https://cdnpro.eraspace.com/media/wysiwyg/image-watch.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">WATCH</p>
+                        <p class="product-items-price">Mulai dari Rp3juta</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="music" data-category-name="Music">
+                    <img src="https://cdnpro.eraspace.com/media/wysiwyg/url_upload_691a6fad14870.tmp-691a6fad3c537.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">Music</p>
+                        <p class="product-items-price">Mulai dari Rp2 juta</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="aksesoris" data-category-name="Aksesori">
+                    <img src="https://bim4s4kti.eraspace.com/media/wysiwyg/store-card-13-accessories-nav-202509.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">Aksesori</p>
+                        <p class="product-items-price">Mulai dari Rp200 ribu</p>
+                    </div>
+                </div>
+                <div class="product-items" data-category="airtag" data-category-name="AirTag">
+                    <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/berbagai-produk/airtag.png">
+                    <div class="product-items-title">
+                        <p class="product-items-name">AirTag</p>
+                        <p class="product-items-price">Mulai dari Rp400 ribu</p>
+                    </div>
+                </div>
             </div>
 
-            <!-- Category Products Slider -->
-            <div class="category-products-wrapper">
-                <div class="category-products" id="categoryProducts">
-                    <div class="product-items" data-category="mac" data-category-name="Mac">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/banner/IMG_3966.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">Mac</p>
-                            <p class="product-items-price">Mulai dari Rp11 juta</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="iphone" data-category-name="iPhone">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/store_card_13_iphone_nav_202509_f4cfa37f_36ba_4094_9b94_e110f8a4e707.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">iPhone</p>
-                            <p class="product-items-price">Mulai dari Rp8 juta</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="ipad" data-category-name="iPad">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/iPad_-_Cek_yang_terbaru.webp?rand=1720254832">
-                        <div class="product-items-title">
-                            <p class="product-items-name">iPad</p>
-                            <p class="product-items-price">Mulai dari Rp4 juta</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="watch" data-category-name="Apple Watch">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/image-watch.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">WATCH</p>
-                            <p class="product-items-price">Mulai dari Rp3juta</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="music" data-category-name="Music">
-                        <img src="https://cdnpro.eraspace.com/media/wysiwyg/url_upload_691a6fad14870.tmp-691a6fad3c537.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">Music</p>
-                            <p class="product-items-price">Mulai dari Rp2 juta</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="accessories" data-category-name="Aksesori">
-                        <img src="https://bim4s4kti.eraspace.com/media/wysiwyg/store-card-13-accessories-nav-202509.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">Aksesori</p>
-                            <p class="product-items-price">Mulai dari Rp200 ribu</p>
-                        </div>
-                    </div>
-                    <div class="product-items" data-category="airtag" data-category-name="AirTag">
-                        <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/berbagai-produk/airtag.png">
-                        <div class="product-items-title">
-                            <p class="product-items-name">AirTag</p>
-                            <p class="product-items-price">Mulai dari Rp400 ribu</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SWIPE HINT UNTUK MOBILE -->
-                <div class="swipe-hint" id="swipeHint">
-                    <i class="bi bi-arrow-left-right"></i> Geser untuk melihat lebih banyak
-                </div>
+            <!-- SWIPE HINT UNTUK MOBILE -->
+            <div class="swipe-hint" id="swipeHint">
+                <i class="bi bi-arrow-left-right"></i> Geser untuk melihat lebih banyak
             </div>
         </div>
         <script>
@@ -3212,22 +3174,8 @@ require '../db/db.php';
                         const category = this.dataset.category;
                         const categoryName = this.dataset.categoryName;
 
-                        // Hapus class active dari semua item
-                        categoryItems.forEach(i => i.classList.remove('active'));
-
-                        // Tambah class active ke item yang diklik
-                        this.classList.add('active');
-
-                        // Kirim event custom untuk komunikasi dengan komponen lain
-                        const event = new CustomEvent('categoryProductSelected', {
-                            detail: {
-                                category: category,
-                                categoryName: categoryName
-                            }
-                        });
-                        document.dispatchEvent(event);
-
-                        console.log(`Kategori produk dipilih: ${category} (${categoryName})`);
+                        // Redirect ke halaman products dengan parameter type
+                        window.location.href = `products/products.php?type=${category}`;
                     });
                 });
 
@@ -3264,6 +3212,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- all-products -->
     <div class="all-products-container">
         <?php
         // Fungsi untuk mengambil produk populer dari tabel home_produk_populer
@@ -3494,11 +3443,7 @@ require '../db/db.php';
                 padding: 0 20px;
             }
 
-            .all-products-wrapper {
-                padding: 40px 0;
-            }
-
-            h3 {
+            .products-section-title {
                 font-size: 28px;
                 font-weight: 600;
                 color: #333;
@@ -3508,7 +3453,7 @@ require '../db/db.php';
                 padding-bottom: 15px;
             }
 
-            h3::after {
+            .products-section-title::after {
                 content: '';
                 position: absolute;
                 bottom: 0;
@@ -4052,49 +3997,20 @@ require '../db/db.php';
                 }
             }
 
-            /* Header */
-            .product-header {
-                text-align: center;
-                margin-bottom: 40px;
-            }
-
-            .product-header h1 {
-                font-size: 36px;
-                font-weight: 700;
-                color: #333;
-                margin-bottom: 15px;
-            }
-
-            .product-header p {
-                font-size: 16px;
-                color: #666;
-                max-width: 600px;
-                margin: 0 auto;
-                line-height: 1.6;
-            }
-
             /* Container untuk produk terbaru */
             #latest-products-container {
                 margin-top: 40px;
             }
 
             @media (max-width: 768px) {
-                h3 {
+                .products-section-title {
                     font-size: 22px;
-                }
-
-                .product-header h1 {
-                    font-size: 28px;
                 }
             }
 
             @media (max-width: 480px) {
-                h3 {
+                .products-section-title {
                     font-size: 20px;
-                }
-
-                .product-header h1 {
-                    font-size: 24px;
                 }
             }
 
@@ -4124,7 +4040,7 @@ require '../db/db.php';
                 color: #ddd;
             }
 
-            .empty-state h4 {
+            .empty-state .empty-state-title {
                 font-size: 20px;
                 margin-bottom: 10px;
                 color: #333;
@@ -4136,12 +4052,8 @@ require '../db/db.php';
             }
         </style>
         <div class="all-products-wrapper">
-            <div class="product-header">
-                <h1>Berbagai produk Apple</h1>
-                <p>Temukan produk Apple terbaru dengan harga terbaik di iBox Indonesia</p>
-            </div>
 
-            <h3>Produk Apple Terpopuler</h3>
+            <h3 class="products-section-title">Produk Apple Terpopuler</h3>
 
             <!-- Category Tabs Slider untuk Produk Populer -->
             <div class="category-tabs-wrapper">
@@ -4167,7 +4079,7 @@ require '../db/db.php';
                 <?php if (empty($popularProducts)): ?>
                     <div class="empty-state">
                         <i class="bi bi-fire"></i>
-                        <h4>Belum ada produk populer</h4>
+                        <h4 class="empty-state-title">Belum ada produk populer</h4>
                         <p>Produk populer akan ditampilkan di sini</p>
                     </div>
                 <?php else: ?>
@@ -4175,16 +4087,17 @@ require '../db/db.php';
                         <i class="bi bi-arrow-clockwise"></i> Memuat produk populer...
                     </div>
                 <?php endif; ?>
+
             </div>
 
-            <h3>Produk Terbaru</h3>
+            <h3 class="products-section-title">Produk Terbaru</h3>
 
             <!-- Container untuk slider produk terbaru -->
             <div id="latest-products-container">
                 <?php if (empty($latestProducts)): ?>
                     <div class="empty-state">
                         <i class="bi bi-box-seam"></i>
-                        <h4>Belum ada produk terbaru</h4>
+                        <h4 class="empty-state-title">Belum ada produk terbaru</h4>
                         <p>Produk terbaru akan ditampilkan di sini</p>
                     </div>
                 <?php else: ?>
@@ -4192,6 +4105,7 @@ require '../db/db.php';
                         <i class="bi bi-arrow-clockwise"></i> Memuat produk terbaru...
                     </div>
                 <?php endif; ?>
+
             </div>
         </div>
         <script>
@@ -4402,8 +4316,18 @@ require '../db/db.php';
                 }
 
                 // ===== FUNGSI UNTUK PRODUK SLIDER =====
-                function renderProductsSlider(products, containerId, title = '') {
-                    if (products.length === 0) {
+                function renderProductsSlider(products, containerId, title = '', viewAllLink = null) {
+
+                    // Create render list with optional View All card
+                    const renderList = [...products];
+                    if (viewAllLink) {
+                        renderList.push({
+                            isViewAll: true,
+                            link: viewAllLink
+                        });
+                    }
+
+                    if (renderList.length === 0) {
                         document.getElementById(containerId).innerHTML = `
                         <div class="empty-state">
                             <i class="bi bi-inbox"></i>
@@ -4416,7 +4340,7 @@ require '../db/db.php';
 
                     // Hitung jumlah produk per slide berdasarkan lebar layar
                     const productsPerSlide = getProductsPerSlide();
-                    const slideCount = Math.ceil(products.length / productsPerSlide);
+                    const slideCount = Math.ceil(renderList.length / productsPerSlide);
                     const isSingleSlide = slideCount <= 1;
 
                     let html = `
@@ -4439,10 +4363,15 @@ require '../db/db.php';
 
                         // Tambahkan produk ke slide ini
                         const startIndex = slideIndex * productsPerSlide;
-                        const endIndex = Math.min(startIndex + productsPerSlide, products.length);
+                        const endIndex = Math.min(startIndex + productsPerSlide, renderList.length);
 
                         for (let i = startIndex; i < endIndex; i++) {
-                            html += createProductCard(products[i]);
+                            const item = renderList[i];
+                            if (item.isViewAll) {
+                                html += createViewAllCard(item.link);
+                            } else {
+                                html += createProductCard(item);
+                            }
                         }
 
                         html += `</div></div>`;
@@ -4494,6 +4423,20 @@ require '../db/db.php';
                     </button>
                 </div>
                 `;
+                }
+
+                function createViewAllCard(link) {
+                    return `
+                    <div class="product-card content-products" onclick="location.href='${link}'" style="cursor: pointer; background: #f5f5f7; height: 100%;">
+                        <div class="header-card-products" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;">
+                            <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
+                                <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
+                            </div>
+                            <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 5px;">Lihat Semua</h3>
+                            <p style="color: #86868b; text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan produk lainnya</p>
+                        </div>
+                    </div>
+                    `;
                 }
 
                 function getProductStarRating(rating) {
@@ -4657,7 +4600,7 @@ require '../db/db.php';
                         filteredProducts = popularProductsFromDB.filter(product => product.category === category);
                     }
 
-                    renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer');
+                    renderProductsSlider(filteredProducts, 'popular-products-container', 'Produk Populer', 'products/produk populer/produk-populer.php');
                 }
 
                 // ===== UPDATE TAB KATEGORI =====
@@ -4681,7 +4624,7 @@ require '../db/db.php';
                     }
 
                     // Render ulang produk terbaru
-                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
+                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru', 'products/produk-terbaru/produk-terbaru.php');
                 }
 
                 // ===== EVENT LISTENERS =====
@@ -4743,17 +4686,18 @@ require '../db/db.php';
 
                 // Render produk populer (dari tabel home_produk_populer)
                 if (popularProductsFromDB.length > 0) {
-                    renderProductsSlider(popularProductsFromDB, 'popular-products-container', 'Produk Populer');
+                    renderProductsSlider(popularProductsFromDB, 'popular-products-container', 'Produk Populer', 'products/produk populer/produk-populer.php');
                 }
 
                 // Render produk terbaru (dari tabel home_produk_terbaru yang baru)
                 if (latestProductsFromDB.length > 0) {
-                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru');
+                    renderProductsSlider(latestProductsFromDB, 'latest-products-container', 'Produk Terbaru', 'products/produk-terbaru/produk-terbaru.php');
                 }
             });
         </script>
     </div>
 
+    <!-- produk grid -->
     <div class="container-grid-products">
         <?php
         // Fungsi untuk mengambil data grid dari tabel home_grid
@@ -4889,6 +4833,7 @@ require '../db/db.php';
                 width: 100%;
                 max-width: 1400px;
                 margin: 0 auto;
+                padding: 0 20px
             }
 
             .grid-main {
@@ -5328,6 +5273,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- trade in -->
     <div class="tradein-container">
         <style>
             body {
@@ -6022,6 +5968,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- Layanan & Penawaran Eksklusif -->
     <div class="simple-services-container">
         <style>
             .simple-services-container * {
@@ -6038,7 +5985,7 @@ require '../db/db.php';
                 width: 100%;
                 max-width: 1400px;
                 margin: 0 auto;
-                padding-top: 30px;
+                padding: 0 20px;
             }
 
             .page-header {
@@ -6663,6 +6610,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- produk aksesori -->
     <div class="container-aksesori">
         <?php
         // Fungsi untuk mengambil data aksesori unggulan
@@ -6739,8 +6687,8 @@ require '../db/db.php';
                 margin-bottom: 30px;
             }
 
-            .section-heading h1 {
-                font-size: 2.5rem;
+            .section-heading .section-main-title {
+                font-size: 1.5rem;
                 font-weight: 700;
                 color: #1d1d1f;
                 display: inline-block;
@@ -6749,7 +6697,7 @@ require '../db/db.php';
                 letter-spacing: -0.5px;
             }
 
-            .section-heading h1::after {
+            .section-heading .section-main-title::after {
                 content: '';
                 position: absolute;
                 bottom: -10px;
@@ -7269,8 +7217,8 @@ require '../db/db.php';
                     padding: 0 10px;
                 }
 
-                .section-heading h1 {
-                    font-size: 1.6rem;
+                .section-heading .section-main-title {
+                    font-size: 1.5rem;
                 }
 
                 .aksesori-slider-track {
@@ -7358,8 +7306,7 @@ require '../db/db.php';
         </style>
         <!-- HEADING SECTION -->
         <div class="section-heading">
-            <h1>Aksesori Unggulan Apple</h1>
-            <p>Temukan aksesori premium untuk melengkapi perangkat Apple Anda dengan pengalaman terbaik</p>
+            <h1 class="section-main-title">Aksesori Unggulan Apple</h1>
         </div>
 
         <!-- SLIDER WRAPPER -->
@@ -7589,35 +7536,26 @@ require '../db/db.php';
                     }, 250);
                 });
 
-                // Fungsi untuk menyamakan tinggi semua card dalam satu slide
+                // Fungsi untuk menyamakan tinggi semua card secara global
                 function equalizeCardHeights() {
-                    if (cards.length === 0 || cardsPerView === 1) return;
+                    if (cards.length === 0) return;
 
                     // Reset semua tinggi ke auto terlebih dahulu
                     cards.forEach(card => {
                         card.style.height = 'auto';
                     });
 
-                    // Sinkronisasi tinggi card per slide
-                    for (let slideIndex = 0; slideIndex < totalSlides; slideIndex++) {
-                        const startIdx = slideIndex * cardsPerView;
-                        const endIdx = Math.min(startIdx + cardsPerView, totalCards);
-                        const slideCards = Array.from(cards).slice(startIdx, endIdx);
+                    // Cari tinggi maksimum dari SEMUA card
+                    let maxHeight = 0;
+                    cards.forEach(card => {
+                        const cardHeight = card.offsetHeight;
+                        if (cardHeight > maxHeight) maxHeight = cardHeight;
+                    });
 
-                        if (slideCards.length === 0) continue;
-
-                        // Cari tinggi maksimum dalam slide
-                        let maxHeight = 0;
-                        slideCards.forEach(card => {
-                            const cardHeight = card.offsetHeight;
-                            if (cardHeight > maxHeight) maxHeight = cardHeight;
-                        });
-
-                        // Terapkan tinggi maksimum ke semua card dalam slide
-                        slideCards.forEach(card => {
-                            card.style.height = `${maxHeight}px`;
-                        });
-                    }
+                    // Terapkan tinggi maksimum ke semua card
+                    cards.forEach(card => {
+                        card.style.height = `${maxHeight}px`;
+                    });
                 }
 
                 // Inisialisasi
@@ -7660,6 +7598,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- layanan ibox untuk anda -->
     <div class="kelas-layanan-container">
         <style>
             body {
@@ -8435,6 +8374,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- layanan lengkap -->
     <div class="layanan-lengkap-untuk-anda-container">
         <style>
             body {
@@ -8448,6 +8388,7 @@ require '../db/db.php';
                 width: 100%;
                 max-width: 1400px;
                 margin: 0 auto;
+                padding: 0 20px;
             }
 
             /* SERVICES SECTION - GRID untuk desktop, FLEX untuk mobile */
@@ -8560,16 +8501,19 @@ require '../db/db.php';
                 }
             }
 
-            /* Tablet - Tetap 3 kolom sejajar */
-            @media (max-width: 992px) {
+            /* Tablet (1023px) - 2 Kolom (Atas 2, Bawah 1) */
+            @media (max-width: 1023px) {
 
                 .layanan-lengkap-untuk-anda-container {
                     max-width: 100%;
                 }
 
                 .layanan-lengkap-untuk-anda-services {
+                    grid-template-columns: repeat(2, 1fr);
                     gap: 20px;
                 }
+
+                /* Card ke-3 akan otomatis mengikuti grid layout (di kiri, lebar 50%) */
 
                 .layanan-lengkap-untuk-anda-card {
                     padding: 30px 25px;
@@ -8585,11 +8529,10 @@ require '../db/db.php';
                 }
             }
 
-            /* Tablet Kecil - MASIH 3 KOLOM */
+            /* Tablet Kecil - Tetap 2 Kolom atau adjustment padding */
             @media (max-width: 768px) {
 
                 .layanan-lengkap-untuk-anda-services {
-                    grid-template-columns: repeat(3, 1fr);
                     gap: 15px;
                 }
 
@@ -8853,6 +8796,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- apple care -->
     <div class="container-about-apple-care">
         <style>
             body {
@@ -8967,7 +8911,7 @@ require '../db/db.php';
             }
 
             /* JUDUL CARD */
-            .card-apple-care h3 {
+            .card-apple-care .apple-care-card-title {
                 color: #1d1d1f;
                 font-size: 1.5rem;
                 font-weight: 700;
@@ -9020,7 +8964,7 @@ require '../db/db.php';
             /* Desktop Lebar */
             @media (min-width: 1400px) {
                 .apple-care-main-title {
-                    font-size: 3rem;
+                    font-size: 1.5rem;
                 }
 
                 .apple-care-subtitle {
@@ -9035,7 +8979,7 @@ require '../db/db.php';
                     height: 220px;
                 }
 
-                .card-apple-care h3 {
+                .card-apple-care .apple-care-card-title {
                     font-size: 1.6rem;
                 }
             }
@@ -9072,7 +9016,7 @@ require '../db/db.php';
                     height: 180px;
                 }
 
-                .card-apple-care h3 {
+                .card-apple-care .apple-care-card-title {
                     font-size: 1.4rem;
                 }
             }
@@ -9082,7 +9026,6 @@ require '../db/db.php';
                 .cards-apple-care {
                     grid-template-columns: 1fr;
                     gap: 25px;
-                    max-width: 500px;
                     margin: 0 auto;
                 }
 
@@ -9119,7 +9062,7 @@ require '../db/db.php';
                     height: 160px;
                 }
 
-                .card-apple-care h3 {
+                .card-apple-care .apple-care-card-title {
                     font-size: 1.3rem;
                 }
 
@@ -9151,7 +9094,7 @@ require '../db/db.php';
                     height: 150px;
                 }
 
-                .card-apple-care h3 {
+                .card-apple-care .apple-care-card-title {
                     font-size: 1.2rem;
                 }
 
@@ -9200,7 +9143,7 @@ require '../db/db.php';
             <!-- Card 1 - MacBook Air -->
             <div class="card-apple-care">
                 <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/applecare/applecare-macbook-air.png" alt="MacBook Air">
-                <h3>MacBook Air</h3>
+                <h3 class="apple-care-card-title">MacBook Air</h3>
                 <p class="applecare-feature">Perlindungan hingga 500,000 kerusakan</p>
                 <p class="applecare-feature">Garansi 3 tahun untuk hardware</p>
                 <p class="applecare-feature">Coverage untuk accidental damage</p>
@@ -9211,7 +9154,7 @@ require '../db/db.php';
             <!-- Card 2 - MacBook Pro -->
             <div class="card-apple-care">
                 <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="MacBook Pro">
-                <h3>MacBook Pro</h3>
+                <h3 class="apple-care-card-title">MacBook Pro</h3>
                 <p class="applecare-feature">Perlindungan hingga 600,000 kerusakan</p>
                 <p class="applecare-feature">Garansi 4 tahun untuk hardware</p>
                 <p class="applecare-feature">Coverage untuk accidental damage</p>
@@ -9222,7 +9165,7 @@ require '../db/db.php';
             <!-- Card 3 - iMac -->
             <div class="card-apple-care">
                 <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="iMac">
-                <h3>iMac</h3>
+                <h3 class="apple-care-card-title">iMac</h3>
                 <p class="applecare-feature">Perlindungan hingga 2,000,000 kerusakan</p>
                 <p class="applecare-feature">Garansi 2 tahun untuk hardware</p>
                 <p class="applecare-feature">Coverage untuk accidental damage</p>
@@ -9274,7 +9217,7 @@ require '../db/db.php';
 
                     // Efek klik
                     card.addEventListener('click', function() {
-                        const productName = this.querySelector('h3').textContent;
+                        const productName = this.querySelector('.apple-care-card-title').textContent;
                         const productPrice = this.querySelector('.applecare-price').textContent;
 
                         // Animasi klik
@@ -9394,6 +9337,7 @@ require '../db/db.php';
         </script>
     </div>
 
+    <!-- checkout produk -->
     <div class="container-checkout">
         <?php
         // Query untuk mengambil data checkout dari database
@@ -9881,7 +9825,7 @@ require '../db/db.php';
                 }
 
                 .section-heading-checkout h1 {
-                    font-size: 2.2rem;
+                    font-size: 1.5rem;
                 }
 
                 .checkout-slider-wrapper {
@@ -9927,6 +9871,22 @@ require '../db/db.php';
                 }
             }
 
+            /* Tablet Specific (900px) - Stack Price & Button */
+            @media (max-width: 900px) {
+                .harga-container-checkout {
+                    flex-direction: column;
+                    gap: 15px;
+                    align-items: stretch;
+                }
+
+                .harga-checkout,
+                .btn-checkout {
+                    width: 100%;
+                    text-align: center;
+                    justify-content: center;
+                }
+            }
+
             /* MOBILE - 1 card per slide */
             @media (max-width: 768px) {
                 .container-checkout {
@@ -9935,7 +9895,7 @@ require '../db/db.php';
                 }
 
                 .section-heading-checkout h1 {
-                    font-size: 1.8rem;
+                    font-size: 1.5rem;
                 }
 
                 .section-heading-checkout p {
@@ -9950,7 +9910,7 @@ require '../db/db.php';
                 }
 
                 .checkout-slider-track {
-                    padding: 0 60px;
+                    padding: 0 30px;
                     gap: 0;
                 }
 
@@ -10004,19 +9964,6 @@ require '../db/db.php';
                     min-height: 60px;
                 }
 
-                .harga-container-checkout {
-                    flex-direction: column;
-                    gap: 15px;
-                    align-items: stretch;
-                }
-
-                .harga-checkout,
-                .btn-checkout {
-                    width: 100%;
-                    text-align: center;
-                    justify-content: center;
-                }
-
                 .checkout-dots {
                     margin-top: 30px;
                 }
@@ -10026,20 +9973,21 @@ require '../db/db.php';
             @media (max-width: 480px) {
                 .container-checkout {
                     margin: 20px auto;
+                    padding: 0 15px;
                 }
 
                 .section-heading-checkout h1 {
                     font-size: 1.5rem;
                 }
 
-                .checkout-slider-track {
-                    padding: 0 50px;
+                /* Sembunyikan tombol nav di layar sempit, user pakai swipe */
+                .checkout-nav-btn {
+                    display: none !important;
                 }
 
-                .checkout-nav-btn {
-                    width: 44px;
-                    height: 44px;
-                    font-size: 1.2rem;
+                .checkout-slider-track {
+                    padding: 0 10px;
+                    /* Padding minimal agar card lebar */
                 }
 
                 .header-card-checkout {
@@ -10051,33 +9999,47 @@ require '../db/db.php';
                 }
 
                 .footer-card-checkout {
-                    padding: 18px;
-                    min-height: 190px;
+                    padding: 15px;
+                    min-height: auto;
+                    /* Biarkan tinggi menyesuaikan konten agar tidak ada gap besar */
                 }
 
                 .nama-checkout {
                     font-size: 1.1rem;
-                    min-height: 32px;
+                    min-height: auto;
+                    margin-bottom: 8px;
                 }
 
                 .deskripsi-checkout {
                     font-size: 0.85rem;
-                    min-height: 55px;
+                    min-height: auto;
+                    margin-bottom: 15px;
+                    /* Limit line clamp via CSS line-clamp would be nice here but keeping simple */
+                }
+
+                .harga-container-checkout {
+                    flex-direction: column;
+                    gap: 12px;
+                    align-items: stretch;
                 }
 
                 .harga-checkout {
-                    font-size: 1.05rem;
-                    padding: 8px 14px;
+                    font-size: 1rem;
+                    padding: 8px 12px;
+                    width: 100%;
+                    text-align: center;
                 }
 
                 .btn-checkout {
-                    padding: 8px 18px;
-                    font-size: 0.85rem;
+                    padding: 10px;
+                    font-size: 0.9rem;
+                    width: 100%;
+                    justify-content: center;
                 }
 
                 .checkout-dots {
-                    gap: 12px;
-                    margin-top: 25px;
+                    gap: 10px;
+                    margin-top: 20px;
                 }
 
                 .checkout-dot {
@@ -10439,13 +10401,14 @@ require '../db/db.php';
                 width: 100%;
             }
 
-            h1 {
+            .ibox-footer h1 {
                 color: #1d1d1f;
                 margin-bottom: 20px;
                 font-weight: 600;
+                font-size: 1.5rem;
             }
 
-            p {
+            .ibox-footer p {
                 color: #515154;
                 line-height: 1.5;
                 margin-bottom: 20px;
@@ -10687,7 +10650,7 @@ require '../db/db.php';
                 <div class="footer-column">
                     <div class="footer-column-title">Financing</div>
                     <ul>
-                        <li><a href="#">Trade-In</a></li>
+                        <li><a href="products/trade-in/trade-in.php">Trade-In</a></li>
                         <li><a href="#">In-Store Classes</a></li>
                         <li><a href="#">AppleCare</a></li>
                     </ul>

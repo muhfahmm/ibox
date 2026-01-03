@@ -1,5 +1,5 @@
 <?php
-require '../../db/db.php';
+require '../../../db/db.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -7,7 +7,7 @@ require '../../db/db.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produk - iBox Indonesia</title>
+    <title>Produk Terbaru - iBox Indonesia</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -934,8 +934,8 @@ require '../../db/db.php';
                             <i class="bi bi-list"></i>
                         </button>
                         <div class="logo">
-                            <a href="../index.php">
-                                <img src="../assets/img/logo/logo.png" alt="iBox Logo">
+                            <a href="../../index.php">
+                                <img src="../../assets/img/logo/logo.png" alt="iBox Logo">
                             </a>
                         </div>
                     </div>
@@ -945,7 +945,7 @@ require '../../db/db.php';
                         </form>
                     </div>
                     <div class="nav-other-menu">
-                        <a href="../auth/login.php" class="user-icon">
+                        <a href="../../auth/login.php" class="user-icon">
                             <i class="bi bi-person-fill"></i>
                         </a>
                         <div class="bag-icon">
@@ -2028,9 +2028,11 @@ require '../../db/db.php';
 
     <!-- Breadcrumb -->
     <div class="breadcrumb-container">
-        <a href="../index.php">Home</a>
+        <a href="../../index.php">Home</a>
         <span class="breadcrumb-separator">/</span>
-        <span class="breadcrumb-current">Produk</span>
+        <a href="../products.php">Produk</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Produk Terbaru</span>
     </div>
 
 </body>
