@@ -325,7 +325,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Tipe</th>
                                     <th>Konektivitas</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                 </tr>
                             </thead>
@@ -421,8 +421,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control konektivitas-price" name="konektivitas[${konektivitasIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control konektivitas-discount" name="konektivitas[${konektivitasIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control konektivitas-discount" name="konektivitas[${konektivitasIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -444,7 +444,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     name: row.querySelector('input[name*="[nama]"]')?.value || '',
                     price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]')?.value) || 0
                 };
             }).filter(k => k.name);
 
@@ -461,7 +461,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 tipes.forEach(tipe => {
                     konektivitases.forEach(konektivitas => {
                         const totalPrice = konektivitas.price;
-                        const totalDiscount = konektivitas.discount > 0 ? konektivitas.discount : null;
+                        let totalDiscount = null;
+                        
+                        if (konektivitas.discount > 0) {
+                            totalDiscount = Math.round(totalPrice - (totalPrice * (konektivitas.discount / 100)));
+                        }
+
+                        // Calculate total percent for display
+                        let totalPercent = 0;
+                        if (totalPrice > 0 && totalDiscount !== null) {
+                            totalPercent = Math.round(((totalPrice - totalDiscount) / totalPrice) * 100);
+                        }
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -469,7 +479,10 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${tipe}<input type="hidden" name="combinations[${idx}][tipe]" value="${tipe}"></td>
                             <td>${konektivitas.name}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${konektivitas.name}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice || ''}" required placeholder="0"></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}" placeholder="0"></td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}" placeholder="Total Diskon (Rp)">
+                                ${totalPercent > 0 ? `<small class="text-success">${totalPercent}% Off</small>` : ''}
+                            </td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                         `;
                         tbody.appendChild(tr);

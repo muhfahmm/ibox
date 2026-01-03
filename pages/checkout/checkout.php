@@ -2021,29 +2021,115 @@ require '../../db/db.php';
     <?php
     // Ambil ID dari URL
     $product_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    
+    // Konfigurasi tabel dan field untuk setiap tipe produk
+    $product_config = [
+        'airtag' => [
+            'table' => 'admin_produk_airtag',
+            'table_gambar' => 'admin_produk_airtag_gambar',
+            'table_kombinasi' => 'admin_produk_airtag_kombinasi',
+            'variant_fields' => ['warna', 'pack', 'aksesoris'],
+            'order_by' => 'warna, pack'
+        ],
+        'ipad' => [
+            'table' => 'admin_produk_ipad',
+            'table_gambar' => 'admin_produk_ipad_gambar',
+            'table_kombinasi' => 'admin_produk_ipad_kombinasi',
+            'variant_fields' => ['warna', 'penyimpanan', 'konektivitas'],
+            'order_by' => 'warna, penyimpanan'
+        ],
+        'iphone' => [
+            'table' => 'admin_produk_iphone',
+            'table_gambar' => 'admin_produk_iphone_gambar',
+            'table_kombinasi' => 'admin_produk_iphone_kombinasi',
+            'variant_fields' => ['warna', 'penyimpanan', 'konektivitas'],
+            'order_by' => 'warna, penyimpanan'
+        ],
+        'mac' => [
+            'table' => 'admin_produk_mac',
+            'table_gambar' => 'admin_produk_mac_gambar',
+            'table_kombinasi' => 'admin_produk_mac_kombinasi',
+            'variant_fields' => ['warna', 'processor', 'penyimpanan', 'ram'],
+            'order_by' => 'warna, penyimpanan'
+        ],
+        'music' => [
+            'table' => 'admin_produk_music',
+            'table_gambar' => 'admin_produk_music_gambar',
+            'table_kombinasi' => 'admin_produk_music_kombinasi',
+            'variant_fields' => ['warna', 'tipe', 'konektivitas'],
+            'order_by' => 'warna, tipe'
+        ],
+        'watch' => [
+            'table' => 'admin_produk_watch',
+            'table_gambar' => 'admin_produk_watch_gambar',
+            'table_kombinasi' => 'admin_produk_watch_kombinasi',
+            'variant_fields' => ['warna_case', 'ukuran_case', 'tipe_koneksi', 'material'],
+            'order_by' => 'warna_case, ukuran_case',
+            'col_warna_img' => 'warna_case' // Konfigurasi khusus untuk kolom warna image
+        ],
+        'aksesoris' => [
+            'table' => 'admin_produk_aksesoris',
+            'table_gambar' => 'admin_produk_aksesoris_gambar',
+            'table_kombinasi' => 'admin_produk_aksesoris_kombinasi',
+            'variant_fields' => ['warna', 'tipe', 'ukuran'],
+            'order_by' => 'warna, tipe'
+        ]
+    ];
 
-    // Fungsi untuk mengambil data produk AirTag
-    function getAirTagProduct($db, $id) {
+    // Fungsi universal untuk mengambil data produk dengan auto-detect tipe
+    // (Pengganti fungsi lama getAirTagProduct & getIPadProduct)
+    function getProduct($db, $id, $config) {
+        // Jika ada parameter tipe spesifik di URL, prioritaskan itu
+        // (Opsional, untuk backward compatibility atau resolusi konflik)
+        if (isset($_GET['tipe']) && isset($config[strtolower(trim($_GET['tipe']))])) {
+             $specific_type = strtolower(trim($_GET['tipe']));
+             return getProductByType($db, $id, $specific_type, $config[$specific_type]);
+        }
+        
+        // Auto-detect: Loop check ke semua tabel konfigurasi
+        foreach ($config as $type => $cfg) {
+             $product = getProductByType($db, $id, $type, $cfg);
+             if ($product) {
+                 return $product; // Ketemu! Kembalikan produk
+             }
+        }
+        
+        return null; // Tidak ketemu di tabel manapun
+    }
+    
+    // Fungsi helper untuk mengambil data dari tipe spesifik
+    function getProductByType($db, $id, $type, $cfg) {
         $id = mysqli_real_escape_string($db, $id);
         
-        // Query untuk mengambil data produk
+        // Query untuk mengambil data produk utama
         $query = "SELECT 
                     p.id,
                     p.nama_produk,
                     p.deskripsi_produk,
                     p.kategori
-                  FROM admin_produk_airtag p
+                  FROM {$cfg['table']} p
                   WHERE p.id = '$id'
                   LIMIT 1";
         
         $result = mysqli_query($db, $query);
         
+        // Debug: Uncomment untuk melihat error
+        // if (!$result) {
+        //     echo "Error: " . mysqli_error($db) . "<br>";
+        //     echo "Query: " . $query . "<br>";
+        // }
+        
         if ($result && mysqli_num_rows($result) > 0) {
             $product = mysqli_fetch_assoc($result);
+            $product['type'] = $type; // Simpan tipe yang ditemukan
+            
+            // Tentukan field warna untuk query gambar secara dinamis dari config
+            // Default ke 'warna' jika tidak diset di config
+            $col_warna_img = isset($cfg['col_warna_img']) ? $cfg['col_warna_img'] : 'warna';
             
             // Ambil semua gambar produk
-            $gambar_query = "SELECT warna, foto_thumbnail, foto_produk 
-                            FROM admin_produk_airtag_gambar 
+            $gambar_query = "SELECT {$col_warna_img} as warna, foto_thumbnail, foto_produk 
+                            FROM {$cfg['table_gambar']} 
                             WHERE produk_id = '$id'";
             $gambar_result = mysqli_query($db, $gambar_query);
             $product['images'] = [];
@@ -2052,18 +2138,17 @@ require '../../db/db.php';
                 $product['images'][] = $img;
             }
             
-            // Ambil semua kombinasi (warna, pack, aksesoris, harga)
+            // Buat query untuk kombinasi berdasarkan field yang ada
+            $variant_fields_str = implode(', ', $cfg['variant_fields']);
             $kombinasi_query = "SELECT 
-                                warna, 
-                                pack, 
-                                aksesoris, 
+                                {$variant_fields_str},
                                 harga, 
                                 harga_diskon,
                                 jumlah_stok,
                                 status_stok
-                               FROM admin_produk_airtag_kombinasi 
+                               FROM {$cfg['table_kombinasi']} 
                                WHERE produk_id = '$id'
-                               ORDER BY warna, pack";
+                               ORDER BY {$cfg['order_by']}";
             $kombinasi_result = mysqli_query($db, $kombinasi_query);
             $product['variants'] = [];
             
@@ -2074,12 +2159,45 @@ require '../../db/db.php';
             return $product;
         }
         
-        return null;
+        return null; // Tidak ditemukan di tabel ini
     }
 
+    // Ambil data produk (Auto Detect)
     $product = null;
+    $product_type = null; // Ini akan diisi otomatis setelah produk ditemukan
+    
     if ($product_id > 0) {
-        $product = getAirTagProduct($db, $product_id);
+        $product = getProduct($db, $product_id, $product_config);
+        if ($product) {
+            $product_type = $product['type']; // Set tipe produk yang ditemukan untuk logic selanjutnya
+        }
+    }
+    // Proses grouping varian untuk UI
+    $grouped_options = [];
+    $initial_price = 0;
+    
+    if ($product && !empty($product['variants'])) {
+        $variant_fields = $product_config[$product['type']]['variant_fields'];
+        
+        // Inisialisasi array grouping
+        foreach ($variant_fields as $field) {
+            $grouped_options[$field] = [];
+        }
+        
+        // Loop semua varian untuk mengumpulkan opsi unik
+        foreach ($product['variants'] as $variant) {
+            // Set harga awal dari varian pertama (termurah karena sudah diorder)
+            if ($initial_price == 0) {
+                $initial_price = $variant['harga_diskon'] > 0 ? $variant['harga_diskon'] : $variant['harga'];
+            }
+            
+            foreach ($variant_fields as $field) {
+                // Pastikan nilai field ada
+                if (isset($variant[$field]) && !in_array($variant[$field], $grouped_options[$field])) {
+                    $grouped_options[$field][] = $variant[$field];
+                }
+            }
+        }
     }
     ?>
 
@@ -2202,18 +2320,61 @@ require '../../db/db.php';
                 margin-bottom: 20px;
             }
 
-            .variant-grid {
-                display: grid;
-                gap: 15px;
-            }
-
-            .variant-card {
-                border: 2px solid #e5e5e7;
+            .variant-group {
+                margin-bottom: 25px;
+                border: 1px solid #e5e5e7;
                 border-radius: 16px;
                 padding: 20px;
-                cursor: pointer;
-                transition: all 0.3s ease;
                 background: white;
+            }
+
+            .variant-group-title {
+                font-size: 14px;
+                font-weight: 600;
+                color: #86868b;
+                margin-bottom: 15px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .variant-options {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 12px;
+            }
+
+            .variant-option-btn {
+                padding: 12px 24px;
+                border: 1px solid #d2d2d7;
+                border-radius: 12px;
+                background: white;
+                color: #1d1d1f;
+                font-size: 15px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            .variant-option-btn:hover {
+                border-color: #007aff;
+            }
+
+            .variant-option-btn.selected {
+                border-color: #007aff;
+                background-color: #f2f7ff;
+                color: #007aff;
+                font-weight: 600;
+                box-shadow: 0 0 0 1px #007aff inset;
+            }
+
+            .variant-option-btn.disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                border-color: #e5e5e7;
+                background-color: #f5f5f7;
+                color: #86868b;
             }
 
             .variant-card:hover {
@@ -2230,8 +2391,33 @@ require '../../db/db.php';
             .variant-header {
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
+                align-items: flex-start;
                 margin-bottom: 12px;
+            }
+
+            .variant-attribute-row {
+                margin-bottom: 8px;
+            }
+            
+            .variant-attribute-row:last-child {
+                margin-bottom: 0;
+            }
+
+            .var-attr-label {
+                font-size: 11px;
+                color: #86868b;
+                display: block;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 2px;
+            }
+
+            .var-attr-value {
+                font-size: 15px;
+                color: #1d1d1f;
+                font-weight: 600;
+                display: block;
             }
 
             .variant-name {
@@ -2506,65 +2692,48 @@ require '../../db/db.php';
                     <!-- Variants Section -->
                     <div class="variants-section">
                         <h2 class="section-title">Pilih Varian</h2>
-                        <div class="variant-grid">
-                            <?php foreach ($product['variants'] as $index => $variant): ?>
-                                <?php
-                                $harga_display = $variant['harga_diskon'] > 0 ? $variant['harga_diskon'] : $variant['harga'];
-                                $has_discount = $variant['harga_diskon'] > 0 && $variant['harga_diskon'] < $variant['harga'];
-                                $discount_percent = 0;
-                                if ($has_discount) {
-                                    $discount_percent = round((($variant['harga'] - $variant['harga_diskon']) / $variant['harga']) * 100);
-                                }
-                                $stock_class = $variant['jumlah_stok'] > 10 ? '' : ($variant['jumlah_stok'] > 0 ? 'low' : 'out');
-                                ?>
-                                <div class="variant-card" 
-                                     onclick="selectVariant(this, <?php echo $harga_display; ?>, <?php echo $variant['harga']; ?>, <?php echo $has_discount ? 1 : 0; ?>)">
-                                    <div class="variant-header">
-                                        <div>
-                                            <div class="variant-name"><?php echo htmlspecialchars($variant['warna']); ?> - <?php echo htmlspecialchars($variant['pack']); ?></div>
-                                        </div>
-                                        <div>
-                                            <span class="variant-price <?php echo $has_discount ? 'discounted' : ''; ?>">
-                                                Rp <?php echo number_format($harga_display, 0, ',', '.'); ?>
-                                            </span>
-                                            <?php if ($has_discount): ?>
-                                                <span class="variant-price-original">
-                                                    Rp <?php echo number_format($variant['harga'], 0, ',', '.'); ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </div>
-                                    <div class="variant-details">
-                                        <div class="variant-detail-item">
-                                            <i class="fas fa-palette"></i>
-                                            <span>Warna: <?php echo htmlspecialchars($variant['warna']); ?></span>
-                                        </div>
-                                        <div class="variant-detail-item">
-                                            <i class="fas fa-box"></i>
-                                            <span><?php echo htmlspecialchars($variant['pack']); ?></span>
-                                        </div>
-                                        <?php if (!empty($variant['aksesoris'])): ?>
-                                            <div class="variant-detail-item">
-                                                <i class="fas fa-plus-circle"></i>
-                                                <span><?php echo htmlspecialchars($variant['aksesoris']); ?></span>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div style="margin-top: 12px;">
-                                        <span class="variant-stock <?php echo $stock_class; ?>">
-                                            <i class="fas fa-check-circle"></i>
-                                            <?php echo $variant['jumlah_stok']; ?> unit tersedia
-                                        </span>
-                                        <?php if ($has_discount): ?>
-                                            <span class="variant-stock" style="background: #ff3b30; margin-left: 8px;">
-                                                <i class="fas fa-tag"></i>
-                                                Hemat <?php echo $discount_percent; ?>%
-                                            </span>
-                                        <?php endif; ?>
+                        <div class="variant-groups-container">
+                            <?php 
+                            // Mapping nama field ke label yang user-friendly
+                            $field_labels = [
+                                'warna' => 'Warna',
+                                'warna_case' => 'Warna Case',
+                                'penyimpanan' => 'Kapasitas',
+                                'konektivitas' => 'Konektivitas',
+                                'processor' => 'Chip',
+                                'ram' => 'Memori',
+                                'tipe' => 'Tipe',
+                                'ukuran_case' => 'Ukuran Case',
+                                'tipe_koneksi' => 'Konektivitas',
+                                'material' => 'Bahan Case',
+                                'ukuran' => 'Ukuran',
+                                'pack' => 'Paket',
+                                'aksesoris' => 'Aksesoris Tambahan'
+                            ];
+
+                            // Tampilkan grup opsi
+                            foreach ($grouped_options as $field => $options): 
+                                // Skip jika tidak ada opsi
+                                if (empty($options)) continue;
+                                
+                                $label = isset($field_labels[$field]) ? $field_labels[$field] : ucfirst($field);
+                            ?>
+                                <div class="variant-group" data-group-field="<?php echo $field; ?>">
+                                    <h3 class="variant-group-title">Pilih <?php echo $label; ?></h3>
+                                    <div class="variant-options">
+                                        <?php foreach ($options as $option): ?>
+                                            <button class="variant-option-btn" 
+                                                    onclick="selectOption('<?php echo $field; ?>', '<?php echo htmlspecialchars($option); ?>', this)">
+                                                <?php echo htmlspecialchars($option); ?>
+                                            </button>
+                                        <?php endforeach; ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
+                        
+                        <!-- Hidden input untuk menyimpan state -->
+                        <div id="selectionState" style="display: none;"></div>
                     </div>
                 </div>
 
@@ -2621,6 +2790,16 @@ require '../../db/db.php';
     </div>
 
     <script>
+        // Data varian dari PHP
+        const productVariants = <?php echo json_encode($product['variants']); ?>;
+        const requiredFields = <?php echo json_encode(array_keys($grouped_options)); ?>;
+        const productImages = <?php echo json_encode($product['images']); ?>;
+        const colorFieldName = "<?php 
+           $pType = $product['type'];
+           echo isset($product_config[$pType]['col_warna_img']) ? $product_config[$pType]['col_warna_img'] : 'warna';
+        ?>";
+        let selectedAttributes = {};
+        
         function changeMainImage(thumbnail, element) {
             // Update main image
             document.getElementById('mainProductImage').src = '../../admin/uploads/' + thumbnail;
@@ -2632,19 +2811,78 @@ require '../../db/db.php';
             element.classList.add('active');
         }
 
-        function selectVariant(element, price, originalPrice, hasDiscount) {
-            // Update selected variant
-            document.querySelectorAll('.variant-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            element.classList.add('selected');
+        function selectOption(field, value, btnElement) {
+            // Update state seleksi
+            selectedAttributes[field] = value;
             
-            // Calculate prices
+            // Update UI tombol
+            const group = btnElement.closest('.variant-group');
+            group.querySelectorAll('.variant-option-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            btnElement.classList.add('selected');
+
+            // Ganti gambar jika yang dipilih adalah warna
+            if (field === colorFieldName) {
+                const matchingImage = productImages.find(img => img.warna === value);
+                if (matchingImage) {
+                    const mainImg = document.getElementById('mainProductImage');
+                    
+                    // Update Main Image
+                    mainImg.style.opacity = '0.5';
+                    setTimeout(() => {
+                        mainImg.src = '../../admin/uploads/' + matchingImage.foto_thumbnail;
+                        mainImg.style.opacity = '1';
+                    }, 200);
+                    
+                    // Update active thumbnail
+                    document.querySelectorAll('.thumbnail-item').forEach(item => {
+                        const img = item.querySelector('img');
+                        if (img && img.alt === value) {
+                            item.classList.add('active');
+                            // Scroll thumbnail ke view jika perlu (untuk mobile)
+                            item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                }
+            }
+
+            // Cek apakah semua atribut sudah dipilih
+            checkSelection();
+        }
+
+        function checkSelection() {
+            // Cek kelengkapan
+            const isComplete = requiredFields.every(field => selectedAttributes[field]);
+            
+            if (isComplete) {
+                // Cari varian yang cocok
+                const matchedVariant = productVariants.find(variant => {
+                    return requiredFields.every(field => variant[field] === selectedAttributes[field]);
+                });
+
+                if (matchedVariant) {
+                    updateCheckoutInfo(matchedVariant);
+                } else {
+                    // Kombinasi tidak tersedia
+                    showUnavailable();
+                }
+            }
+        }
+
+        function updateCheckoutInfo(variant) {
+            const price = parseInt(variant.harga_diskon > 0 ? variant.harga_diskon : variant.harga);
+            const originalPrice = parseInt(variant.harga);
+            const hasDiscount = variant.harga_diskon > 0 && variant.harga_diskon < variant.harga;
+            
+            // Hitung pajak dan total
             const tax = price * 0.11;
             const total = price + tax;
             const discount = hasDiscount ? (originalPrice - price) : 0;
             
-            // Update summary
+            // Update UI
             document.getElementById('productPrice').textContent = 'Rp ' + price.toLocaleString('id-ID');
             document.getElementById('taxAmount').textContent = 'Rp ' + Math.round(tax).toLocaleString('id-ID');
             document.getElementById('totalPrice').textContent = 'Rp ' + Math.round(total).toLocaleString('id-ID');
@@ -2656,12 +2894,33 @@ require '../../db/db.php';
             } else {
                 document.getElementById('discountRow').style.display = 'none';
             }
+
+            // Aktifkan tombol checkout
+            const btnCheckout = document.querySelector('.btn-checkout');
+            btnCheckout.disabled = false;
+            btnCheckout.innerHTML = '<i class="fas fa-lock"></i> Checkout Sekarang';
+            btnCheckout.style.opacity = '1';
+            btnCheckout.style.cursor = 'pointer';
+        }
+
+        function showUnavailable() {
+            const btnCheckout = document.querySelector('.btn-checkout');
+            btnCheckout.disabled = true;
+            btnCheckout.innerHTML = '<i class="fas fa-times"></i> Stok Tidak Tersedia';
+            btnCheckout.style.opacity = '0.5';
+            btnCheckout.style.cursor = 'not-allowed';
+            
+            // Reset harga
+            document.getElementById('productPrice').textContent = '-';
+            document.getElementById('taxAmount').textContent = '-';
+            document.getElementById('totalPrice').textContent = '-';
         }
 
         function processCheckout() {
-            const selectedVariant = document.querySelector('.variant-card.selected');
-            if (!selectedVariant) {
-                alert('Silakan pilih varian produk terlebih dahulu!');
+            const isComplete = requiredFields.every(field => selectedAttributes[field]);
+            
+            if (!isComplete) {
+                alert('Silakan lengkapi pilihan varian produk terlebih dahulu!');
                 return;
             }
             
@@ -2669,13 +2928,12 @@ require '../../db/db.php';
             alert('Fitur checkout akan segera tersedia!\n\nProduk Anda akan segera diproses.');
         }
 
-        // Auto-select first variant on load
+        // Auto-select first options on load (optional)
+        /*
         window.addEventListener('DOMContentLoaded', function() {
-            const firstVariant = document.querySelector('.variant-card');
-            if (firstVariant) {
-                firstVariant.click();
-            }
+            // Bisa ditambahkan logic auto-select opsi pertama disini jika diinginkan
         });
+        */
     </script>
 
 </body>

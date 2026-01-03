@@ -85,7 +85,9 @@ foreach($combinations as $c) {
     $initialData['stocks'][$key] = $c['jumlah_stok'];
     $initialData['prices'][$key] = [
         'harga' => $c['harga'],
-        'harga_diskon' => $c['harga_diskon'] ?? ''
+        'harga' => $c['harga'],
+        'harga_diskon' => $c['harga_diskon'] ?? '',
+        'diskon_persen' => ($c['harga_diskon'] > 0 && $c['harga'] > 0) ? round((($c['harga'] - $c['harga_diskon'])/$c['harga'])*100) : ''
     ];
 }
 ?>
@@ -868,6 +870,24 @@ foreach($combinations as $c) {
             }
         }
         
+        function calculateRowDiscount(uniqueId) {
+            const priceInput = document.querySelector(`input[name="combinations[${uniqueId}][harga]"]`);
+            const percentInput = document.querySelector(`input[name="combinations[${uniqueId}][diskon_persen]"]`);
+            const discountInput = document.querySelector(`input[name="combinations[${uniqueId}][harga_diskon]"]`);
+            
+            if (!priceInput || !percentInput || !discountInput) return;
+            
+            const price = Number(priceInput.value) || 0;
+            const percent = Number(percentInput.value) || 0;
+            
+            if (price > 0 && percent > 0) {
+                const discountPrice = Math.round(price - (price * (percent / 100)));
+                discountInput.value = discountPrice;
+            } else {
+                discountInput.value = '';
+            }
+        }
+
         // Generate Combinations
         function generateCombinations() {
             const container = document.getElementById('combinationsContainer');
@@ -906,7 +926,7 @@ foreach($combinations as $c) {
                                 <th>Tipe</th>
                                 <th>Konektivitas</th>
                                 <th>Harga Normal</th>
-                                <th>Harga Diskon</th>
+                                <th>Diskon (%)</th>
                                 <th>Jumlah Stok</th>
                             </tr>
                         </thead>
@@ -933,12 +953,13 @@ foreach($combinations as $c) {
                                     <td>
                                         <input type="number" class="form-control" style="width: 120px;" 
                                                name="combinations[${uniqueId}][harga]" 
-                                               value="${existingPrice.harga}" min="0" required>
+                                               value="${existingPrice.harga}" min="0" required oninput="calculateRowDiscount('${uniqueId}')">
                                     </td>
                                     <td>
-                                        <input type="number" class="form-control" style="width: 120px;" 
-                                               name="combinations[${uniqueId}][harga_diskon]" 
-                                               value="${existingPrice.harga_diskon}" min="0">
+                                        <input type="number" class="form-control" style="width: 80px; display: inline-block;" 
+                                               name="combinations[${uniqueId}][diskon_persen]" 
+                                               value="${existingPrice.diskon_persen}" min="0" max="100" placeholder="0" oninput="calculateRowDiscount('${uniqueId}')">
+                                        <input type="hidden" name="combinations[${uniqueId}][harga_diskon]" value="${existingPrice.harga_diskon}">
                                     </td>
                                     <td>
                                         <input type="number" class="form-control" style="width: 100px;" 

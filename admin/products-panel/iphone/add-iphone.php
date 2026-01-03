@@ -318,7 +318,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Kapasitas</th>
                                     <th>Konektivitas</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                     <th>Status</th>
                                 </tr>
@@ -398,8 +398,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control base-price" name="penyimpanan[${storageIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -436,7 +436,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     size: row.querySelector('input[name*="[size]"]').value,
                     price: row.querySelector('input[name*="[harga]"]').value,
-                    discount: row.querySelector('input[name*="[harga_diskon]"]').value
+                    discount: row.querySelector('input[name*="[diskon_persen]"]').value
                 };
             }).filter(s => s.size);
             
@@ -461,7 +461,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${s.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${s.size}"></td>
                             <td>${conn}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${conn}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${s.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${s.discount}"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][diskon_persen]" value="${s.discount || 0}" min="0" max="100"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;

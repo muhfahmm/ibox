@@ -59,11 +59,11 @@ foreach ($combinations as $combo) {
 
     // Store logic for storage prices might vary per color in complex systems, 
     // but here we simplify or take the first occurrence if inconsistent.
-    if (!isset($unique_storages[$trimmed_storage])) {
         $unique_storages[$trimmed_storage] = [
             'size' => $trimmed_storage,
             'harga' => $combo['harga'],
-            'harga_diskon' => $combo['harga_diskon']
+            'harga_diskon' => $combo['harga_diskon'],
+            'diskon_persen' => ($combo['harga_diskon'] > 0 && $combo['harga'] > 0) ? round((($combo['harga'] - $combo['harga_diskon']) / $combo['harga']) * 100) : ''
         ];
     }
 
@@ -878,9 +878,9 @@ foreach ($combinations as $c) {
                        placeholder="Harga" min="0" required value="${data && data.harga ? data.harga : ''}" onchange="generateCombinations()">
             </div>
             <div class="form-col col-4">
-                <label class="form-label">Harga Diskon</label>
-                <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
-                       placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                <label class="form-label">Diskon (%)</label>
+                <input type="number" class="form-control" name="penyimpanan[${newIndex}][diskon_persen]" 
+                       placeholder="Diskon (%)" min="0" max="100" value="${data && data.diskon_persen ? data.diskon_persen : ''}" onchange="generateCombinations()">
             </div>
         </div>
         <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
@@ -958,7 +958,7 @@ foreach ($combinations as $c) {
             document.querySelectorAll('.storage-option').forEach(option => {
                 const sizeInput = option.querySelector('input[name*="[size]"]');
                 const hargaInput = option.querySelector('input[name*="[harga]"]');
-                const diskonInput = option.querySelector('input[name*="[harga_diskon]"]');
+                const diskonInput = option.querySelector('input[name*="[diskon_persen]"]');
 
                 // Debug: console.log untuk melihat nilai
                 console.log('Storage inputs:', {
@@ -971,7 +971,7 @@ foreach ($combinations as $c) {
                     storages.push({
                         size: sizeInput.value.trim(),
                         harga: hargaInput.value,
-                        harga_diskon: diskonInput ? diskonInput.value : ''
+                        diskon_persen: diskonInput ? diskonInput.value : ''
                     });
                 }
             });
@@ -1028,14 +1028,14 @@ foreach ($combinations as $c) {
                             <td>${connectivity}</td>
                             <td>
                                 <div style="font-weight: bold; color: #28a745;">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
-                                ${storage.harga_diskon ? `<small style="color: #dc3545; text-decoration: line-through;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
+                                ${storage.diskon_persen > 0 ? `<small style="color: #dc3545;">Diskon: ${storage.diskon_persen}%</small>` : ''}
                                 
                                 <!-- Hidden Inputs for Combination Data -->
                                 <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">
                                 <input type="hidden" name="combinations[${uniqueId}][penyimpanan]" value="${storage.size}">
                                 <input type="hidden" name="combinations[${uniqueId}][konektivitas]" value="${connectivity}">
                                 <input type="hidden" name="combinations[${uniqueId}][harga]" value="${storage.harga}">
-                                <input type="hidden" name="combinations[${uniqueId}][harga_diskon]" value="${storage.harga_diskon || ''}">
+                                <input type="hidden" name="combinations[${uniqueId}][diskon_persen]" value="${storage.diskon_persen || ''}">
                             </td>
                             <td>
                                 <input type="number" class="form-control" style="width: 100px;" 

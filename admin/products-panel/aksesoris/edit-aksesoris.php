@@ -1089,7 +1089,7 @@ $initialData = [
                                 <th>Tipe</th>
                                 <th>Ukuran</th>
                                 <th>Harga (Rp)</th>
-                                <th>Diskon (Rp)</th>
+                                <th>Diskon (%)</th>
                                 <th>Jumlah Stok</th>
                             </tr>
                         </thead>
@@ -1119,9 +1119,9 @@ $initialData = [
                                     </td>
                                     <td>
                                         <input type="number" class="form-control combination-diskon" 
-                                               name="combinations[${uniqueId}][harga_diskon]" 
-                                               placeholder="Diskon (opsional)" min="0"
-                                               value="${existingData && existingData.harga_diskon ? existingData.harga_diskon : ''}">
+                                               name="combinations[${uniqueId}][diskon_persen]" 
+                                               placeholder="0" min="0" max="100"
+                                               value="${existingData && existingData.harga_diskon > 0 && existingData.harga > 0 ? Math.round(((existingData.harga - existingData.harga_diskon)/existingData.harga)*100) : ''}">
                                     </td>
                                     <td>
                                         <input type="number" class="form-control combination-stok" 

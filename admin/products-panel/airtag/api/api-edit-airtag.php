@@ -42,62 +42,94 @@ try {
     mysqli_query($db, "UPDATE admin_produk_airtag SET nama_produk='$nama', deskripsi_produk='$desc', kategori='$kategori' WHERE id='$product_id'");
 
     // 2. Update Gambar
+    // First, delete old images records (files remain)
     mysqli_query($db, "DELETE FROM admin_produk_airtag_gambar WHERE produk_id='$product_id'");
-    $warna_names = $_POST['warna_nama'] ?? [];
     
-    foreach ($warna_names as $index => $warna_nama) {
-        $warna_nama = mysqli_real_escape_string($db, $warna_nama);
+    $warna_data = $_POST['warna'] ?? [];
+    
+    foreach ($warna_data as $index => $w_data) {
+        $warna_nama = mysqli_real_escape_string($db, $w_data['nama'] ?? '');
         if (empty($warna_nama)) continue;
 
-        $thumbnail_name = $_POST["existing_thumbnail_$index"] ?? null;
-        if (isset($_FILES["thumbnail_$index"]) && $_FILES["thumbnail_$index"]['error'] == 0) {
-            $file = $_FILES["thumbnail_$index"];
+        // Handle Thumbnail
+        $thumbnail_name = $w_data['existing_thumbnail'] ?? null;
+        
+        // Check if new thumbnail uploaded
+        if (isset($_FILES['warna']['name'][$index]['thumbnail']) && $_FILES['warna']['error'][$index]['thumbnail'] == 0) {
+             $file = [
+                'name' => $_FILES['warna']['name'][$index]['thumbnail'],
+                'type' => $_FILES['warna']['type'][$index]['thumbnail'],
+                'tmp_name' => $_FILES['warna']['tmp_name'][$index]['thumbnail'],
+                'size' => $_FILES['warna']['size'][$index]['thumbnail']
+            ];
             if (in_array($file['type'], $allowed_types) && $file['size'] <= $max_size) {
                 $new_name = generateFileName($file['name']);
-                if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) $thumbnail_name = $new_name;
+                if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) {
+                    $thumbnail_name = $new_name;
+                }
             }
         }
         
-        $product_images = json_decode($_POST["existing_galeri_$index"] ?? '[]', true) ?? [];
-        if (isset($_FILES["galeri_$index"])) {
-            foreach ($_FILES["galeri_$index"]['name'] as $i => $name) {
-                if ($_FILES["galeri_$index"]['error'][$i] == 0) {
+        // Handle Gallery
+        $product_images = [];
+        if (isset($w_data['existing_gallery'])) {
+            $existing = json_decode($w_data['existing_gallery'], true);
+            if (is_array($existing)) $product_images = $existing;
+        }
+
+        // New Gallery uploads
+        if (isset($_FILES['warna']['name'][$index]['product_images'])) {
+            $count = count($_FILES['warna']['name'][$index]['product_images']);
+            for ($i = 0; $i < $count; $i++) {
+                 if ($_FILES['warna']['error'][$index]['product_images'][$i] == 0) {
                      $file = [
-                        'name' => $_FILES["galeri_$index"]['name'][$i],
-                        'type' => $_FILES["galeri_$index"]['type'][$i],
-                        'tmp_name' => $_FILES["galeri_$index"]['tmp_name'][$i],
-                        'size' => $_FILES["galeri_$index"]['size'][$i]
+                        'name' => $_FILES['warna']['name'][$index]['product_images'][$i],
+                        'type' => $_FILES['warna']['type'][$index]['product_images'][$i],
+                        'tmp_name' => $_FILES['warna']['tmp_name'][$index]['product_images'][$i],
+                        'size' => $_FILES['warna']['size'][$index]['product_images'][$i]
                     ];
                     if (in_array($file['type'], $allowed_types) && $file['size'] <= $max_size) {
                         $new_name = generateFileName($file['name']);
-                        if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) $product_images[] = $new_name;
+                        if (move_uploaded_file($file['tmp_name'], $upload_dir . $new_name)) {
+                            $product_images[] = $new_name;
+                        }
                     }
-                }
+                 }
             }
         }
 
         $json_imgs = json_encode(array_values($product_images));
-        mysqli_query($db, "INSERT INTO admin_produk_airtag_gambar (produk_id, warna, foto_thumbnail, foto_produk) VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$json_imgs')");
+        $q_img = "INSERT INTO admin_produk_airtag_gambar (produk_id, warna, foto_thumbnail, foto_produk) VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$json_imgs')";
+        if (!mysqli_query($db, $q_img)) throw new Exception("Gagal simpan gambar: " . mysqli_error($db));
     }
 
     // 3. Update Kombinasi
     mysqli_query($db, "DELETE FROM admin_produk_airtag_kombinasi WHERE produk_id='$product_id'");
-    $c_warnas = $_POST['combi_warna'] ?? [];
-    $c_packs = $_POST['combi_pack'] ?? [];
-    $c_aks = $_POST['combi_aksesoris'] ?? [];
-    $c_prices = $_POST['combi_price'] ?? [];
-    $c_stocks = $_POST['combi_stock'] ?? [];
+    
+    $combinations = $_POST['combinations'] ?? [];
+    
+    foreach ($combinations as $combo) {
+        $warna = mysqli_real_escape_string($db, $combo['warna']);
+        $pack = mysqli_real_escape_string($db, $combo['pack']);
+        $aksesoris = !empty($combo['aksesoris']) && $combo['aksesoris'] !== '-' ? mysqli_real_escape_string($db, $combo['aksesoris']) : NULL;
+        $harga = mysqli_real_escape_string($db, $combo['harga']);
+        $diskon_persen = !empty($combo['diskon_persen']) ? floatval($combo['diskon_persen']) : 0;
+        $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok']);
+        $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
 
-    for ($i = 0; $i < count($c_warnas); $i++) {
-        $w = mysqli_real_escape_string($db, $c_warnas[$i]);
-        $p = mysqli_real_escape_string($db, $c_packs[$i]);
-        $a = $c_aks[$i] !== '-' ? mysqli_real_escape_string($db, $c_aks[$i]) : NULL;
-        $pr = mysqli_real_escape_string($db, $c_prices[$i]);
-        $st = mysqli_real_escape_string($db, $c_stocks[$i]);
-        $status = ($st > 0) ? 'tersedia' : 'habis';
+        $harga_diskon = "NULL";
+        if ($diskon_persen > 0 && $harga > 0) {
+            $calc_diskon = $harga - ($harga * ($diskon_persen / 100));
+            $harga_diskon = "'" . round($calc_diskon) . "'";
+        }
 
-        $val_aks = $a ? "'$a'" : "NULL";
-        mysqli_query($db, "INSERT INTO admin_produk_airtag_kombinasi (produk_id, warna, pack, aksesoris, harga, jumlah_stok, status_stok) VALUES ('$product_id', '$w', '$p', $val_aks, '$pr', '$st', '$status')");
+        $val_aksesoris = $aksesoris ? "'$aksesoris'" : "NULL";
+        
+        $q_combo = "INSERT INTO admin_produk_airtag_kombinasi 
+                   (produk_id, warna, pack, aksesoris, harga, harga_diskon, jumlah_stok, status_stok) 
+                   VALUES ('$product_id', '$warna', '$pack', $val_aksesoris, '$harga', $harga_diskon, '$jumlah_stok', '$status_stok')";
+                   
+        if (!mysqli_query($db, $q_combo)) throw new Exception("Gagal insert kombinasi: " . mysqli_error($db));
     }
 
     mysqli_commit($db);

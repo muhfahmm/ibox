@@ -318,7 +318,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Pack</th>
                                     <th>Aksesoris</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                     <th>Status</th>
                                 </tr>
@@ -398,8 +398,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control base-price" name="pack_harga[]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon Bawaan (Optional)</label>
-                            <input type="number" class="form-control" name="pack_harga_diskon[]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control" name="pack_diskon_persen[]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -436,7 +436,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     val: row.querySelector('.pack-value').value,
                     price: row.querySelector('.base-price').value,
-                    discount: row.querySelector('input[name*="diskon"]').value
+                    discount: row.querySelector('input[name*="diskon_persen"]').value
                 };
             }).filter(p => p.val);
             
@@ -461,7 +461,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${p.val}<input type="hidden" name="combinations[${idx}][pack]" value="${p.val}"></td>
                             <td>${aks}<input type="hidden" name="combinations[${idx}][aksesoris]" value="${aks}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${p.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${p.discount || 0}"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][diskon_persen]" value="${p.discount || 0}" min="0" max="100"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;

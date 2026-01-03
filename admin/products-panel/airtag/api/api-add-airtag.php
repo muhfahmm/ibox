@@ -125,12 +125,16 @@ try {
             $pack = mysqli_real_escape_string($db, $combo['pack']);
             $aksesoris = !empty($combo['aksesoris']) && $combo['aksesoris'] !== '-' ? mysqli_real_escape_string($db, $combo['aksesoris']) : NULL;
             $harga = mysqli_real_escape_string($db, $combo['harga']);
-            $harga_diskon = !empty($combo['harga_diskon']) ? mysqli_real_escape_string($db, $combo['harga_diskon']) : "NULL";
-            $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok']);
-            $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
+            $diskon_persen = !empty($combo['diskon_persen']) ? floatval($combo['diskon_persen']) : 0;
+            $harga_diskon = "NULL";
+            
+            if ($diskon_persen > 0 && $harga > 0) {
+                $calc_diskon = $harga - ($harga * ($diskon_persen / 100));
+                $harga_diskon = "'" . round($calc_diskon) . "'";
+            }
 
             $val_aksesoris = $aksesoris ? "'$aksesoris'" : "NULL";
-            $val_diskon = ($harga_diskon === "NULL") ? "NULL" : "'$harga_diskon'";
+            $val_diskon = $harga_diskon;
 
             $q_combo = "INSERT INTO admin_produk_airtag_kombinasi 
                        (produk_id, warna, pack, aksesoris, harga, harga_diskon, jumlah_stok, status_stok) 

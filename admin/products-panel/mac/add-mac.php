@@ -333,7 +333,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Penyimpanan</th>
                                     <th>RAM</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                 </tr>
                             </thead>
@@ -413,8 +413,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control processor-price" name="processor[${processorIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control processor-discount" name="processor[${processorIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control processor-discount" name="processor[${processorIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -439,8 +439,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control base-price" name="penyimpanan[${storageIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -465,8 +465,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control ram-price" name="ram[${ramIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control ram-discount" name="ram[${ramIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control ram-discount" name="ram[${ramIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -487,7 +487,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     name: row.querySelector('input[name*="[name]"]')?.value || '',
                     price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]')?.value) || 0
                 };
             }).filter(p => p.name);
 
@@ -495,7 +495,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     size: row.querySelector('input[name*="[size]"]')?.value || '',
                     price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]')?.value) || 0
                 };
             }).filter(s => s.size);
             
@@ -503,7 +503,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 return {
                     size: row.querySelector('input[name*="[size]"]')?.value || '',
                     price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]')?.value) || 0
                 };
             }).filter(r => r.size);
 
@@ -522,24 +522,34 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                         rams.forEach(ram => {
                             const totalPrice = storage.price + ram.price + processor.price;
                             
-                            let totalDiscount = null;
-                            if (storage.discount > 0 || ram.discount > 0 || processor.discount > 0) {
-                                const sPrice = storage.discount > 0 ? storage.discount : storage.price;
-                                const rPrice = ram.discount > 0 ? ram.discount : ram.price;
-                                const pPrice = processor.discount > 0 ? processor.discount : processor.price;
-                                totalDiscount = sPrice + rPrice + pPrice;
-                            }
+                    const sPrice = storage.price - (storage.price * (storage.discount / 100));
+                    const rPrice = ram.price - (ram.price * (ram.discount / 100));
+                    const pPrice = processor.price - (processor.price * (processor.discount / 100));
+                    totalDiscount = Math.round(sPrice + rPrice + pPrice);
 
-                            const tr = document.createElement('tr');
-                            tr.innerHTML = `
-                                <td>${color}<input type="hidden" name="combinations[${idx}][warna]" value="${color}"></td>
-                                <td>${processor.name}<input type="hidden" name="combinations[${idx}][processor]" value="${processor.name}"></td>
-                                <td>${storage.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${storage.size}"></td>
-                                <td>${ram.size}<input type="hidden" name="combinations[${idx}][ram]" value="${ram.size}"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice}" required></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}"></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
-                            `;
+                    if (totalDiscount >= totalPrice) {
+                        totalDiscount = null;
+                    }
+
+                    // Calculate total percent for display
+                    let totalPercent = 0;
+                    if (totalPrice > 0 && totalDiscount !== null) {
+                        totalPercent = Math.round(((totalPrice - totalDiscount) / totalPrice) * 100);
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${color}<input type="hidden" name="combinations[${idx}][warna]" value="${color}"></td>
+                        <td>${processor.name}<input type="hidden" name="combinations[${idx}][processor]" value="${processor.name}"></td>
+                        <td>${storage.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${storage.size}"></td>
+                        <td>${ram.size}<input type="hidden" name="combinations[${idx}][ram]" value="${ram.size}"></td>
+                        <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice}" required></td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${totalDiscount || ''}" placeholder="Total Diskon (Rp)">
+                            ${totalPercent > 0 ? `<small class="text-success">${totalPercent}% Off</small>` : ''}
+                        </td>
+                        <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
+                    `;
                             tbody.appendChild(tr);
                             idx++;
                         });

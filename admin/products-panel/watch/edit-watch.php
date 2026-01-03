@@ -43,7 +43,9 @@ $connections_map = [];
 $materials_map = [];
 $stocks_map = [];
 $prices_map = [];
+$prices_map = [];
 $discounts_map = [];
+$percents_map = [];
 
 foreach($combinations as $c) {
     $trimmed_size = trim($c['ukuran_case']);
@@ -66,6 +68,7 @@ foreach($combinations as $c) {
     $stocks_map[$key] = $c['jumlah_stok'];
     $prices_map[$key] = $c['harga'];
     $discounts_map[$key] = (!empty($c['harga_diskon']) && $c['harga_diskon'] > 0) ? $c['harga_diskon'] : '';
+    $percents_map[$key] = (!empty($c['harga_diskon']) && $c['harga_diskon'] > 0 && $c['harga'] > 0) ? round((($c['harga'] - $c['harga_diskon']) / $c['harga']) * 100) : '';
 }
 
 $initialData = [
@@ -75,7 +78,9 @@ $initialData = [
     'materials' => array_keys($materials_map),
     'stocks' => $stocks_map,
     'prices' => $prices_map,
-    'discounts' => $discounts_map
+    'prices' => $prices_map,
+    'discounts' => $discounts_map,
+    'percents' => $percents_map
 ];
 ?>
 
@@ -925,6 +930,24 @@ $initialData = [
             }
         }
 
+        function calculateRowDiscount(uniqueId) {
+            const priceInput = document.querySelector(`input[name="combinations[${uniqueId}][harga]"]`);
+            const percentInput = document.querySelector(`input[name="combinations[${uniqueId}][diskon_persen]"]`);
+            const discountInput = document.querySelector(`input[name="combinations[${uniqueId}][harga_diskon]"]`);
+            
+            if (!priceInput || !percentInput || !discountInput) return;
+            
+            const price = Number(priceInput.value) || 0;
+            const percent = Number(percentInput.value) || 0;
+            
+            if (price > 0 && percent > 0) {
+                const discountPrice = Math.round(price - (price * (percent / 100)));
+                discountInput.value = discountPrice;
+            } else {
+                discountInput.value = '';
+            }
+        }
+
         // Generate Combinations
         function generateCombinations() {
             const container = document.getElementById('combinationsContainer');
@@ -970,7 +993,7 @@ $initialData = [
                                 <th>Tipe Koneksi</th>
                                 <th>Material</th>
                                 <th>Harga</th>
-                                <th>Diskon</th>
+                                <th>Diskon (%)</th>
                                 <th>Jumlah Stok</th>
                             </tr>
                         </thead>
@@ -989,6 +1012,7 @@ $initialData = [
                                 const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
                                 const existingPrice = initialData.prices[stockKey] !== undefined ? initialData.prices[stockKey] : '';
                                 const existingDiscount = initialData.discounts[stockKey] !== undefined ? initialData.discounts[stockKey] : '';
+                                const existingPercent = initialData.percents[stockKey] !== undefined ? initialData.percents[stockKey] : '';
                                 
                                 tableHTML += `
                                     <tr>
@@ -1001,13 +1025,14 @@ $initialData = [
                                             <input type="number" class="form-control" style="width: 120px;" 
                                                    name="combinations[${uniqueId}][harga]" 
                                                    value="${existingPrice}"
-                                                   placeholder="Harga" min="0" required>
+                                                   placeholder="Harga" min="0" required oninput="calculateRowDiscount('${uniqueId}')">
                                         </td>
                                         <td>
                                             <input type="number" class="form-control" style="width: 120px;" 
-                                                   name="combinations[${uniqueId}][harga_diskon]" 
-                                                   value="${existingDiscount}"
-                                                   placeholder="Diskon (opsional)" min="0">
+                                                   name="combinations[${uniqueId}][diskon_persen]" 
+                                                   value="${existingPercent}"
+                                                   placeholder="0" min="0" max="100" oninput="calculateRowDiscount('${uniqueId}')">
+                                            <input type="hidden" name="combinations[${uniqueId}][harga_diskon]" value="${existingDiscount}">
                                         </td>
                                         <td>
                                             <input type="number" class="form-control" style="width: 100px;" 

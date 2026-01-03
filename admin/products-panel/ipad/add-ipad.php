@@ -398,8 +398,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <input type="number" class="form-control base-price" name="penyimpanan[${storageIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Harga Diskon (Opsional)</label>
-                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][harga_diskon]" placeholder="0" onkeyup="updateCombinations()">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control" name="penyimpanan[${storageIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -435,8 +435,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             const storages = Array.from(document.querySelectorAll('.storage-option')).map(row => {
                 return {
                     size: row.querySelector('input[name*="[size]"]').value,
-                    price: row.querySelector('input[name*="[harga]"]').value,
-                    discount: row.querySelector('input[name*="[harga_diskon]"]').value
+                    price: Number(row.querySelector('input[name*="[harga]"]').value) || 0,
+                    percent: Number(row.querySelector('input[name*="[diskon_persen]"]').value) || 0
                 };
             }).filter(s => s.size);
             
@@ -455,13 +455,27 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             colors.forEach(c => {
                 storages.forEach(s => {
                     conns.forEach(conn => {
+                        let discountVal = '';
+                        if (s.percent > 0 && s.price > 0) {
+                            discountVal = Math.round(s.price - (s.price * (1 - s.percent / 100))); // Wait, discount amount or discounted price? 
+                            // Usually harga_diskon in DB is the FINAL price or the DISCOUNT AMOUNT?
+                            // In other files it was Final Price or Amount? 
+                            // Let's check api-add-ipad.php logic usually.
+                            // In api-add-airtag: harga_diskon is the discounted price.
+                            // Formula: original - (original * percent / 100).
+                            discountVal = Math.round(s.price - (s.price * (s.percent / 100)));
+                        }
+
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
                             <td>${c}<input type="hidden" name="combinations[${idx}][warna]" value="${c}"></td>
                             <td>${s.size}<input type="hidden" name="combinations[${idx}][penyimpanan]" value="${s.size}"></td>
                             <td>${conn}<input type="hidden" name="combinations[${idx}][konektivitas]" value="${conn}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${s.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${s.discount}"></td>
+                            <td>
+                                <input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${discountVal}">
+                                ${s.percent > 0 ? `<small class="text-success">${s.percent}% Off</small>` : ''}
+                            </td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0"></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;

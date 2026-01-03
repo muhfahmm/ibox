@@ -48,7 +48,8 @@ foreach($combinations as $c) {
         $storages_map[$trimmed_storage] = [
             'size' => $trimmed_storage,
             'harga' => $c['harga'],
-            'harga_diskon' => $c['harga_diskon']
+            'harga_diskon' => $c['harga_diskon'],
+            'diskon_persen' => ($c['harga_diskon'] > 0 && $c['harga'] > 0) ? round((($c['harga'] - $c['harga_diskon'])/$c['harga'])*100) : ''
         ];
     }
     $connectivities_map[trim($c['konektivitas'])] = true;
@@ -803,9 +804,9 @@ $initialData = [
                                placeholder="Harga" min="0" required value="${data && data.harga ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
                     <div class="form-col col-4">
-                        <label class="form-label">Harga Diskon</label>
-                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
-                               placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                        <label class="form-label">Diskon (%)</label>
+                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][diskon_persen]" 
+                               placeholder="0" min="0" max="100" value="${data && data.diskon_persen ? data.diskon_persen : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
@@ -882,13 +883,22 @@ $initialData = [
             document.querySelectorAll('.storage-option').forEach(option => {
                 const sizeInput = option.querySelector('input[name*="[size]"]');
                 const hargaInput = option.querySelector('input[name*="[harga]"]');
-                const diskonInput = option.querySelector('input[name*="[harga_diskon]"]');
+                const percentInput = option.querySelector('input[name*="[diskon_persen]"]'); // Changed selector
                 
                 if (sizeInput && hargaInput && sizeInput.value.trim() && hargaInput.value) {
+                    const price = Number(hargaInput.value) || 0;
+                    const percent = Number(percentInput ? percentInput.value : 0) || 0;
+                    let discountVal = '';
+                    
+                    if (price > 0 && percent > 0) {
+                        discountVal = Math.round(price - (price * (percent / 100)));
+                    }
+
                     storages.push({
                         size: sizeInput.value.trim(),
-                        harga: hargaInput.value,
-                        harga_diskon: diskonInput ? diskonInput.value : ''
+                        harga: price,
+                        harga_diskon: discountVal,
+                        diskon_persen: percent
                     });
                 }
             });
@@ -938,7 +948,7 @@ $initialData = [
                                     <td>${connectivity}</td>
                                     <td>
                                         <div style="font-weight: bold; color: #28a745;">Rp ${parseInt(storage.harga).toLocaleString('id-ID')}</div>
-                                        ${storage.harga_diskon ? `<small style="color: #dc3545; text-decoration: line-through;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')}</small>` : ''}
+                                        ${storage.harga_diskon ? `<small style="color: #dc3545;">Diskon: Rp ${parseInt(storage.harga_diskon).toLocaleString('id-ID')} (${storage.diskon_persen}%)</small>` : ''}
                                         
                                         <!-- Hidden Inputs for Combination Data -->
                                         <input type="hidden" name="combinations[${uniqueId}][warna]" value="${color}">

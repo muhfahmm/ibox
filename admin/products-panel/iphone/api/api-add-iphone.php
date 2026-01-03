@@ -249,8 +249,14 @@ try {
             $penyimpanan = mysqli_real_escape_string($db, $combination_data['penyimpanan'] ?? '');
             $konektivitas = mysqli_real_escape_string($db, $combination_data['konektivitas'] ?? '');
             $harga = mysqli_real_escape_string($db, $combination_data['harga'] ?? 0);
-            $harga_diskon = !empty($combination_data['harga_diskon']) ? 
-                           mysqli_real_escape_string($db, $combination_data['harga_diskon']) : NULL;
+            
+            $diskon_persen = !empty($combination_data['diskon_persen']) ? floatval($combination_data['diskon_persen']) : 0;
+            $harga_diskon = NULL;
+
+            if ($diskon_persen > 0 && $harga > 0) {
+                $calc_diskon = $harga - ($harga * ($diskon_persen / 100));
+                $harga_diskon = round($calc_diskon);
+            }
             $jumlah_stok = mysqli_real_escape_string($db, $combination_data['jumlah_stok'] ?? 0);
             
             $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';

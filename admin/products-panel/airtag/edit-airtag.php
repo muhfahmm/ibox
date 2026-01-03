@@ -64,7 +64,9 @@ while ($row = mysqli_fetch_assoc($res)) {
     $key = trim($row['warna']) . '|' . $trimmed_pack . '|' . $aks_value;
     $stocks_map[$key] = $row['jumlah_stok'];
     $prices_map[$key] = $row['harga'];
-    $discounts_map[$key] = (!empty($row['harga_diskon']) && $row['harga_diskon'] > 0) ? $row['harga_diskon'] : '';
+    $discounts_map[$key] = (!empty($row['harga_diskon']) && $row['harga_diskon'] > 0 && $row['harga'] > 0) 
+        ? round((($row['harga'] - $row['harga_diskon']) / $row['harga']) * 100) 
+        : '';
 }
 $packs = array_values($packs);
 $aksesoris = array_values($aksesoris);
@@ -161,7 +163,7 @@ $initialData = [
                     <div class="table-responsive">
                         <table class="table-combinations" id="combinations-table">
                             <thead>
-                                <tr><th>Warna</th><th>Pack</th><th>Aksesoris</th><th>Harga</th><th>Diskon</th><th>Stok</th><th>Status</th></tr>
+                                <tr><th>Warna</th><th>Pack</th><th>Aksesoris</th><th>Harga</th><th>Diskon (%)</th><th>Stok</th><th>Status</th></tr>
                             </thead>
                             <tbody id="combinations-body"><tr><td colspan="7" class="text-center text-muted py-4">Lengkapi data di atas untuk melihat kombinasi</td></tr></tbody>
                         </table>
@@ -183,6 +185,10 @@ $initialData = [
             const html = `
                 <div class="option-card color-option" data-idx="${colorIdx}">
                     <button type="button" class="btn-remove" onclick="removeOption(this)"><i class="fas fa-times"></i></button>
+                    <!-- Hidden inputs for existing images -->
+                    <input type="hidden" name="warna[${colorIdx}][existing_thumbnail]" value="${thumb}">
+                    <input type="hidden" name="warna[${colorIdx}][existing_gallery]" value='${JSON.stringify(gallery)}'>
+
                     <div class="row g-3">
                         <div class="col-md-4">
                             <label class="form-label small">Nama Warna</label>
@@ -217,7 +223,7 @@ $initialData = [
                     <div class="row align-items-center">
                         <div class="col-md-4"><label class="form-label">Pack</label><input type="text" class="form-control pack-value" name="pack[]" value="${val}" required onkeyup="generateCombinations()"></div>
                         <div class="col-md-4"><label class="form-label">Harga</label><input type="number" class="form-control base-price" name="pack_harga[]" value="${price}" required onkeyup="generateCombinations()"></div>
-                        <div class="col-md-4"><label class="form-label">Diskon (Opsional)</label><input type="number" class="form-control" name="pack_harga_diskon[]" value="${discount}"></div>
+                        <div class="col-md-4"><label class="form-label">Diskon (%)</label><input type="number" class="form-control" name="pack_diskon_persen[]" value="${discount}" min="0" max="100"></div>
                     </div>
                 </div>`;
             container.insertAdjacentHTML('beforeend', html);
@@ -242,7 +248,7 @@ $initialData = [
             const packs = Array.from(document.querySelectorAll('.pack-option')).map(row=>({
                 val: row.querySelector('.pack-value').value.trim(),
                 price: row.querySelector('.base-price').value,
-                discount: row.querySelector('input[name*="diskon"]').value
+                discount: row.querySelector('input[name*="diskon_persen"]').value
             })).filter(p=>p.val);
             let aks = Array.from(document.querySelectorAll('.aksesoris-value')).map(i=>i.value.trim()).filter(v=>v);
             if(aks.length===0) aks=['-'];
@@ -278,7 +284,7 @@ $initialData = [
                             <td>${p.val}<input type="hidden" name="combinations[${idx}][pack]" value="${p.val}"></td>
                             <td>${a}<input type="hidden" name="combinations[${idx}][aksesoris]" value="${a}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${existingPrice}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" value="${existingDiscount}" placeholder="Opsional"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][diskon_persen]" value="${existingDiscount}" placeholder="0" min="0" max="100"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="${existingStock}" placeholder="0"></td>
                             <td><span class="badge bg-${existingStock ? 'success' : 'secondary'}">${existingStock ? 'Ready' : 'Draft'}</span></td>
                         `;
@@ -301,7 +307,7 @@ $initialData = [
                     const packData = {
                         val: p,
                         price: combo ? combo.harga : '',
-                        discount: combo && combo.harga_diskon > 0 ? combo.harga_diskon : ''
+                        discount: combo && combo.harga_diskon > 0 && combo.harga > 0 ? Math.round(((combo.harga - combo.harga_diskon) / combo.harga) * 100) : ''
                     };
                     addPackOption(packData);
                 });

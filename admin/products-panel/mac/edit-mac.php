@@ -73,7 +73,8 @@ foreach ($combinations as $combination) {
         $storage_data[$storage] = [
             'size' => $storage,
             'harga' => $combination['harga'],
-            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : '',
+            'diskon_persen' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0 && $combination['harga'] > 0) ? round((($combination['harga'] - $combination['harga_diskon']) / $combination['harga']) * 100) : ''
         ];
     }
 }
@@ -88,7 +89,8 @@ foreach ($combinations as $combination) {
         $ram_data[$ram] = [
             'size' => $ram,
             'harga' => $combination['harga'],
-            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : '',
+            'diskon_persen' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0 && $combination['harga'] > 0) ? round((($combination['harga'] - $combination['harga_diskon']) / $combination['harga']) * 100) : ''
         ];
     }
     
@@ -98,7 +100,8 @@ foreach ($combinations as $combination) {
         $processor_data[$proc] = [
             'name' => $proc,
             'harga' => $combination['harga'],
-            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : ''
+            'harga_diskon' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0) ? $combination['harga_diskon'] : '',
+            'diskon_persen' => (!empty($combination['harga_diskon']) && $combination['harga_diskon'] > 0 && $combination['harga'] > 0) ? round((($combination['harga'] - $combination['harga_diskon']) / $combination['harga']) * 100) : ''
         ];
     }
 }
@@ -837,9 +840,9 @@ foreach($combinations as $c) {
                                placeholder="Harga" min="0" required value="${data ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
                     <div class="form-col col-4">
-                        <label class="form-label">Harga Diskon</label>
-                        <input type="number" class="form-control" name="processor[${newIndex}][harga_diskon]" 
-                               placeholder="Diskon (opsional)" min="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                        <label class="form-label">Diskon (%)</label>
+                        <input type="number" class="form-control" name="processor[${newIndex}][diskon_persen]" 
+                               placeholder="Diskon (%)" min="0" max="100" value="${data ? data.diskon_persen : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeProcessor(${newIndex})">
@@ -888,9 +891,9 @@ foreach($combinations as $c) {
                                placeholder="Harga" min="0" required value="${data && data.harga ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
                     <div class="form-col col-4">
-                        <label class="form-label">Harga Diskon</label>
-                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][harga_diskon]" 
-                               placeholder="Diskon (opsional)" min="0" value="${data && data.harga_diskon ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                        <label class="form-label">Diskon (%)</label>
+                        <input type="number" class="form-control" name="penyimpanan[${newIndex}][diskon_persen]" 
+                               placeholder="Diskon (%)" min="0" max="100" value="${data && data.diskon_persen ? data.diskon_persen : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeStorage(${newIndex})">
@@ -939,9 +942,9 @@ foreach($combinations as $c) {
                                placeholder="Harga" min="0" required value="${data ? data.harga : ''}" onchange="generateCombinations()">
                     </div>
                     <div class="form-col col-4">
-                        <label class="form-label">Harga Diskon</label>
-                        <input type="number" class="form-control" name="ram[${newIndex}][harga_diskon]" 
-                               placeholder="Diskon (opsional)" min="0" value="${data ? data.harga_diskon : ''}" onchange="generateCombinations()">
+                        <label class="form-label">Diskon (%)</label>
+                        <input type="number" class="form-control" name="ram[${newIndex}][diskon_persen]" 
+                               placeholder="Diskon (%)" min="0" max="100" value="${data ? data.diskon_persen : ''}" onchange="generateCombinations()">
                     </div>
                 </div>
                 <button type="button" class="btn-danger-sm" onclick="removeRam(${newIndex})">
@@ -976,7 +979,7 @@ foreach($combinations as $c) {
                 return {
                     name: row.querySelector('input[name*="[name]"]')?.value || '',
                     price: Number(row.querySelector('input[name*="[harga]"]')?.value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]')?.value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]')?.value) || 0
                 };
             }).filter(p => p.name);
 
@@ -984,7 +987,7 @@ foreach($combinations as $c) {
                 return {
                     size: row.querySelector('input[name*="[size]"]').value,
                     price: Number(row.querySelector('input[name*="[harga]"]').value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]').value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]').value) || 0
                 };
             }).filter(s => s.size);
             
@@ -992,7 +995,7 @@ foreach($combinations as $c) {
                 return {
                     size: row.querySelector('input[name*="[size]"]').value,
                     price: Number(row.querySelector('input[name*="[harga]"]').value) || 0,
-                    discount: Number(row.querySelector('input[name*="[harga_diskon]"]').value) || 0
+                    discount: Number(row.querySelector('input[name*="[diskon_persen]"]').value) || 0
                 };
             }).filter(r => r.size);
             
@@ -1036,12 +1039,19 @@ foreach($combinations as $c) {
                             const existingStock = initialData.stocks[stockKey] !== undefined ? initialData.stocks[stockKey] : 0;
                             
                             const totalPrice = storage.price + ram.price + processor.price;
-                            let totalDiscount = null;
-                            if (storage.discount > 0 || ram.discount > 0 || processor.discount > 0) {
-                                const sPrice = storage.discount > 0 ? storage.discount : storage.price;
-                                const rPrice = ram.discount > 0 ? ram.discount : ram.price;
-                                const pPrice = processor.discount > 0 ? processor.discount : processor.price;
-                                totalDiscount = sPrice + rPrice + pPrice;
+                            const sPrice = storage.price - (storage.price * (storage.discount / 100));
+                            const rPrice = ram.price - (ram.price * (ram.discount / 100));
+                            const pPrice = processor.price - (processor.price * (processor.discount / 100));
+                            totalDiscount = Math.round(sPrice + rPrice + pPrice);
+
+                            if (totalDiscount >= totalPrice) {
+                                totalDiscount = null;
+                            }
+
+                            // Calculate total percent for display
+                            let totalPercent = 0;
+                            if (totalPrice > 0 && totalDiscount !== null) {
+                                totalPercent = Math.round(((totalPrice - totalDiscount) / totalPrice) * 100);
                             }
                             
                             html += `
@@ -1052,7 +1062,10 @@ foreach($combinations as $c) {
                                     <td>${storage.size}<input type="hidden" name="combinations[${uniqueId}][penyimpanan]" value="${storage.size}"></td>
                                     <td>${ram.size}<input type="hidden" name="combinations[${uniqueId}][ram]" value="${ram.size}"></td>
                                     <td><input type="number" name="combinations[${uniqueId}][harga]" value="${totalPrice}" required></td>
-                                    <td><input type="number" name="combinations[${uniqueId}][harga_diskon]" value="${totalDiscount || ''}" placeholder="Opsional"></td>
+                                    <td>
+                                        <input type="number" name="combinations[${uniqueId}][harga_diskon]" value="${totalDiscount || ''}" placeholder="Total Diskon (Rp)">
+                                        ${totalPercent > 0 ? `<small style="color: green; margin-left: 5px;">${totalPercent}% Off</small>` : ''}
+                                    </td>
                                     <td><input type="number" name="combinations[${uniqueId}][jumlah_stok]" value="${existingStock}" placeholder="0"></td>
                                 </tr>
                             `;

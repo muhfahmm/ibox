@@ -329,7 +329,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Tipe</th>
                                     <th>Ukuran</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                     <th>Status</th>
                                 </tr>
@@ -400,13 +400,17 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                 <div class="option-card type-option position-relative">
                     <button type="button" class="btn-remove" onclick="removeOption(this, 'type')"><i class="fas fa-times"></i></button>
                     <div class="row align-items-center">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Tipe</label>
                             <input type="text" class="form-control type-value" name="tipe[${typeIndex}][nama]" placeholder="Contoh: Silicon, Leather" required onkeyup="updateCombinations()">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Harga Dasar (Rp)</label>
                             <input type="number" class="form-control base-price" name="tipe[${typeIndex}][harga]" placeholder="0" required onkeyup="updateCombinations()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Diskon (%)</label>
+                            <input type="number" class="form-control base-discount" name="tipe[${typeIndex}][diskon_persen]" placeholder="0" min="0" max="100" onkeyup="updateCombinations()">
                         </div>
                     </div>
                 </div>`;
@@ -443,7 +447,8 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             const types = Array.from(document.querySelectorAll('.type-option')).map(row => {
                 return {
                     name: row.querySelector('input[name*="[nama]"]').value,
-                    price: row.querySelector('input[name*="[harga]"]').value
+                    price: row.querySelector('input[name*="[harga]"]').value,
+                    discount: row.querySelector('input[name*="[diskon_persen]"]').value
                 };
             }).filter(t => t.name);
             
@@ -469,7 +474,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                             <td>${t.name}<input type="hidden" name="combinations[${idx}][tipe]" value="${t.name}"></td>
                             <td>${s}<input type="hidden" name="combinations[${idx}][ukuran]" value="${s}"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${t.price}" required></td>
-                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
+                            <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][diskon_persen]" value="${t.discount || 0}" min="0" max="100"></td>
                             <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0" required></td>
                             <td><span class="badge bg-secondary">Draft</span></td>
                         `;

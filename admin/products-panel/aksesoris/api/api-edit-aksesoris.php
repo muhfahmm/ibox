@@ -183,7 +183,14 @@ try {
         $ukuran = mysqli_real_escape_string($db, $_POST['ukuran'][$size_index] ?? '');
         
         $harga = mysqli_real_escape_string($db, $combo['harga'] ?? 0);
-        $harga_diskon = !empty($combo['harga_diskon']) ? mysqli_real_escape_string($db, $combo['harga_diskon']) : "NULL";
+        
+        $diskon_persen = !empty($combo['diskon_persen']) ? floatval($combo['diskon_persen']) : 0;
+        $harga_diskon = "NULL";
+
+        if ($diskon_persen > 0 && $harga > 0) {
+            $calc_diskon = $harga - ($harga * ($diskon_persen / 100));
+            $harga_diskon = "'" . round($calc_diskon) . "'";
+        }
         $jumlah_stok = mysqli_real_escape_string($db, $combo['jumlah_stok'] ?? 0);
         $status_stok = ($jumlah_stok > 0) ? 'tersedia' : 'habis';
 
@@ -195,7 +202,7 @@ try {
         $query_kombinasi = "INSERT INTO admin_produk_aksesoris_kombinasi 
                            (produk_id, warna, tipe, ukuran, harga, harga_diskon, jumlah_stok, status_stok) 
                            VALUES ('$product_id', '$warna', '$tipe', '$ukuran',
-                                   '$harga', " . ($harga_diskon === "NULL" ? "NULL" : "'$harga_diskon'") . ", 
+                                   '$harga', $harga_diskon, 
                                    '$jumlah_stok', '$status_stok')";
         
         if (mysqli_query($db, $query_kombinasi)) {

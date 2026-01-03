@@ -340,7 +340,7 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                     <th>Tipe Koneksi</th>
                                     <th>Material</th>
                                     <th>Harga (Rp)</th>
-                                    <th>Diskon (Rp)</th>
+                                    <th>Diskon (%)</th>
                                     <th>Stok</th>
                                     <th>Status</th>
                                 </tr>
@@ -476,6 +476,26 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
             updateCombinations();
         }
 
+        function calculateDiscount(idx) {
+            const row = document.querySelector(`#combinations-body tr:nth-child(${idx + 1})`);
+            if (!row) return; // Note: idx is 0-based index from loop, nth-child is 1-based? No, I'll use ID logic or direct element ref.
+            // Better: pass 'this'
+        }
+        
+        function updateRowDiscount(input) {
+            const row = input.closest('tr');
+            const price = Number(row.querySelector('input[name*="[harga]"]').value) || 0;
+            const percent = Number(input.value) || 0;
+            const discountInput = row.querySelector('input[name*="[harga_diskon]"]');
+            
+            if (price > 0 && percent > 0) {
+                const discount = Math.round(price - (price * (percent / 100)));
+                discountInput.value = discount;
+            } else {
+                discountInput.value = '';
+            }
+        }
+
         function generateCombinations() {
             const colors = Array.from(document.querySelectorAll('.color-name')).map(i => i.value).filter(v => v);
             const sizes = Array.from(document.querySelectorAll('.size-option')).map(row => {
@@ -518,7 +538,10 @@ $admin_username = $_SESSION['admin_username'] ?? 'Admin';
                                 <td>${conn}<input type="hidden" name="combinations[${idx}][tipe_koneksi]" value="${conn}"></td>
                                 <td>${material}<input type="hidden" name="combinations[${idx}][material]" value="${material}"></td>
                                 <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga]" value="${totalPrice || ''}" required readonly></td>
-                                <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][harga_diskon]" placeholder="0"></td>
+                                <td>
+                                    <input type="number" class="form-control form-control-sm" name="combinations[${idx}][diskon_persen]" placeholder="0" min="0" max="100" oninput="updateRowDiscount(this)">
+                                    <input type="hidden" name="combinations[${idx}][harga_diskon]" value="">
+                                </td>
                                 <td><input type="number" class="form-control form-control-sm" name="combinations[${idx}][jumlah_stok]" value="" placeholder="0" required></td>
                                 <td><span class="badge bg-secondary">Draft</span></td>
                             `;
