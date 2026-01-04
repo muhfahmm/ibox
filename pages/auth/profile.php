@@ -243,7 +243,7 @@ $user_initials = $first_initial . $last_initial;
     <nav class="navbar">
         <div class="navbar-container">
             <div class="navbar-logo">
-                <a href="../../../index.php">
+                <a href="../index.php">
                     <img src="../../../assets/img/logo/logo.png" alt="iBox Logo">
                 </a>
             </div>

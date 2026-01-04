@@ -3265,7 +3265,10 @@ if ($is_logged_in) {
                 $table_gambar = "admin_produk_" . $type . "_gambar";
                 $table_kombi = "admin_produk_" . $type . "_kombinasi";
 
-                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, 
+                                 MIN(pk.harga) as harga_asli,
+                                 MIN(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN pk.harga_diskon ELSE pk.harga END) as harga_terendah,
+                                 MAX(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount
                                  FROM $table_main p
                                  LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
                                  LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
@@ -3292,6 +3295,9 @@ if ($is_logged_in) {
                         'name' => $d['nama_produk'],
                         'category' => $t,
                         'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'harga_asli' => (float)($d['harga_asli'] ?? 0),
+                        'harga_terendah' => (float)($d['harga_terendah'] ?? 0),
+                        'has_discount' => (int)($d['has_discount'] ?? 0),
                         'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
                         'rating' => 4.5,
                         'badge' => ['text' => $item['label'] ?? 'Populer', 'type' => 'hot']
@@ -3331,7 +3337,10 @@ if ($is_logged_in) {
                 $table_gambar = "admin_produk_" . $type . "_gambar";
                 $table_kombi = "admin_produk_" . $type . "_kombinasi";
 
-                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, 
+                                 MIN(pk.harga) as harga_asli,
+                                 MIN(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN pk.harga_diskon ELSE pk.harga END) as harga_terendah,
+                                 MAX(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount
                                  FROM $table_main p
                                  LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
                                  LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
@@ -3358,6 +3367,9 @@ if ($is_logged_in) {
                         'name' => $d['nama_produk'],
                         'category' => $t,
                         'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'harga_asli' => (float)($d['harga_asli'] ?? 0),
+                        'harga_terendah' => (float)($d['harga_terendah'] ?? 0),
+                        'has_discount' => (int)($d['has_discount'] ?? 0),
                         'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/200x180?text=No+Image',
                         'rating' => 4.5,
                         'badge' => ['text' => 'Terbaru', 'type' => 'new']
@@ -3755,6 +3767,41 @@ if ($is_logged_in) {
                 color: #007aff;
                 font-weight: 500;
                 margin-bottom: 15px;
+            }
+
+            .product-price-original {
+                font-size: 13px;
+                color: #86868b;
+                font-weight: 500;
+                text-decoration: line-through;
+                margin-bottom: 4px;
+            }
+
+            .product-price-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+
+            .product-price-discount {
+                color: #ff3b30 !important;
+                font-size: 17px !important;
+                font-weight: 700 !important;
+                margin-bottom: 0 !important;
+            }
+
+            .discount-badge {
+                background: linear-gradient(135deg, #ff3b30 0%, #ff6b60 100%);
+                color: white;
+                font-size: 11px;
+                font-weight: 700;
+                padding: 4px 8px;
+                border-radius: 6px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+                white-space: nowrap;
             }
 
             .product-btn {
@@ -4427,6 +4474,23 @@ if ($is_logged_in) {
 
                     const stars = getProductStarRating(product.rating);
 
+                    // Format harga dengan atau tanpa diskon
+                    let priceHTML = '';
+                    if (product.has_discount && product.harga_asli) {
+                        // Hitung persentase diskon
+                        const discountPercent = Math.round(((product.harga_asli - product.harga_terendah) / product.harga_asli) * 100);
+                        
+                        priceHTML = `
+                            <div class="product-price-original">Rp ${new Intl.NumberFormat('id-ID').format(product.harga_asli)}</div>
+                            <div class="product-price-wrapper">
+                                <div class="product-price product-price-discount">Rp ${new Intl.NumberFormat('id-ID').format(product.harga_terendah)}</div>
+                                <span class="discount-badge">${discountPercent}% OFF</span>
+                            </div>
+                        `;
+                    } else {
+                        priceHTML = `<div class="product-price">${product.price}</div>`;
+                    }
+
                     return `
                 <div class="product-card" data-category="${product.category}" data-product-id="${product.id}" data-product-category="${product.category}" style="cursor: pointer;">
                     <img src="${product.image}" alt="${product.name}" class="product-image" 
@@ -4437,7 +4501,7 @@ if ($is_logged_in) {
                         ${stars}
                         <span>(${product.rating})</span>
                     </div>
-                    <div class="product-price">${product.price}</div>
+                    ${priceHTML}
                     <button class="product-btn" data-product-id="${product.id}" data-product-category="${product.category}">
                         <i class="bi bi-bag"></i> Beli Sekarang
                     </button>
@@ -4743,7 +4807,10 @@ if ($is_logged_in) {
                     $table_kombi = "admin_produk_aksesoris_kombinasi";
                 }
 
-                $detail_query = "SELECT p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                $detail_query = "SELECT p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, 
+                                 MIN(pk.harga) as harga_asli,
+                                 MIN(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN pk.harga_diskon ELSE pk.harga END) as harga_terendah,
+                                 MAX(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount
                                  FROM $table_main p
                                  LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
                                  LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
@@ -4756,6 +4823,9 @@ if ($is_logged_in) {
                         'name' => $d['nama_produk'],
                         'description' => $d['deskripsi_produk'] ?? '',
                         'price' => 'Rp ' . number_format($d['harga_terendah'] ?? 0, 0, ',', '.'),
+                        'price_raw' => $d['harga_terendah'] ?? 0,
+                        'original_price' => $d['harga_asli'] ?? 0,
+                        'has_discount' => $d['has_discount'] == 1,
                         'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/800x800?text=No+Image',
                         'label' => $item['label'] ?? 'NEW',
                         'tipe' => $tipe,
@@ -4791,7 +4861,10 @@ if ($is_logged_in) {
                     $table_kombi = "admin_produk_aksesoris_kombinasi";
                 }
 
-                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                $detail_query = "SELECT p.id, p.nama_produk, pg.foto_thumbnail, 
+                                 MIN(pk.harga) as harga_asli,
+                                 MIN(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN pk.harga_diskon ELSE pk.harga END) as harga_terendah,
+                                 MAX(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount
                                  FROM $table_main p
                                  LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
                                  LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
@@ -5159,7 +5232,12 @@ if ($is_logged_in) {
                     <h2 class="title"><?php echo htmlspecialchars($p['name']); ?></h2>
                     <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
                     <p class="price-text">
-                        <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                        <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
+                            <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                            <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
+                        <?php else: ?>
+                            <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                        <?php endif; ?>
                     </p>
                     <div class="button-container">
                         <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
@@ -5183,7 +5261,12 @@ if ($is_logged_in) {
                             <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
                             <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
                             <p class="price-text">
-                                <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                                <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
+                                    <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                                    <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
+                                <?php else: ?>
+                                    <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                                <?php endif; ?>
                             </p>
                             <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
                                 <i class="fas fa-shopping-bag"></i>
@@ -5204,7 +5287,12 @@ if ($is_logged_in) {
                             <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
                             <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
                             <p class="price-text">
-                                <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                                <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
+                                    <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                                    <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
+                                <?php else: ?>
+                                    <span class="price-start">Mulai </span><?php echo $p['price']; ?>
+                                <?php endif; ?>
                             </p>
                             <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
                                 <i class="fas fa-shopping-bag"></i>
@@ -6657,7 +6745,10 @@ if ($is_logged_in) {
                         $table_kombi = "admin_produk_aksesoris_kombinasi";
                     }
 
-                    $detail_query = "SELECT p.id, p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, MIN(pk.harga) as harga_terendah
+                    $detail_query = "SELECT p.id, p.nama_produk, p.deskripsi_produk, pg.foto_thumbnail, 
+                                 MIN(pk.harga) as harga_asli,
+                                 MIN(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN pk.harga_diskon ELSE pk.harga END) as harga_terendah,
+                                 MAX(CASE WHEN pk.harga_diskon > 0 AND pk.harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount
                                  FROM $table_main p
                                  LEFT JOIN $table_gambar pg ON p.id = pg.produk_id
                                  LEFT JOIN $table_kombi pk ON p.id = pk.produk_id
@@ -6672,6 +6763,8 @@ if ($is_logged_in) {
                             'name' => $d['nama_produk'],
                             'description' => $d['deskripsi_produk'],
                             'price' => (float)($d['harga_terendah'] ?? 0),
+                            'harga_asli' => (float)($d['harga_asli'] ?? 0),
+                            'has_discount' => (int)($d['has_discount'] ?? 0),
                             'label' => $item['label'] ?: ucfirst($tipe),
                             'image' => $d['foto_thumbnail'] ? '../admin/uploads/' . $d['foto_thumbnail'] : 'https://via.placeholder.com/400x400?text=No+Image'
                         ];
@@ -6871,6 +6964,23 @@ if ($is_logged_in) {
                 width: 100%;
                 display: block;
                 box-sizing: border-box;
+            }
+
+            .harga-asli-coret {
+                font-size: 0.95rem;
+                font-weight: 500;
+                color: #86868b;
+                text-decoration: line-through;
+                text-align: center;
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            .harga-diskon {
+                color: #ff3b30 !important;
+                background: rgba(255, 59, 48, 0.08) !important;
+                font-size: 1.25rem !important;
+                font-weight: 700 !important;
             }
 
             .btn-beli {
@@ -7362,8 +7472,13 @@ if ($is_logged_in) {
                                 <span class="badge-category"><?= htmlspecialchars($aksesori['label']) ?></span>
                                 <h3 class="nama-aksesori"><?= htmlspecialchars($aksesori['name']) ?></h3>
                                 <p class="deskripsi-aksesori"><?= htmlspecialchars(mb_strimwidth($aksesori['description'], 0, 100, "...")) ?></p>
-                                <div class="harga-container">
-                                    <span class="harga-aksesori">Mulai Rp<?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                    <div class="harga-container">
+                                        <?php if (isset($aksesori['has_discount']) && $aksesori['has_discount']): ?>
+                                            <span style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?= number_format($aksesori['harga_asli'], 0, ',', '.') ?></span>
+                                            <span class="harga-aksesori" style="color: #1d1d1f; font-weight: 600; font-size: 1rem;">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                        <?php else: ?>
+                                            <span class="harga-aksesori">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                        <?php endif; ?>
                                     <button class="btn-beli" onclick="location.href='checkout/checkout.php?id=<?= $aksesori['id'] ?>&type=<?= $aksesori['tipe'] ?>'">
                                         <i class="bi bi-cart-plus"></i> Beli Sekarang
                                     </button>
@@ -9399,7 +9514,25 @@ if ($is_logged_in) {
                 WHEN hc.tipe_produk = 'watch' THEN (SELECT MIN(harga) FROM admin_produk_watch_kombinasi WHERE produk_id = hc.produk_id)
                 WHEN hc.tipe_produk = 'aksesoris' THEN (SELECT MIN(harga) FROM admin_produk_aksesoris_kombinasi WHERE produk_id = hc.produk_id)
                 WHEN hc.tipe_produk = 'airtag' THEN (SELECT MIN(harga) FROM admin_produk_airtag_kombinasi WHERE produk_id = hc.produk_id)
-            END as harga_terendah
+            END as harga_asli,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_iphone_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'ipad' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_ipad_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'mac' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_mac_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'music' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_music_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'watch' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_watch_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'aksesoris' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_aksesoris_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'airtag' THEN (SELECT MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) FROM admin_produk_airtag_kombinasi WHERE produk_id = hc.produk_id)
+            END as harga_terendah,
+            CASE 
+                WHEN hc.tipe_produk = 'iphone' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_iphone_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'ipad' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_ipad_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'mac' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_mac_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'music' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_music_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'watch' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_watch_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'aksesoris' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_aksesoris_kombinasi WHERE produk_id = hc.produk_id)
+                WHEN hc.tipe_produk = 'airtag' THEN (SELECT MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) FROM admin_produk_airtag_kombinasi WHERE produk_id = hc.produk_id)
+            END as has_discount
           FROM home_checkout hc
           LEFT JOIN admin_produk_iphone iphone ON hc.tipe_produk = 'iphone' AND hc.produk_id = iphone.id
           LEFT JOIN admin_produk_ipad ipad ON hc.tipe_produk = 'ipad' AND hc.produk_id = ipad.id
@@ -9648,6 +9781,23 @@ if ($is_logged_in) {
                 display: inline-block;
                 white-space: nowrap;
                 border: 1px solid rgba(0, 122, 255, 0.1);
+            }
+
+            .harga-container-checkout .harga-asli-coret {
+                font-size: 0.9rem;
+                font-weight: 500;
+                color: #86868b;
+                text-decoration: line-through;
+                display: block;
+                margin-bottom: 6px;
+                text-align: left;
+            }
+
+            .harga-container-checkout .harga-diskon {
+                color: #ff3b30 !important;
+                background: linear-gradient(135deg, rgba(255, 59, 48, 0.08), rgba(255, 59, 48, 0.04)) !important;
+                border: 1px solid rgba(255, 59, 48, 0.1) !important;
+                font-size: 1.25rem !important;
             }
 
             /* TOMBOL CHECKOUT - WARNA iBOX */
@@ -10161,7 +10311,12 @@ if ($is_logged_in) {
                                 <h3 class="nama-checkout"><?php echo $nama_produk; ?></h3>
                                 <p class="deskripsi-checkout"><?php echo $deskripsi; ?></p>
                                 <div class="harga-container-checkout">
-                                    <span class="harga-checkout"><?php echo $harga; ?></span>
+                                    <?php if (isset($item['has_discount']) && $item['has_discount']): ?>
+                                        <span class="harga-asli-coret">Rp <?= number_format($item['harga_asli'], 0, ',', '.') ?></span>
+                                        <span class="harga-checkout harga-diskon">Rp <?= number_format($item['harga_terendah'], 0, ',', '.') ?></span>
+                                    <?php else: ?>
+                                        <span class="harga-checkout"><?php echo $harga; ?></span>
+                                    <?php endif; ?>
                                     <button class="btn-checkout" onclick="location.href='checkout/checkout.php?id=<?php echo $item['produk_id']; ?>&type=<?php echo $item['tipe_produk']; ?>'">
                                         <i class="bi bi-bag-check"></i> Checkout
                                     </button>

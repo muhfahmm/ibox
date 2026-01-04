@@ -2595,6 +2595,7 @@ while ($row = $res->fetch_assoc()) {
                 transition: all 0.3s ease;
                 background: #f5f5f7;
                 padding: 10px;
+                box-sizing: border-box;
             }
 
             .thumbnail-item:hover,
@@ -3066,6 +3067,7 @@ while ($row = $res->fetch_assoc()) {
                 .thumbnail-list {
                     flex-direction: row;
                     overflow-x: auto;
+                    padding: 10px;
                 }
             }
 
@@ -3745,6 +3747,27 @@ while ($row = $res->fetch_assoc()) {
         </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-body" style="padding: 40px 30px; text-align: center;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ff3b30 0%, #ff6b60 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; box-shadow: 0 10px 30px rgba(255, 59, 48, 0.3);">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 40px; color: white;"></i>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Hapus Alamat?</h3>
+                <p style="font-size: 15px; color: #6e6e73; margin-bottom: 35px; line-height: 1.5;">Apakah Anda yakin ingin menghapus alamat ini? Tindakan ini tidak dapat dibatalkan.</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn-modal btn-secondary" onclick="closeModal('deleteConfirmModal')" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; transition: all 0.2s;">
+                        <i class="fas fa-times" style="margin-right: 6px;"></i>Batal
+                    </button>
+                    <button class="btn-modal btn-danger" onclick="confirmDeleteAddress()" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(255, 59, 48, 0.3); transition: all 0.2s;">
+                        <i class="fas fa-trash-alt" style="margin-right: 6px;"></i>Hapus
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         function openAddressListModal() {
             document.getElementById('addressListModal').classList.add('active');
@@ -3803,11 +3826,15 @@ while ($row = $res->fetch_assoc()) {
         }
         
         function deleteAddress() {
-            if(confirm('Apakah Anda yakin ingin menghapus alamat ini?')) {
-                const id = document.getElementById('addressId').value;
-                document.getElementById('deleteAddressId').value = id;
-                document.getElementById('deleteAddressForm').submit();
-            }
+            // Show modern confirmation modal instead of alert
+            document.getElementById('deleteConfirmModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function confirmDeleteAddress() {
+            const id = document.getElementById('addressId').value;
+            document.getElementById('deleteAddressId').value = id;
+            document.getElementById('deleteAddressForm').submit();
         }
         
         // Close modal when clicking outside
