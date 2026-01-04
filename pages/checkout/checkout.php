@@ -12,6 +12,14 @@ if ($is_logged_in) {
     $first_initial = !empty($firstname) ? strtoupper(substr($firstname, 0, 1)) : '';
     $last_initial = !empty($lastname) ? strtoupper(substr($lastname, 0, 1)) : '';
     $user_initials = $first_initial . $last_initial;
+
+    // Cart Count
+    $cart_count = 0;
+    $uid = $_SESSION['user_id'];
+    $q_cart = $db->query("SELECT SUM(jumlah) as total FROM user_keranjang WHERE user_id = $uid");
+    if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
+        $cart_count = $row_cart['total'] ?? 0;
+    }
 }
 
 // --- Address Logic ---
@@ -110,6 +118,7 @@ while ($row = $res->fetch_assoc()) {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
             padding: 0;
@@ -1216,6 +1225,183 @@ while ($row = $res->fetch_assoc()) {
                     font-size: 11px;
                 }
             }
+            }
+            
+            /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
+            .cart-dropdown {
+                position: absolute;
+                top: 100%;
+                right: 0;
+                width: 360px;
+                
+                /* White Glassmorphism Background */
+                background: rgba(255, 255, 255, 0.7); 
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                
+                border-radius: 16px; 
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+                
+                z-index: 1000;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+                color: #1d1d1f; /* Dark text for white bg */
+                overflow: hidden;
+            }
+
+            .cart-dropdown.active {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .cart-dropdown-header {
+                padding: 15px 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                background-color: rgba(255, 255, 255, 0.1);
+            }
+
+            .cart-dropdown-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #1d1d1f;
+                text-shadow: none;
+            }
+
+            .cart-dropdown-link {
+                font-size: 13px;
+                color: #0071e3; /* Standard Apple Blue */
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            .cart-dropdown-link:hover {
+                text-decoration: underline;
+                color: #0056b3;
+            }
+
+            .cart-items-list {
+                max-height: 350px;
+                overflow-y: auto;
+                padding: 0;
+                list-style: none;
+                margin: 0;
+            }
+            
+            /* Custom Scrollbar for Glass */
+            .cart-items-list::-webkit-scrollbar {
+                width: 6px;
+            }
+            .cart-items-list::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            .cart-items-list::-webkit-scrollbar-thumb {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 3px;
+            }
+            .cart-items-list::-webkit-scrollbar-thumb:hover {
+                background: rgba(0, 0, 0, 0.2);
+            }
+
+            .cart-item {
+                display: flex;
+                padding: 15px 20px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+                gap: 15px;
+                transition: background 0.2s;
+            }
+
+            .cart-item:hover {
+                background-color: rgba(0, 0, 0, 0.02); 
+            }
+
+            .cart-item-img {
+                width: 60px;
+                height: 60px;
+                border-radius: 10px;
+                background-color: #fff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+                flex-shrink: 0;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                border: 1px solid rgba(0,0,0,0.05); /* Slight border for image */
+            }
+
+            .cart-item-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                padding: 5px;
+            }
+
+            .cart-item-details {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .cart-item-name {
+                font-size: 14px;
+                font-weight: 500;
+                color: #1d1d1f;
+                margin-bottom: 4px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .cart-item-price-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-top: 4px;
+            }
+
+            .cart-item-qty {
+                font-size: 13px;
+                color: #86868b;
+            }
+            
+            .cart-item-price {
+                font-size: 14px;
+                font-weight: 600;
+                color: #1d1d1f;
+                text-shadow: none;
+            }
+
+            .cart-empty-state {
+                padding: 40px 20px;
+                text-align: center;
+                color: #86868b;
+                font-size: 14px;
+            }
+
+            /* Triangle/Arrow - White Glass */
+            .cart-dropdown::before {
+                content: '';
+                position: absolute;
+                top: -6px;
+                right: 20px;
+                width: 12px;
+                height: 12px;
+                background: rgba(255, 255, 255, 0.7); 
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                transform: rotate(45deg);
+                border-top: 1px solid rgba(255, 255, 255, 0.5);
+                border-left: 1px solid rgba(255, 255, 255, 0.5);
+                z-index: -1;
+            }
         </style>
         <div class="wrapper">
             <div class="nav-top-container">
@@ -1246,8 +1432,30 @@ while ($row = $res->fetch_assoc()) {
                                 <i class="bi bi-person-fill"></i>
                             </a>
                         <?php endif; ?>
-                        <div class="bag-icon">
-                            <i class="bi bi-bag"></i>
+                        <!-- Cart Icon with Dropdown Wrapper -->
+                        <div class="position-relative cart-dropdown-wrapper">
+                            <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
+                                <i class="bi bi-bag"></i>
+                                <?php if (isset($cart_count) && $cart_count > 0): ?>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
+                                        <?php echo $cart_count; ?>
+                                    </span>
+                                <?php endif; ?>
+                            </a>
+
+                            <!-- Dropdown Content -->
+                            <div class="cart-dropdown" id="cartDropdown">
+                                <div class="cart-dropdown-header">
+                                    <div class="cart-dropdown-title">
+                                        Keranjang (<span id="cartDropdownCount">0</span>)
+                                    </div>
+                                    <a href="../cart/cart.php" class="cart-dropdown-link">Lihat</a>
+                                </div>
+                                <ul class="cart-items-list" id="cartItemsList">
+                                    <!-- Items will be populated via JS -->
+                                    <li class="cart-empty-state">Memuat keranjang...</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2864,7 +3072,6 @@ while ($row = $res->fetch_assoc()) {
                 font-weight: 600;
                 font-size: 16px;
                 color: #1d1d1f;
-                -moz-appearance: textfield;
             }
             
             #productQuantity:focus {
@@ -3582,11 +3789,12 @@ while ($row = $res->fetch_assoc()) {
             const thumbnail = mainImgSrc.split('/').pop(); // Extract filename
 
             // Prepare data
-            const formData = new FormData();
-            formData.append('product_id', <?php echo $product_id; ?>);
-            formData.append('jumlah', currentQuantity);
-            formData.append('tipe', '<?php echo $product_type; ?>');
-            formData.append('thumbnail', thumbnail);
+            const cartData = {
+                product_id: <?php echo $product_id; ?>,
+                quantity: currentQuantity,
+                product_type: '<?php echo $product_type; ?>',
+                thumbnail: thumbnail
+            };
 
             // Send to API
             const btnCart = document.querySelector('.btn-cart');
@@ -3594,9 +3802,12 @@ while ($row = $res->fetch_assoc()) {
             btnCart.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
             btnCart.disabled = true;
 
-            fetch('api/add_to_cart.php', {
+            fetch('../cart/add_to_cart.php', {
                 method: 'POST',
-                body: formData
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cartData)
             })
             .then(response => response.json())
             .then(data => {
@@ -3848,4 +4059,115 @@ while ($row = $res->fetch_assoc()) {
         });
     </script>
 </body>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             // Cart Dropdown Elements
+            const cartTrigger = document.getElementById('cartDropdownTrigger');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const cartList = document.getElementById('cartItemsList');
+            const cartDropdownCount = document.getElementById('cartDropdownCount');
+            const cartBadge = document.getElementById('cartBadge');
+
+            // Handle Cart Dropdown
+            let isCartOpen = false;
+
+            if(cartTrigger) {
+                cartTrigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if(isCartOpen) {
+                        closeCartDropdown();
+                    } else {
+                        openCartDropdown();
+                    }
+                });
+            }
+
+            function openCartDropdown() {
+                if(!cartDropdown) return;
+                cartDropdown.classList.add('active');
+                isCartOpen = true;
+                fetchCartData();
+            }
+
+            function closeCartDropdown() {
+                if(!cartDropdown) return;
+                cartDropdown.classList.remove('active');
+                isCartOpen = false;
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if(isCartOpen && cartDropdown && !cartDropdown.contains(e.target) && !cartTrigger.contains(e.target)) {
+                    closeCartDropdown();
+                }
+            });
+
+            function fetchCartData() {
+                // Adjust path based on where this file is included
+                // checkout.php is in pages/checkout/
+                fetch('../cart/get_cart_dropdown.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            renderCartItems(data.items, data.count);
+                        } else {
+                            renderError('Gagal memuat data');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Cart fetch error:', err);
+                         renderError('Gagal memuat keranjang');
+                    });
+            }
+
+            function renderCartItems(items, count) {
+                // Update counts
+                if(cartDropdownCount) cartDropdownCount.textContent = count;
+                
+                if(items.length === 0) {
+                    cartList.innerHTML = '<li class="cart-empty-state">Keranjang Anda kosong</li>';
+                    return;
+                }
+
+                let html = '';
+                items.forEach(item => {
+                    let imgPath;
+                    
+                    if (item.image) {
+                        if (item.image.startsWith('assets/')) {
+                            // checkout.php -> pages/checkout/ -> ../../assets/
+                            imgPath = '../../' + item.image;
+                        } else {
+                             // checkout.php -> pages/checkout/ -> ../../admin/uploads/
+                            imgPath = '../../admin/uploads/' + item.image;
+                        }
+                    } else {
+                         imgPath = '../../assets/img/logo/logo.png';
+                    } 
+                    
+                    html += `
+                        <li class="cart-item">
+                            <div class="cart-item-img">
+                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
+                            </div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price-row">
+                                    <div class="cart-item-qty">${item.qty} Barang</div>
+                                    <div class="cart-item-price">${item.formatted_price}</div>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                });
+                cartList.innerHTML = html;
+            }
+            
+            function renderError(msg) {
+                cartList.innerHTML = `<li class="cart-empty-state text-danger">${msg}</li>`;
+            }
+        });
+    </script>
 </html>

@@ -9,13 +9,13 @@ header('Content-Type: application/json');
 
 function sendError($msg, $details = null) {
     http_response_code(200); // Always return 200 for JS to handle structure
-    echo json_encode(['status' => 'error', 'message' => $msg, 'debug' => $details]);
+    echo json_encode(['status' => 'error', 'success' => false, 'message' => $msg, 'debug' => $details]);
     exit();
 }
 
 // Check login
 if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['status' => 'error', 'message' => 'Silakan login terlebih dahulu', 'code' => 'auth_required']);
+    echo json_encode(['status' => 'error', 'success' => false, 'message' => 'Silakan login terlebih dahulu', 'code' => 'auth_required']);
     exit();
 }
 
@@ -31,6 +31,7 @@ $product_type = isset($input['product_type']) ? strtolower(trim($input['product_
 $quantity = isset($input['quantity']) ? intval($input['quantity']) : 1;
 // selected_variant is an ID of the combination table, if user already picked one
 $selected_combination_id = isset($input['combination_id']) ? intval($input['combination_id']) : null;
+$request_thumbnail = isset($input['thumbnail']) ? trim($input['thumbnail']) : null;
 
 if ($product_id <= 0 || empty($product_type)) {
     sendError('Data produk tidak valid', ['id' => $product_id, 'type' => $product_type]);
@@ -83,7 +84,11 @@ if (!$has_variants_table) {
         $img_res = $db->query("SELECT foto_thumbnail FROM $table_img WHERE produk_id = $product_id LIMIT 1");
         if ($img_res && $row = $img_res->fetch_assoc()) {
             $thumbnail = $row['foto_thumbnail'];
+        } elseif ($request_thumbnail) {
+            $thumbnail = $request_thumbnail;
         }
+    } elseif ($request_thumbnail) {
+        $thumbnail = $request_thumbnail;
     }
     
     addToCart($db, $user_id, $product_id, $product_type, $quantity, $thumbnail);
@@ -147,7 +152,11 @@ if ($selected_combination_id) {
         $r_thumb = $db->query($q_thumb);
         if ($r_thumb && $row = $r_thumb->fetch_assoc()) {
             $thumbnail = $row['foto_thumbnail'];
+        } elseif ($request_thumbnail) {
+            $thumbnail = $request_thumbnail;
         }
+    } elseif ($request_thumbnail) {
+        $thumbnail = $request_thumbnail;
     }
     
     ensureColumnExists($db);
@@ -172,6 +181,7 @@ if ($selected_combination_id) {
     
     echo json_encode([
         'status' => 'variant_required',
+        'success' => false,
         'message' => 'Pilih varian',
         'product_id' => $product_id,
         'product_type' => $product_type,
@@ -203,7 +213,7 @@ function addToCart($db, $user_id, $product_id, $type, $qty, $thumbnail, $kombina
         $cart_id = $row['id'];
         $update = $db->query("UPDATE user_keranjang SET jumlah = $new_qty WHERE id = $cart_id");
         if ($update) {
-            echo json_encode(['status' => 'success', 'message' => 'Jumlah produk di keranjang diperbarui']);
+            echo json_encode(['status' => 'success', 'success' => true, 'message' => 'Jumlah produk di keranjang diperbarui']);
         } else {
             sendError('Gagal memperbarui keranjang: ' . $db->error);
         }
@@ -215,13 +225,13 @@ function addToCart($db, $user_id, $product_id, $type, $qty, $thumbnail, $kombina
                 VALUES ($user_id, $product_id, '$type', $qty, '$thumbnail', $k_id_val)";
         
         if ($db->query($sql)) {
-            echo json_encode(['status' => 'success', 'message' => 'Produk ditambahkan ke keranjang']);
+            echo json_encode(['status' => 'success', 'success' => true, 'message' => 'Produk ditambahkan ke keranjang']);
         } else {
              // Fallback if column doesn't exist (if alter failed)
              $sql_fallback = "INSERT INTO user_keranjang (user_id, product_id, tipe_produk, jumlah, foto_thumbnail) 
                 VALUES ($user_id, $product_id, '$type', $qty, '$thumbnail')";
              if ($db->query($sql_fallback)) {
-                 echo json_encode(['status' => 'success', 'message' => 'Produk (umum) ditambahkan ke keranjang']);
+                 echo json_encode(['status' => 'success', 'success' => true, 'message' => 'Produk (umum) ditambahkan ke keranjang']);
              } else {
                  sendError('Gagal menyimpan ke keranjang: ' . $db->error);
              }
