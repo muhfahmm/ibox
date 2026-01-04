@@ -59,6 +59,7 @@ foreach ($combinations as $combo) {
 
     // Store logic for storage prices might vary per color in complex systems, 
     // but here we simplify or take the first occurrence if inconsistent.
+    if (!isset($unique_storages[$trimmed_storage])) {
         $unique_storages[$trimmed_storage] = [
             'size' => $trimmed_storage,
             'harga' => $combo['harga'],

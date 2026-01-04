@@ -374,7 +374,6 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                 color: #1d1d1f;
                 margin-bottom: 4px;
                 display: -webkit-box;
-                -webkit-line-clamp: 2;
                 -webkit-box-orient: vertical;
                 overflow: hidden;
             }

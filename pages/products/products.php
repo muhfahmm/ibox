@@ -203,6 +203,7 @@ if ($is_logged_in) {
                 justify-content: space-between;
                 list-style: none;
                 padding: 5px 0;
+                margin: 0;
                 position: relative;
                 transition: all 0.3s ease;
             }
@@ -3010,7 +3011,6 @@ if ($is_logged_in) {
             </div>
         </div>
     </div>
-
     <script>
         function filterProducts(category) {
             const cards = document.querySelectorAll('.product-card');
@@ -3024,6 +3024,18 @@ if ($is_logged_in) {
                     btn.classList.add('active');
                 }
             });
+
+            // Update URL agar persist saat refresh
+            if (category !== 'all') {
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('type', category);
+                window.history.pushState({path: newUrl.toString()}, '', newUrl.toString());
+            } else {
+                 // Jika 'all', mungkin kita ingin menghapus parameter type atau membiarkannya
+                 const newUrl = new URL(window.location.href);
+                 newUrl.searchParams.delete('type');
+                 window.history.pushState({path: newUrl.toString()}, '', newUrl.toString());
+            }
 
             // Filter cards with animation
             cards.forEach((card, index) => {
@@ -3145,7 +3157,12 @@ if ($is_logged_in) {
             const activeKeys = potentialKeys.filter(k => sample.hasOwnProperty(k.key));
             
             activeKeys.forEach(k => {
-                const values = [...new Set(currentVariants.map(v => v[k.key]))].filter(v => v);
+                // Get unique values and trim them
+                const values = [...new Set(currentVariants.map(v => {
+                    const val = v[k.key];
+                    return val ? val.toString().trim() : null;
+                }))].filter(v => v);
+                
                 if(values.length > 0) {
                     const div = document.createElement('div');
                     div.className = 'mb-3';
@@ -3196,7 +3213,8 @@ if ($is_logged_in) {
             
             selectors.forEach(sel => {
                 if(sel.value) {
-                    selectedCriteria[sel.dataset.key] = sel.value;
+                    // Trim the value to avoid trailing space issues
+                    selectedCriteria[sel.dataset.key] = sel.value.trim();
                 } else {
                     isComplete = false;
                 }
@@ -3222,9 +3240,12 @@ if ($is_logged_in) {
                 return;
             }
             
+            // Match variant with trimmed comparison
             const match = currentVariants.find(v => {
                 for(let key in selectedCriteria) {
-                    if(v[key] != selectedCriteria[key]) return false;
+                    const variantValue = (v[key] || '').toString().trim();
+                    const selectedValue = selectedCriteria[key].toString().trim();
+                    if(variantValue !== selectedValue) return false;
                 }
                 return true;
             });

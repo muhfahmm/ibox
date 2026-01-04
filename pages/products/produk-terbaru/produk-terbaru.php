@@ -203,6 +203,7 @@ if ($is_logged_in) {
                 justify-content: space-between;
                 list-style: none;
                 padding: 5px 0;
+                margin: 0;
                 position: relative;
                 transition: all 0.3s ease;
             }

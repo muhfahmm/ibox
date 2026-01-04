@@ -7,7 +7,7 @@ if ($is_logged_in) {
     // Get firstname and lastname from session
     $firstname = isset($_SESSION['user_firstname']) ? $_SESSION['user_firstname'] : '';
     $lastname = isset($_SESSION['user_lastname']) ? $_SESSION['user_lastname'] : '';
-    
+
     // Create initials (first letter of firstname + first letter of lastname)
     $first_initial = !empty($firstname) ? strtoupper(substr($firstname, 0, 1)) : '';
     $last_initial = !empty($lastname) ? strtoupper(substr($lastname, 0, 1)) : '';
@@ -17,7 +17,7 @@ if ($is_logged_in) {
     $cart_count = 0;
     $uid = $_SESSION['user_id'];
     $q_cart = $db->query("SELECT SUM(jumlah) as total FROM user_keranjang WHERE user_id = $uid");
-    if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
+    if ($q_cart && $row_cart = $q_cart->fetch_assoc()) {
         $cart_count = $row_cart['total'] ?? 0;
     }
 }
@@ -178,6 +178,7 @@ if ($is_logged_in) {
                 justify-content: space-between;
                 list-style: none;
                 padding: 5px 0;
+                margin: 0;
                 position: relative;
                 transition: all 0.3s ease;
             }
@@ -926,22 +927,23 @@ if ($is_logged_in) {
                 top: 100%;
                 right: 0;
                 width: 360px;
-                
+
                 /* White Glassmorphism Background */
-                background: rgba(255, 255, 255, 0.7); 
+                background: rgba(255, 255, 255, 0.7);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-                
-                border-radius: 16px; 
+
+                border-radius: 16px;
                 border: 1px solid rgba(255, 255, 255, 0.5);
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                
+
                 z-index: 1000;
                 opacity: 0;
                 visibility: hidden;
                 transform: translateY(10px);
                 transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-                color: #1d1d1f; /* Dark text for white bg */
+                color: #1d1d1f;
+                /* Dark text for white bg */
                 overflow: hidden;
             }
 
@@ -969,7 +971,8 @@ if ($is_logged_in) {
 
             .cart-dropdown-link {
                 font-size: 13px;
-                color: #0071e3; /* Standard Apple Blue */
+                color: #0071e3;
+                /* Standard Apple Blue */
                 text-decoration: none;
                 font-weight: 500;
             }
@@ -986,32 +989,47 @@ if ($is_logged_in) {
                 list-style: none;
                 margin: 0;
             }
-            
+
             /* Custom Scrollbar for Glass */
             .cart-items-list::-webkit-scrollbar {
                 width: 6px;
             }
+
             .cart-items-list::-webkit-scrollbar-track {
                 background: transparent;
             }
+
             .cart-items-list::-webkit-scrollbar-thumb {
                 background: rgba(0, 0, 0, 0.1);
                 border-radius: 3px;
             }
+
             .cart-items-list::-webkit-scrollbar-thumb:hover {
                 background: rgba(0, 0, 0, 0.2);
             }
 
             .cart-item {
-                display: flex;
-                padding: 15px 20px;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
-                gap: 15px;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
                 transition: background 0.2s;
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 0, 0, 0.02); 
+                background-color: rgba(0, 122, 255, 0.05);
+            }
+
+            .cart-item-link {
+                display: flex;
+                padding: 15px 20px;
+                gap: 15px;
+                text-decoration: none;
+                color: inherit;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+
+            .cart-item-link:hover {
+                text-decoration: none;
+                color: inherit;
             }
 
             .cart-item-img {
@@ -1024,8 +1042,9 @@ if ($is_logged_in) {
                 justify-content: center;
                 overflow: hidden;
                 flex-shrink: 0;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.05); /* Slight border for image */
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                /* Slight border for image */
             }
 
             .cart-item-img img {
@@ -1064,7 +1083,7 @@ if ($is_logged_in) {
                 font-size: 13px;
                 color: #86868b;
             }
-            
+
             .cart-item-price {
                 font-size: 14px;
                 font-weight: 600;
@@ -1087,7 +1106,7 @@ if ($is_logged_in) {
                 right: 20px;
                 width: 12px;
                 height: 12px;
-                background: rgba(255, 255, 255, 0.7); 
+                background: rgba(255, 255, 255, 0.7);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 transform: rotate(45deg);
@@ -4686,7 +4705,7 @@ if ($is_logged_in) {
                     if (product.has_discount && product.harga_asli) {
                         // Hitung persentase diskon
                         const discountPercent = Math.round(((product.harga_asli - product.harga_terendah) / product.harga_asli) * 100);
-                        
+
                         priceHTML = `
                             <div class="product-price-original">Rp ${new Intl.NumberFormat('id-ID').format(product.harga_asli)}</div>
                             <div class="product-price-wrapper">
@@ -5151,8 +5170,8 @@ if ($is_logged_in) {
             /* Styling Kartu */
             .card {
                 background-color: #ffffff;
-                border-radius: 20px;
-                padding: 32px;
+                border-radius: 18px;
+                padding: 24px;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
                 position: relative;
                 overflow: hidden;
@@ -5177,14 +5196,18 @@ if ($is_logged_in) {
                 text-align: center;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
+                justify-content: center; /* Ubah dari space-between ke center */
+                align-items: center;
+                gap: 20px; /* Gunakan gap yang fixed */
             }
 
             .card-horizontal {
                 display: flex;
+                flex-direction: row; /* Paksa row */
                 align-items: center;
-                justify-content: space-between;
-                gap: 24px;
+                justify-content: flex-start; /* Jangan space-between */
+                gap: 20px;
+                height: 100%; /* Pastikan mengisi tinggi grid row */
             }
 
             /* Badge */
@@ -5206,11 +5229,11 @@ if ($is_logged_in) {
             }
 
             .card-large .title {
-                font-size: 28px;
+                font-size: 24px;
             }
 
             .card-horizontal .title {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             /* Teks */
@@ -5220,13 +5243,13 @@ if ($is_logged_in) {
             }
 
             .card-large .text {
-                font-size: 19px;
+                font-size: 16px;
                 font-weight: 500;
                 line-height: 1.3;
             }
 
             .card-horizontal .text {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             /* Harga dalam teks */
@@ -5301,8 +5324,8 @@ if ($is_logged_in) {
 
             /* Gambar */
             .image-large {
-                margin-top: 16px;
-                height: 320px;
+                margin-top: 10px;
+                height: 180px; /* Perkecil lagi */
                 width: auto;
                 max-width: 100%;
                 border-radius: 12px;
@@ -5315,9 +5338,10 @@ if ($is_logged_in) {
             }
 
             .image-small {
-                width: 160px;
-                height: 160px;
-                object-fit: cover;
+                width: 100px; /* Perkecil lagi agar muat */
+                height: 100px;
+                object-fit: contain; /* Ganti cover ke contain agar gambar produk utuh */
+                background: #fff;
                 border-radius: 10px;
                 transition: transform 0.5s ease;
                 flex-shrink: 0;
@@ -5328,13 +5352,12 @@ if ($is_logged_in) {
             }
 
             .content-right {
-                text-align: right;
-                max-width: 260px;
+                text-align: left; /* Paksa rata kiri untuk horizontal card */
                 flex-grow: 1;
                 display: flex;
                 flex-direction: column;
-                align-items: flex-end;
-                /* Agar button sejajar kanan */
+                align-items: flex-start; /* Rata kiri */
+                justify-content: center;
             }
 
             /* Untuk button di card-large (iPhone) */
@@ -7679,13 +7702,13 @@ if ($is_logged_in) {
                                 <span class="badge-category"><?= htmlspecialchars($aksesori['label']) ?></span>
                                 <h3 class="nama-aksesori"><?= htmlspecialchars($aksesori['name']) ?></h3>
                                 <p class="deskripsi-aksesori"><?= htmlspecialchars(mb_strimwidth($aksesori['description'], 0, 100, "...")) ?></p>
-                                    <div class="harga-container">
-                                        <?php if (isset($aksesori['has_discount']) && $aksesori['has_discount']): ?>
-                                            <span style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?= number_format($aksesori['harga_asli'], 0, ',', '.') ?></span>
-                                            <span class="harga-aksesori" style="color: #1d1d1f; font-weight: 600; font-size: 1rem;">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
-                                        <?php else: ?>
-                                            <span class="harga-aksesori">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
-                                        <?php endif; ?>
+                                <div class="harga-container">
+                                    <?php if (isset($aksesori['has_discount']) && $aksesori['has_discount']): ?>
+                                        <span style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?= number_format($aksesori['harga_asli'], 0, ',', '.') ?></span>
+                                        <span class="harga-aksesori" style="color: #1d1d1f; font-weight: 600; font-size: 1rem;">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                    <?php else: ?>
+                                        <span class="harga-aksesori">Mulai Rp <?= number_format($aksesori['price'], 0, ',', '.') ?></span>
+                                    <?php endif; ?>
                                     <button class="btn-beli" onclick="location.href='checkout/checkout.php?id=<?= $aksesori['id'] ?>&type=<?= $aksesori['tipe'] ?>'">
                                         <i class="bi bi-cart-plus"></i> Beli Sekarang
                                     </button>
@@ -11143,7 +11166,7 @@ if ($is_logged_in) {
             const sidebar = document.getElementById('sidebar');
             const closeSidebar = document.getElementById('closeSidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
-            
+
             // Cart Dropdown Elements
             const cartTrigger = document.getElementById('cartDropdownTrigger');
             const cartDropdown = document.getElementById('cartDropdown');
@@ -11152,21 +11175,21 @@ if ($is_logged_in) {
             const cartBadge = document.getElementById('cartBadge');
 
             // Toggle Sidebar logic (only if not already attached)
-            if(hamburgerBtn) {
+            if (hamburgerBtn) {
                 hamburgerBtn.removeEventListener('click', toggleSidebar); // remove potential dup
                 hamburgerBtn.addEventListener('click', toggleSidebar);
             }
-            if(closeSidebar) {
+            if (closeSidebar) {
                 closeSidebar.removeEventListener('click', toggleSidebar);
                 closeSidebar.addEventListener('click', toggleSidebar);
             }
-            if(sidebarOverlay) {
+            if (sidebarOverlay) {
                 sidebarOverlay.removeEventListener('click', toggleSidebar);
                 sidebarOverlay.addEventListener('click', toggleSidebar);
             }
-            
+
             function toggleSidebar() {
-                if(sidebar) {
+                if (sidebar) {
                     sidebar.classList.toggle('active');
                     sidebarOverlay.classList.toggle('active');
                     document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
@@ -11176,12 +11199,12 @@ if ($is_logged_in) {
             // Handle Cart Dropdown
             let isCartOpen = false;
 
-            if(cartTrigger) {
+            if (cartTrigger) {
                 cartTrigger.addEventListener('click', (e) => {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    if(isCartOpen) {
+                    if (isCartOpen) {
                         closeCartDropdown();
                     } else {
                         openCartDropdown();
@@ -11190,21 +11213,21 @@ if ($is_logged_in) {
             }
 
             function openCartDropdown() {
-                if(!cartDropdown) return;
+                if (!cartDropdown) return;
                 cartDropdown.classList.add('active');
                 isCartOpen = true;
                 fetchCartData();
             }
 
             function closeCartDropdown() {
-                if(!cartDropdown) return;
+                if (!cartDropdown) return;
                 cartDropdown.classList.remove('active');
                 isCartOpen = false;
             }
 
             // Close dropdown when clicking outside
             document.addEventListener('click', (e) => {
-                if(isCartOpen && cartDropdown && !cartDropdown.contains(e.target) && !cartTrigger.contains(e.target)) {
+                if (isCartOpen && cartDropdown && !cartDropdown.contains(e.target) && !cartTrigger.contains(e.target)) {
                     closeCartDropdown();
                 }
             });
@@ -11215,7 +11238,7 @@ if ($is_logged_in) {
                 fetch('cart/get_cart_dropdown.php')
                     .then(response => response.json())
                     .then(data => {
-                        if(data.success) {
+                        if (data.success) {
                             renderCartItems(data.items, data.count);
                         } else {
                             renderError('Gagal memuat data');
@@ -11223,16 +11246,16 @@ if ($is_logged_in) {
                     })
                     .catch(err => {
                         console.error('Cart fetch error:', err);
-                         renderError('Gagal memuat keranjang');
+                        renderError('Gagal memuat keranjang');
                     });
             }
 
             function renderCartItems(items, count) {
                 // Update counts
-                if(cartDropdownCount) cartDropdownCount.textContent = count;
+                if (cartDropdownCount) cartDropdownCount.textContent = count;
                 // Don't update badge here strictly to allow PHP server-side render priority
-                
-                if(items.length === 0) {
+
+                if (items.length === 0) {
                     cartList.innerHTML = '<li class="cart-empty-state">Keranjang Anda kosong</li>';
                     return;
                 }
@@ -11243,9 +11266,9 @@ if ($is_logged_in) {
                     // API now returns image path from DB (e.g. "assets/img/...")
                     // Since we are in pages/index.php, we need to go up one level to reach assets/
                     // e.g. "../assets/img/..."
-                    
+
                     let imgPath;
-                    
+
                     if (item.image) {
                         // Check if it's a legacy asset path or a new upload
                         if (item.image.startsWith('assets/')) {
@@ -11255,28 +11278,30 @@ if ($is_logged_in) {
                             imgPath = '../admin/uploads/' + item.image;
                         }
                     } else {
-                         imgPath = '../assets/img/logo/logo.png';
-                    } 
+                        imgPath = '../assets/img/logo/logo.png';
+                    }
                     // If it's already absolute or correct, leave it, but fallback safely
-                    
+
                     html += `
                         <li class="cart-item">
-                            <div class="cart-item-img">
-                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../assets/img/logo/logo.png'">
-                            </div>
-                            <div class="cart-item-details">
-                                <div class="cart-item-name">${item.name}</div>
-                                <div class="cart-item-price-row">
-                                    <div class="cart-item-qty">${item.qty} Barang</div>
-                                    <div class="cart-item-price">${item.formatted_price}</div>
+                            <a href="${item.checkout_url}" class="cart-item-link">
+                                <div class="cart-item-img">
+                                    <img src="${imgPath}" alt="${item.name}" onerror="this.src='../assets/img/logo/logo.png'">
                                 </div>
-                            </div>
+                                <div class="cart-item-details">
+                                    <div class="cart-item-name">${item.name}</div>
+                                    <div class="cart-item-price-row">
+                                        <div class="cart-item-qty">${item.qty} Barang</div>
+                                        <div class="cart-item-price">${item.formatted_price}</div>
+                                    </div>
+                                </div>
+                            </a>
                         </li>
                     `;
                 });
                 cartList.innerHTML = html;
             }
-            
+
             function renderError(msg) {
                 cartList.innerHTML = `<li class="cart-empty-state text-danger">${msg}</li>`;
             }

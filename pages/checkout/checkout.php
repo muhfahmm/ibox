@@ -484,6 +484,7 @@ while ($row = $res->fetch_assoc()) {
                 justify-content: space-between;
                 list-style: none;
                 padding: 5px 0;
+                margin: 0;
                 position: relative;
                 transition: all 0.3s ease;
             }
@@ -1225,183 +1226,6 @@ while ($row = $res->fetch_assoc()) {
                     font-size: 11px;
                 }
             }
-            }
-            
-            /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
-            .cart-dropdown {
-                position: absolute;
-                top: 100%;
-                right: 0;
-                width: 360px;
-                
-                /* White Glassmorphism Background */
-                background: rgba(255, 255, 255, 0.7); 
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                
-                border-radius: 16px; 
-                border: 1px solid rgba(255, 255, 255, 0.5);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-                
-                z-index: 1000;
-                opacity: 0;
-                visibility: hidden;
-                transform: translateY(10px);
-                transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-                color: #1d1d1f; /* Dark text for white bg */
-                overflow: hidden;
-            }
-
-            .cart-dropdown.active {
-                opacity: 1;
-                visibility: visible;
-                transform: translateY(0);
-            }
-
-            .cart-dropdown-header {
-                padding: 15px 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-                background-color: rgba(255, 255, 255, 0.1);
-            }
-
-            .cart-dropdown-title {
-                font-size: 16px;
-                font-weight: 600;
-                color: #1d1d1f;
-                text-shadow: none;
-            }
-
-            .cart-dropdown-link {
-                font-size: 13px;
-                color: #0071e3; /* Standard Apple Blue */
-                text-decoration: none;
-                font-weight: 500;
-            }
-
-            .cart-dropdown-link:hover {
-                text-decoration: underline;
-                color: #0056b3;
-            }
-
-            .cart-items-list {
-                max-height: 350px;
-                overflow-y: auto;
-                padding: 0;
-                list-style: none;
-                margin: 0;
-            }
-            
-            /* Custom Scrollbar for Glass */
-            .cart-items-list::-webkit-scrollbar {
-                width: 6px;
-            }
-            .cart-items-list::-webkit-scrollbar-track {
-                background: transparent;
-            }
-            .cart-items-list::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.1);
-                border-radius: 3px;
-            }
-            .cart-items-list::-webkit-scrollbar-thumb:hover {
-                background: rgba(0, 0, 0, 0.2);
-            }
-
-            .cart-item {
-                display: flex;
-                padding: 15px 20px;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
-                gap: 15px;
-                transition: background 0.2s;
-            }
-
-            .cart-item:hover {
-                background-color: rgba(0, 0, 0, 0.02); 
-            }
-
-            .cart-item-img {
-                width: 60px;
-                height: 60px;
-                border-radius: 10px;
-                background-color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                overflow: hidden;
-                flex-shrink: 0;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.05); /* Slight border for image */
-            }
-
-            .cart-item-img img {
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                padding: 5px;
-            }
-
-            .cart-item-details {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .cart-item-name {
-                font-size: 14px;
-                font-weight: 500;
-                color: #1d1d1f;
-                margin-bottom: 4px;
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            .cart-item-price-row {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                margin-top: 4px;
-            }
-
-            .cart-item-qty {
-                font-size: 13px;
-                color: #86868b;
-            }
-            
-            .cart-item-price {
-                font-size: 14px;
-                font-weight: 600;
-                color: #1d1d1f;
-                text-shadow: none;
-            }
-
-            .cart-empty-state {
-                padding: 40px 20px;
-                text-align: center;
-                color: #86868b;
-                font-size: 14px;
-            }
-
-            /* Triangle/Arrow - White Glass */
-            .cart-dropdown::before {
-                content: '';
-                position: absolute;
-                top: -6px;
-                right: 20px;
-                width: 12px;
-                height: 12px;
-                background: rgba(255, 255, 255, 0.7); 
-                backdrop-filter: blur(20px);
-                -webkit-backdrop-filter: blur(20px);
-                transform: rotate(45deg);
-                border-top: 1px solid rgba(255, 255, 255, 0.5);
-                border-left: 1px solid rgba(255, 255, 255, 0.5);
-                z-index: -1;
-            }
         </style>
         <div class="wrapper">
             <div class="nav-top-container">
@@ -1432,31 +1256,14 @@ while ($row = $res->fetch_assoc()) {
                                 <i class="bi bi-person-fill"></i>
                             </a>
                         <?php endif; ?>
-                        <!-- Cart Icon with Dropdown Wrapper -->
-                        <div class="position-relative cart-dropdown-wrapper">
-                            <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
-                                <i class="bi bi-bag"></i>
-                                <?php if (isset($cart_count) && $cart_count > 0): ?>
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
-                                        <?php echo $cart_count; ?>
-                                    </span>
-                                <?php endif; ?>
-                            </a>
-
-                            <!-- Dropdown Content -->
-                            <div class="cart-dropdown" id="cartDropdown">
-                                <div class="cart-dropdown-header">
-                                    <div class="cart-dropdown-title">
-                                        Keranjang (<span id="cartDropdownCount">0</span>)
-                                    </div>
-                                    <a href="../cart/cart.php" class="cart-dropdown-link">Lihat</a>
-                                </div>
-                                <ul class="cart-items-list" id="cartItemsList">
-                                    <!-- Items will be populated via JS -->
-                                    <li class="cart-empty-state">Memuat keranjang...</li>
-                                </ul>
-                            </div>
-                        </div>
+                        <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none">
+                            <i class="bi bi-bag"></i>
+                            <?php if (isset($cart_count) && $cart_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" style="font-size: 10px; padding: 3px 6px;">
+                                    <?php echo $cart_count; ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -2665,6 +2472,7 @@ while ($row = $res->fetch_assoc()) {
             // Buat query untuk kombinasi berdasarkan field yang ada
             $variant_fields_str = implode(', ', $cfg['variant_fields']);
             $kombinasi_query = "SELECT 
+                                id,
                                 {$variant_fields_str},
                                 harga, 
                                 harga_diskon,
@@ -2717,8 +2525,11 @@ while ($row = $res->fetch_assoc()) {
             
             foreach ($variant_fields as $field) {
                 // Pastikan nilai field ada
-                if (isset($variant[$field]) && !in_array($variant[$field], $grouped_options[$field])) {
-                    $grouped_options[$field][] = $variant[$field];
+                if (isset($variant[$field])) {
+                    $trimmed_value = trim($variant[$field]);
+                    if (!in_array($trimmed_value, $grouped_options[$field], true)) {
+                        $grouped_options[$field][] = $trimmed_value;
+                    }
                 }
             }
         }
@@ -3443,10 +3254,12 @@ while ($row = $res->fetch_assoc()) {
                                 <div class="variant-group" data-group-field="<?php echo $field; ?>">
                                     <h3 class="variant-group-title">Pilih <?php echo $label; ?></h3>
                                     <div class="variant-options">
-                                        <?php foreach ($options as $option): ?>
+                                        <?php foreach ($options as $option): 
+                                            $trimmed_option = trim($option);
+                                        ?>
                                             <button class="variant-option-btn" 
-                                                    onclick="selectOption('<?php echo $field; ?>', '<?php echo htmlspecialchars($option); ?>', this)">
-                                                <?php echo htmlspecialchars($option); ?>
+                                                    onclick="selectOption('<?php echo $field; ?>', '<?php echo htmlspecialchars($trimmed_option); ?>', this)">
+                                                <?php echo htmlspecialchars($trimmed_option); ?>
                                             </button>
                                         <?php endforeach; ?>
                                     </div>
@@ -3601,6 +3414,7 @@ while ($row = $res->fetch_assoc()) {
         let selectedAttributes = {};
         let currentQuantity = 1;
         let currentVariant = null;
+        let selectedCombinationId = null; // ID kombinasi yang dipilih
         
         function changeMainImage(thumbnail, element) {
             // Update main image
@@ -3660,9 +3474,13 @@ while ($row = $res->fetch_assoc()) {
             const isComplete = requiredFields.every(field => selectedAttributes[field]);
             
             if (isComplete) {
-                // Cari varian yang cocok
+                // Cari varian yang cocok (dengan trim untuk menghindari masalah spasi)
                 const matchedVariant = productVariants.find(variant => {
-                    return requiredFields.every(field => variant[field] === selectedAttributes[field]);
+                    return requiredFields.every(field => {
+                        const variantValue = (variant[field] || '').toString().trim();
+                        const selectedValue = (selectedAttributes[field] || '').toString().trim();
+                        return variantValue === selectedValue;
+                    });
                 });
 
                 if (matchedVariant) {
@@ -3677,6 +3495,12 @@ while ($row = $res->fetch_assoc()) {
         }
 
         function updateCheckoutInfo(variant) {
+            console.log('updateCheckoutInfo called with variant:', variant);
+            
+            // Simpan ID kombinasi
+            selectedCombinationId = variant.id || null;
+            console.log('selectedCombinationId set to:', selectedCombinationId);
+            
             const unitPrice = parseInt(variant.harga_diskon > 0 ? variant.harga_diskon : variant.harga);
             const unitOriginalPrice = parseInt(variant.harga);
             
@@ -3716,6 +3540,9 @@ while ($row = $res->fetch_assoc()) {
         }
 
         function showUnavailable() {
+            // Reset ID kombinasi
+            selectedCombinationId = null;
+            
             const btnCheckout = document.querySelector('.btn-checkout');
             const btnCart = document.querySelector('.btn-cart');
 
@@ -3777,24 +3604,58 @@ while ($row = $res->fetch_assoc()) {
         }
 
         function addToCart() {
-            const isComplete = requiredFields.every(field => selectedAttributes[field]);
+            console.log('addToCart called');
+            console.log('requiredFields:', requiredFields);
+            console.log('selectedAttributes:', selectedAttributes);
+            console.log('selectedCombinationId:', selectedCombinationId);
+            console.log('currentVariant:', currentVariant);
             
-            if (!isComplete) {
-                alert('Silakan lengkapi pilihan varian produk terlebih dahulu!');
-                return;
+            // Jika ada required fields, validasi
+            if (requiredFields.length > 0) {
+                const isComplete = requiredFields.every(field => selectedAttributes[field]);
+                
+                if (!isComplete) {
+                    alert('Silakan lengkapi pilihan varian produk terlebih dahulu!');
+                    return;
+                }
+                
+                // Fallback: Jika selectedCombinationId null tapi currentVariant ada
+                if (!selectedCombinationId && currentVariant && currentVariant.id) {
+                    selectedCombinationId = currentVariant.id;
+                    console.log('Using currentVariant.id as fallback:', selectedCombinationId);
+                }
+                
+                // Fallback 2: Cari combination_id dari productVariants berdasarkan selectedAttributes
+                if (!selectedCombinationId && productVariants.length > 0) {
+                    const matchedVariant = productVariants.find(variant => {
+                        return requiredFields.every(field => {
+                            const variantValue = (variant[field] || '').toString().trim();
+                            const selectedValue = (selectedAttributes[field] || '').toString().trim();
+                            return variantValue === selectedValue;
+                        });
+                    });
+                    
+                    if (matchedVariant && matchedVariant.id) {
+                        selectedCombinationId = matchedVariant.id;
+                        console.log('Found combination_id from productVariants:', selectedCombinationId);
+                    }
+                }
             }
 
             // Get thumbnail from current main image src
             const mainImgSrc = document.getElementById('mainProductImage').src;
             const thumbnail = mainImgSrc.split('/').pop(); // Extract filename
 
-            // Prepare data
-            const cartData = {
+            // Prepare data as JSON (sesuai dengan format yang diharapkan add_to_cart.php)
+            const requestData = {
                 product_id: <?php echo $product_id; ?>,
                 quantity: currentQuantity,
                 product_type: '<?php echo $product_type; ?>',
-                thumbnail: thumbnail
+                thumbnail: thumbnail,
+                combination_id: selectedCombinationId || null
             };
+
+            console.log('Request data:', requestData);
 
             // Send to API
             const btnCart = document.querySelector('.btn-cart');
@@ -3807,21 +3668,33 @@ while ($row = $res->fetch_assoc()) {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(cartData)
+                body: JSON.stringify(requestData)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text().then(text => {
+                    console.log('Response text:', text);
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        console.error('JSON parse error:', e);
+                        throw new Error('Invalid JSON response: ' + text);
+                    }
+                });
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     // Show custom success modal
                     document.getElementById('cartSuccessModal').classList.add('active');
                     document.body.style.overflow = 'hidden';
                 } else {
-                    alert('Gagal: ' + data.message);
+                    alert('Gagal: ' + (data.message || 'Unknown error') + '\n\nDebug: ' + JSON.stringify(data.debug || {}));
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghubungi server.');
+                alert('Terjadi kesalahan saat menghubungi server: ' + error.message);
             })
             .finally(() => {
                 btnCart.innerHTML = originalText;
@@ -3829,12 +3702,36 @@ while ($row = $res->fetch_assoc()) {
             });
         }
 
-        // Auto-select first options on load (optional)
-        /*
+        // Inisialisasi: Enable tombol jika produk tidak memiliki varian
         window.addEventListener('DOMContentLoaded', function() {
-            // Bisa ditambahkan logic auto-select opsi pertama disini jika diinginkan
+            console.log('Page loaded');
+            console.log('Product has variants:', requiredFields.length > 0);
+            
+            // Jika produk tidak memiliki varian, enable tombol langsung
+            if (requiredFields.length === 0) {
+                console.log('No variants required, enabling buttons');
+                const btnCheckout = document.querySelector('.btn-checkout');
+                const btnCart = document.querySelector('.btn-cart');
+                
+                if (btnCheckout) {
+                    btnCheckout.disabled = false;
+                    btnCheckout.style.opacity = '1';
+                    btnCheckout.style.cursor = 'pointer';
+                }
+                
+                if (btnCart) {
+                    btnCart.disabled = false;
+                    btnCart.classList.remove('disabled');
+                }
+                
+                // Set harga default jika ada varian tunggal
+                if (productVariants.length === 1) {
+                    currentVariant = productVariants[0];
+                    selectedCombinationId = productVariants[0].id || null;
+                    updateCheckoutInfo(productVariants[0]);
+                }
+            }
         });
-        */
     </script>
 
     <!-- Address List Modal -->
@@ -4059,115 +3956,4 @@ while ($row = $res->fetch_assoc()) {
         });
     </script>
 </body>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-             // Cart Dropdown Elements
-            const cartTrigger = document.getElementById('cartDropdownTrigger');
-            const cartDropdown = document.getElementById('cartDropdown');
-            const cartList = document.getElementById('cartItemsList');
-            const cartDropdownCount = document.getElementById('cartDropdownCount');
-            const cartBadge = document.getElementById('cartBadge');
-
-            // Handle Cart Dropdown
-            let isCartOpen = false;
-
-            if(cartTrigger) {
-                cartTrigger.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    if(isCartOpen) {
-                        closeCartDropdown();
-                    } else {
-                        openCartDropdown();
-                    }
-                });
-            }
-
-            function openCartDropdown() {
-                if(!cartDropdown) return;
-                cartDropdown.classList.add('active');
-                isCartOpen = true;
-                fetchCartData();
-            }
-
-            function closeCartDropdown() {
-                if(!cartDropdown) return;
-                cartDropdown.classList.remove('active');
-                isCartOpen = false;
-            }
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if(isCartOpen && cartDropdown && !cartDropdown.contains(e.target) && !cartTrigger.contains(e.target)) {
-                    closeCartDropdown();
-                }
-            });
-
-            function fetchCartData() {
-                // Adjust path based on where this file is included
-                // checkout.php is in pages/checkout/
-                fetch('../cart/get_cart_dropdown.php')
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success) {
-                            renderCartItems(data.items, data.count);
-                        } else {
-                            renderError('Gagal memuat data');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Cart fetch error:', err);
-                         renderError('Gagal memuat keranjang');
-                    });
-            }
-
-            function renderCartItems(items, count) {
-                // Update counts
-                if(cartDropdownCount) cartDropdownCount.textContent = count;
-                
-                if(items.length === 0) {
-                    cartList.innerHTML = '<li class="cart-empty-state">Keranjang Anda kosong</li>';
-                    return;
-                }
-
-                let html = '';
-                items.forEach(item => {
-                    let imgPath;
-                    
-                    if (item.image) {
-                        if (item.image.startsWith('assets/')) {
-                            // checkout.php -> pages/checkout/ -> ../../assets/
-                            imgPath = '../../' + item.image;
-                        } else {
-                             // checkout.php -> pages/checkout/ -> ../../admin/uploads/
-                            imgPath = '../../admin/uploads/' + item.image;
-                        }
-                    } else {
-                         imgPath = '../../assets/img/logo/logo.png';
-                    } 
-                    
-                    html += `
-                        <li class="cart-item">
-                            <div class="cart-item-img">
-                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
-                            </div>
-                            <div class="cart-item-details">
-                                <div class="cart-item-name">${item.name}</div>
-                                <div class="cart-item-price-row">
-                                    <div class="cart-item-qty">${item.qty} Barang</div>
-                                    <div class="cart-item-price">${item.formatted_price}</div>
-                                </div>
-                            </div>
-                        </li>
-                    `;
-                });
-                cartList.innerHTML = html;
-            }
-            
-            function renderError(msg) {
-                cartList.innerHTML = `<li class="cart-empty-state text-danger">${msg}</li>`;
-            }
-        });
-    </script>
 </html>

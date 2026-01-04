@@ -203,6 +203,7 @@ if ($is_logged_in) {
                 justify-content: space-between;
                 list-style: none;
                 padding: 5px 0;
+                margin: 0;
                 position: relative;
                 transition: all 0.3s ease;
             }
@@ -1028,15 +1029,27 @@ if ($is_logged_in) {
             }
 
             .cart-item {
-                display: flex;
-                padding: 15px 20px;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
-                gap: 15px;
                 transition: background 0.2s;
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 0, 0, 0.02); 
+                background-color: rgba(0, 122, 255, 0.05); 
+            }
+
+            .cart-item-link {
+                display: flex;
+                padding: 15px 20px;
+                gap: 15px;
+                text-decoration: none;
+                color: inherit;
+                transition: all 0.2s;
+                cursor: pointer;
+            }
+
+            .cart-item-link:hover {
+                text-decoration: none;
+                color: inherit;
             }
 
             .cart-item-img {
@@ -2259,6 +2272,673 @@ if ($is_logged_in) {
         <span class="breadcrumb-current">Keranjang</span>
     </div>
 
+    <!-- Cart Content -->
+    <style>
+        .cart-content-wrapper {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 5%;
+        }
+
+        .cart-header {
+            margin-bottom: 30px;
+        }
+
+        .cart-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1d1d1f;
+            margin-bottom: 10px;
+        }
+
+        .cart-subtitle {
+            font-size: 16px;
+            color: #86868b;
+        }
+
+        .cart-products-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .cart-product-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            color: inherit;
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .cart-product-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
+            border-color: #e8f4ff;
+        }
+
+        .cart-product-content {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .cart-product-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            background: #f5f5f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .cart-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+        }
+
+        .cart-product-details {
+            flex: 1;
+        }
+
+        .cart-product-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .cart-product-variant {
+            font-size: 14px;
+            color: #86868b;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .variant-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: #f0f7ff;
+            border: 1px solid #d0e8ff;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #0066cc;
+            font-weight: 500;
+        }
+
+        .variant-badge i {
+            margin-right: 4px;
+            font-size: 12px;
+        }
+
+        .cart-product-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .cart-product-qty {
+            font-size: 15px;
+            color: #86868b;
+        }
+
+        .cart-product-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #007aff;
+        }
+
+        /* Quantity Controls */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f5f5f7;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .quantity-controls:hover {
+            border-color: #007aff;
+            background: #e8f4ff;
+        }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            color: #007aff;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .qty-btn:hover {
+            background: #007aff;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        .qty-btn:active {
+            transform: scale(0.95);
+        }
+
+        .qty-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .qty-display {
+            min-width: 40px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .delete-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #fff0f0;
+            color: #ff3b30;
+            border-radius: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            margin-left: 8px;
+        }
+
+        .delete-btn:hover {
+            background: #ff3b30;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 8px rgba(255, 59, 48, 0.3);
+        }
+
+        .delete-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Loading state */
+        .cart-product-card.updating {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .cart-product-card.updating::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007aff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .cart-empty {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .cart-empty-icon {
+            font-size: 64px;
+            color: #d2d2d7;
+            margin-bottom: 20px;
+        }
+
+        .cart-empty-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 12px;
+        }
+
+        .cart-empty-text {
+            font-size: 16px;
+            color: #86868b;
+            margin-bottom: 30px;
+        }
+
+        .btn-browse-products {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #007aff;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-browse-products:hover {
+            background: #0056cc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+            color: white;
+            text-decoration: none;
+        }
+
+        .cart-checkout-hint {
+            margin-top: 16px;
+            padding: 16px;
+            background: #f0f7ff;
+            border-radius: 12px;
+            border-left: 4px solid #007aff;
+        }
+
+        .cart-checkout-hint-text {
+            font-size: 14px;
+            color: #1d1d1f;
+            margin: 0;
+        }
+
+        .cart-checkout-hint-text i {
+            color: #007aff;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .cart-product-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .cart-product-image {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .cart-product-meta {
+                justify-content: center;
+            }
+        }
+    </style>
+
+    <div class="cart-content-wrapper">
+        <div class="cart-header">
+            <h1 class="cart-title">Keranjang Belanja</h1>
+            <p class="cart-subtitle">Klik pada produk untuk melanjutkan ke checkout</p>
+        </div>
+
+        <div class="cart-checkout-hint">
+            <p class="cart-checkout-hint-text">
+                <i class="bi bi-info-circle-fill"></i>
+                <strong>Cara Checkout:</strong> Klik pada produk yang ingin Anda beli untuk melanjutkan ke halaman checkout.
+            </p>
+        </div>
+
+        <div class="cart-products-list" id="cartProductsList">
+            <?php
+            if ($is_logged_in) {
+                $uid = $_SESSION['user_id'];
+                $stmt = $db->prepare("SELECT * FROM user_keranjang WHERE user_id = ? ORDER BY id DESC");
+                $stmt->bind_param("i", $uid);
+                $stmt->execute();
+                $result_cart = $stmt->get_result();
+                
+                if ($result_cart->num_rows > 0) {
+                    while ($row = $result_cart->fetch_assoc()) {
+                        $cart_id = $row['id'];
+                        $product_id = $row['product_id'];
+                        $tipe = strtolower($row['tipe_produk']);
+                        $qty = $row['jumlah'];
+                        $kombinasi_id = isset($row['kombinasi_id']) ? $row['kombinasi_id'] : null;
+                        $cart_image = $row['foto_thumbnail'] ?? '';
+                        
+                        // Determine table
+                        $table = "";
+                        if (in_array($tipe, ['mac', 'iphone', 'ipad', 'watch', 'music', 'airtag'])) {
+                            $table = "admin_produk_" . $tipe;
+                        } elseif ($tipe == 'aksesori' || $tipe == 'aksesoris') {
+                            $table = "admin_produk_aksesoris";
+                        }
+                        
+                        if (empty($table)) continue;
+                        
+                        // Fetch product details
+                        $q_prod = $db->query("SELECT * FROM $table WHERE id = $product_id");
+                        if (!$q_prod || $q_prod->num_rows == 0) continue;
+                        $prod = $q_prod->fetch_assoc();
+                        
+                        $name = $prod['nama_produk'];
+                        $price = $prod['harga'] ?? 0;
+                        
+                        // Variant Logic - Adjusted to match SQL Schema
+                        $variant_str = "";
+                        if ($kombinasi_id) {
+                            $table_comb = $table . "_kombinasi";
+                            $q_comb = $db->query("SELECT * FROM $table_comb WHERE id = $kombinasi_id");
+                            if ($q_comb && $comb = $q_comb->fetch_assoc()) {
+                                if (isset($comb['harga']) && $comb['harga'] > 0) $price = $comb['harga'];
+                                
+                                $variants = [];
+                                
+                                // 1. Warna (All types usually have color)
+                                if (!empty($comb['warna'])) $variants[] = $comb['warna'];
+                                if (!empty($comb['warna_case'])) $variants[] = $comb['warna_case']; // Watch specific
+                                
+                                // 2. Specific Attributes based on Type and SQL Schema
+                                if ($tipe == 'mac') {
+                                    if (!empty($comb['processor'])) $variants[] = $comb['processor'];
+                                    if (!empty($comb['ram'])) $variants[] = $comb['ram'];
+                                    if (!empty($comb['penyimpanan'])) $variants[] = $comb['penyimpanan'];
+                                } elseif ($tipe == 'iphone' || $tipe == 'ipad') {
+                                    if (!empty($comb['penyimpanan'])) $variants[] = $comb['penyimpanan'];
+                                    if (!empty($comb['konektivitas'])) $variants[] = $comb['konektivitas'];
+                                } elseif ($tipe == 'watch') {
+                                    if (!empty($comb['ukuran_case'])) $variants[] = $comb['ukuran_case'];
+                                    if (!empty($comb['material'])) $variants[] = $comb['material'];
+                                    if (!empty($comb['tipe_koneksi'])) $variants[] = $comb['tipe_koneksi'];
+                                } elseif ($tipe == 'airtag') {
+                                    if (!empty($comb['pack'])) $variants[] = $comb['pack'];
+                                    if (!empty($comb['aksesoris'])) $variants[] = $comb['aksesoris'];
+                                } elseif ($tipe == 'music') {
+                                    if (!empty($comb['tipe'])) $variants[] = $comb['tipe'];
+                                    if (!empty($comb['konektivitas'])) $variants[] = $comb['konektivitas'];
+                                } elseif ($tipe == 'aksesori' || $tipe == 'aksesoris') {
+                                    if (!empty($comb['tipe'])) $variants[] = $comb['tipe'];
+                                    if (!empty($comb['ukuran'])) $variants[] = $comb['ukuran'];
+                                }
+                                
+                                $variant_str = implode(" • ", $variants);
+                            }
+                        } else {
+                            // Fallback for price if variant not selected
+                            if ($price <= 0) {
+                                $table_comb = $table . "_kombinasi";
+                                $q_min = $db->query("SELECT MIN(harga) as min_h FROM $table_comb WHERE produk_id = $product_id AND status_stok = 'tersedia'");
+                                if ($q_min && $r_min = $q_min->fetch_assoc()) $price = $r_min['min_h'];
+                            }
+                        }
+                        
+                        // Image Path
+                        $img_src = !empty($cart_image) ? $cart_image : 'default.png';
+                        if (strpos($img_src, 'assets/') === 0) {
+                            $img_final = '../../' . $img_src;
+                        } else {
+                            $img_final = '../../admin/uploads/' . $img_src;
+                        }
+                        
+                        $formatted_price = "Rp " . number_format($price, 0, ',', '.');
+                        ?>
+                        <div class="cart-product-card" data-cart-id="<?php echo $cart_id; ?>">
+                            <div class="cart-product-content">
+                                <div class="cart-product-image">
+                                    <img src="<?php echo $img_final; ?>" alt="<?php echo htmlspecialchars($name); ?>" onerror="this.src='../../assets/img/logo/logo.png'">
+                                </div>
+                                <div class="cart-product-details">
+                                    <h3 class="cart-product-name"><?php echo htmlspecialchars($name); ?></h3>
+                                    <?php if (!empty($variant_str)): ?>
+                                    <div class="cart-product-variant">
+                                        <i class="bi bi-tag" style="color: #86868b;"></i>
+                                        <span><?php echo htmlspecialchars($variant_str); ?></span>
+                                    </div>
+                                    <?php endif; ?>
+                                    <div class="cart-product-meta">
+                                        <div class="quantity-controls">
+                                            <button class="qty-btn qty-decrease" onclick="updateQuantity(<?php echo $cart_id; ?>, 'decrease')" <?php echo $qty <= 1 ? 'disabled' : ''; ?>>
+                                                <i class="bi bi-dash"></i>
+                                            </button>
+                                            <span class="qty-display"><?php echo $qty; ?></span>
+                                            <button class="qty-btn qty-increase" onclick="updateQuantity(<?php echo $cart_id; ?>, 'increase')">
+                                                <i class="bi bi-plus"></i>
+                                            </button>
+                                        </div>
+                                        <span class="cart-product-price"><?php echo $formatted_price; ?></span>
+                                        <button class="delete-btn" onclick="deleteCartItem(<?php echo $cart_id; ?>)" title="Hapus dari keranjang">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                    <a href="../checkout/checkout.php?id=<?php echo $product_id; ?>&tipe=<?php echo $tipe; ?>" class="btn" style="display: inline-block; margin-top: 12px; padding: 8px 16px; background: #007aff; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s;">
+                                        <i class="bi bi-cart-check"></i> Checkout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php
+                    }
+                } else {
+                    // Empty Cart HTML
+                    echo '
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">
+                            <i class="bi bi-cart-x"></i>
+                        </div>
+                        <h2 class="cart-empty-title">Keranjang Anda Kosong</h2>
+                        <p class="cart-empty-text">Belum ada produk di keranjang Anda. Mulai belanja sekarang!</p>
+                        <a href="../products/products.php" class="btn-browse-products">
+                            <i class="bi bi-shop"></i> Jelajahi Produk
+                        </a>
+                    </div>';
+                }
+            } else {
+                 echo '
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">
+                            <i class="bi bi-person-lock"></i>
+                        </div>
+                        <h2 class="cart-empty-title">Silakan Login</h2>
+                        <p class="cart-empty-text">Anda perlu login untuk melihat keranjang belanja.</p>
+                        <a href="../auth/login.php" class="btn-browse-products">
+                            <i class="bi bi-box-arrow-in-right"></i> Login Sekarang
+                        </a>
+                    </div>';
+            }
+            ?>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        // Reload page logic replaces client-side fetching
+        document.addEventListener('DOMContentLoaded', function() {
+            // No initial fetch needed as it is server-side rendered
+        });
+
+
+        // Update cart quantity
+        function updateQuantity(cartId, action) {
+            const card = document.querySelector(`[data-cart-id="${cartId}"]`);
+            if (!card) return;
+
+            card.classList.add('updating');
+
+            fetch('update_cart_quantity.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cart_id: cartId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                card.classList.remove('updating');
+                
+                if (data.success) {
+                    if (data.deleted) {
+                        // Remove card with animation
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'translateX(-20px)';
+                        setTimeout(() => {
+                            location.reload(); // Reload page to reflect changes
+                        }, 300);
+                    } else {
+                        // Update quantity display
+                        const qtyDisplay = card.querySelector('.qty-display');
+                        const decreaseBtn = card.querySelector('.qty-decrease');
+                        
+                        if (qtyDisplay) {
+                            qtyDisplay.textContent = data.new_quantity;
+                        }
+                        
+                        // Disable decrease button if quantity is 1
+                        if (decreaseBtn) {
+                            decreaseBtn.disabled = data.new_quantity <= 1;
+                        }
+
+                        // Show success feedback
+                        showToast('Jumlah diperbarui', 'success');
+                    }
+                } else {
+                    showToast(data.message || 'Gagal memperbarui jumlah', 'error');
+                }
+            })
+            .catch(err => {
+                card.classList.remove('updating');
+                console.error('Error updating quantity:', err);
+                showToast('Terjadi kesalahan', 'error');
+            });
+        }
+
+        // Delete cart item
+        function deleteCartItem(cartId) {
+            if (!confirm('Hapus produk ini dari keranjang?')) {
+                return;
+            }
+
+            const card = document.querySelector(`[data-cart-id="${cartId}"]`);
+            if (!card) return;
+
+            card.classList.add('updating');
+
+            fetch('update_cart_quantity.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    cart_id: cartId,
+                    action: 'set',
+                    quantity: 0
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                card.classList.remove('updating');
+                
+                if (data.success) {
+                    // Remove card with animation
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateX(-20px)';
+                    setTimeout(() => {
+                        location.reload(); // Reload page to reflect changes
+                    }, 300);
+                    showToast('Produk dihapus dari keranjang', 'success');
+                } else {
+                    showToast(data.message || 'Gagal menghapus produk', 'error');
+                }
+            })
+            .catch(err => {
+                card.classList.remove('updating');
+                console.error('Error deleting item:', err);
+                showToast('Terjadi kesalahan', 'error');
+            });
+        }
+
+        // Simple toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                background: ${type === 'success' ? '#34c759' : type === 'error' ? '#ff3b30' : '#007aff'};
+                color: white;
+                padding: 16px 24px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    
+    </script>
+
+
 </body>
 
     <script>
@@ -2339,28 +3019,35 @@ if ($is_logged_in) {
                     
                     if (item.image) {
                         if (item.image.startsWith('assets/')) {
-                            // cart.php -> pages/cart/ -> ../../assets/
                             imgPath = '../../' + item.image;
                         } else {
-                             // cart.php -> pages/cart/ -> ../../admin/uploads/
                             imgPath = '../../admin/uploads/' + item.image;
                         }
                     } else {
                          imgPath = '../../assets/img/logo/logo.png';
                     } 
                     
+                    // Build variant display for dropdown
+                    let variantHtml = '';
+                    if (item.variant && item.variant.trim() !== '') {
+                        variantHtml = `<div style="font-size: 12px; color: #86868b; margin-top: 4px;"><i class="bi bi-tag" style="font-size: 11px;"></i> ${item.variant}</div>`;
+                    }
+                    
                     html += `
                         <li class="cart-item">
-                            <div class="cart-item-img">
-                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
-                            </div>
-                            <div class="cart-item-details">
-                                <div class="cart-item-name">${item.name}</div>
-                                <div class="cart-item-price-row">
-                                    <div class="cart-item-qty">${item.qty} Barang</div>
-                                    <div class="cart-item-price">${item.formatted_price}</div>
+                            <a href="${item.checkout_url}" class="cart-item-link">
+                                <div class="cart-item-img">
+                                    <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
                                 </div>
-                            </div>
+                                <div class="cart-item-details">
+                                    <div class="cart-item-name">${item.name}</div>
+                                    ${variantHtml}
+                                    <div class="cart-item-price-row">
+                                        <div class="cart-item-qty">${item.qty} Barang</div>
+                                        <div class="cart-item-price">${item.formatted_price}</div>
+                                    </div>
+                                </div>
+                            </a>
                         </li>
                     `;
                 });

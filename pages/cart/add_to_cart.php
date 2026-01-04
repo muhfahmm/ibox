@@ -113,6 +113,17 @@ if (count($variants) === 0) {
     sendError('Stok produk habis atau varian tidak tersedia');
 }
 
+// Log untuk debugging
+error_log("Product ID: $product_id, Type: $product_type");
+error_log("Variants count: " . count($variants));
+error_log("Selected combination ID: " . ($selected_combination_id ?? 'NULL'));
+
+// Jika hanya ada 1 varian dan tidak ada combination_id, auto-select
+if (count($variants) === 1 && !$selected_combination_id) {
+    $selected_combination_id = $variants[0]['id'];
+    error_log("Auto-selected single variant: $selected_combination_id");
+}
+
 // If user selected a specific combination
 if ($selected_combination_id) {
     // Find the variant
@@ -145,6 +156,8 @@ if ($selected_combination_id) {
         $r_thumb = $db->query($q_thumb);
         if ($r_thumb && $row = $r_thumb->fetch_assoc()) {
             $thumbnail = $row['foto_thumbnail'];
+        } elseif ($request_thumbnail) {
+            $thumbnail = $request_thumbnail;
         }
     } else {
         // Fallback to any image
@@ -155,8 +168,6 @@ if ($selected_combination_id) {
         } elseif ($request_thumbnail) {
             $thumbnail = $request_thumbnail;
         }
-    } elseif ($request_thumbnail) {
-        $thumbnail = $request_thumbnail;
     }
     
     ensureColumnExists($db);
@@ -165,28 +176,43 @@ if ($selected_combination_id) {
     exit();
 
 } else {
-    // Multiple variants exist OR single variant exists but not selected
-    // Return Data for Modal
+    // Multiple variants exist and user hasn't selected one
+    // Return variant data for modal selection
     
-    // Fetch images mappings
+    error_log("No combination selected, returning variant_required");
+    
+    // Get images for variants
     $images_map = [];
-    $q_img = $db->query("SELECT * FROM $table_img WHERE produk_id = $product_id");
-    if ($q_img) {
-        while ($row = $q_img->fetch_assoc()) {
-            // key by color
-            $c_key = $row['warna'] ?? ($row['warna_case'] ?? 'default');
-            $images_map[$c_key] = $row['foto_thumbnail'];
+    $color_field = '';
+    
+    // Determine color field name
+    if (isset($variants[0]['warna'])) {
+        $color_field = 'warna';
+    } elseif (isset($variants[0]['warna_case'])) {
+        $color_field = 'warna_case';
+    }
+    
+    // Fetch images if color field exists
+    if ($color_field) {
+        $col_name_in_img = ($product_type === 'watch') ? 'warna_case' : 'warna';
+        $q_images = "SELECT $col_name_in_img as warna, foto_thumbnail FROM $table_img WHERE produk_id = $product_id";
+        $r_images = $db->query($q_images);
+        if ($r_images) {
+            while ($img_row = $r_images->fetch_assoc()) {
+                $images_map[trim($img_row['warna'])] = $img_row['foto_thumbnail'];
+            }
         }
     }
     
     echo json_encode([
         'status' => 'variant_required',
         'success' => false,
-        'message' => 'Pilih varian',
+        'message' => 'Silakan pilih varian produk',
         'product_id' => $product_id,
         'product_type' => $product_type,
         'variants' => $variants,
-        'images' => $images_map
+        'images' => $images_map,
+        'variants_count' => count($variants)
     ]);
     exit();
 }
