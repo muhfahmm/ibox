@@ -2260,6 +2260,728 @@ if ($is_logged_in) {
         <span class="breadcrumb-current">Produk Populer</span>
     </div>
 
+    <?php
+    // Fetch popular products from database
+    $popular_products = [];
+    $query = "SELECT hp.*, hp.produk_id as product_id, hp.tipe_produk as product_type 
+              FROM home_produk_populer hp 
+              ORDER BY hp.urutan ASC";
+    $result = $db->query($query);
+    
+    if ($result && $result->num_rows > 0) {
+        while ($row = $result->fetch_assoc()) {
+            $product_id = $row['product_id'];
+            $product_type = $row['product_type'];
+            
+            // Fetch product details based on type
+            $product_table = "admin_produk_" . $product_type;
+            $kombinasi_table = $product_table . "_kombinasi";
+            $gambar_table = $product_table . "_gambar";
+            
+            // Get product basic info
+            $product_query = "SELECT * FROM $product_table WHERE id = $product_id LIMIT 1";
+            $product_result = $db->query($product_query);
+            
+            if ($product_result && $product_row = $product_result->fetch_assoc()) {
+                // Get minimum price from combinations
+                $price_query = "SELECT MIN(harga) as min_price, MIN(harga_diskon) as min_discount 
+                               FROM $kombinasi_table 
+                               WHERE produk_id = $product_id AND status_stok = 'tersedia'";
+                $price_result = $db->query($price_query);
+                $price_row = $price_result->fetch_assoc();
+                
+                $min_price = $price_row['min_price'] ?? 0;
+                $min_discount = $price_row['min_discount'] ?? 0;
+                $has_discount = $min_discount > 0 && $min_discount < $min_price;
+                $display_price = $has_discount ? $min_discount : $min_price;
+                
+                // Get first image
+                $image_query = "SELECT foto_thumbnail FROM $gambar_table WHERE produk_id = $product_id LIMIT 1";
+                $image_result = $db->query($image_query);
+                $image_row = $image_result->fetch_assoc();
+                $image = $image_row['foto_thumbnail'] ?? 'placeholder.jpg';
+                
+                $popular_products[] = [
+                    'id' => $product_id,
+                    'type' => $product_type,
+                    'name' => $product_row['nama_produk'],
+                    'category' => $product_row['kategori'] ?? ucfirst($product_type),
+                    'image' => $image,
+                    'price' => $display_price,
+                    'original_price' => $min_price,
+                    'has_discount' => $has_discount
+                ];
+            }
+        }
+    }
+    ?>
+
+    <!-- Products Section -->
+    <div class="container" style="padding: 40px 5%; max-width: 1400px; margin: 0 auto;">
+        <style>
+            .products-header {
+                text-align: center;
+                margin-bottom: 50px;
+            }
+            
+            .products-title {
+                font-size: 42px;
+                font-weight: 700;
+                color: #1d1d1f;
+                margin-bottom: 15px;
+                letter-spacing: -0.5px;
+            }
+            
+            .products-subtitle {
+                font-size: 18px;
+                color: #6e6e73;
+                font-weight: 400;
+            }
+            
+            .products-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 30px;
+                margin-top: 40px;
+            }
+            
+            .product-card {
+                background: white;
+                border-radius: 18px;
+                overflow: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                cursor: pointer;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .product-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            }
+            
+            .product-image-container {
+                position: relative;
+                padding: 30px;
+                background: #fafafa;
+                aspect-ratio: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .product-image {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                transition: transform 0.3s ease;
+            }
+            
+            .product-card:hover .product-image {
+                transform: scale(1.05);
+            }
+            
+            .product-badge {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                background: rgba(0, 122, 255, 0.9);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .product-discount-badge {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                background: linear-gradient(135deg, #ff3b30 0%, #ff6b60 100%);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            
+            .product-info {
+                padding: 25px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .product-category {
+                font-size: 12px;
+                color: #86868b;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+            }
+            
+            .product-name {
+                font-size: 20px;
+                font-weight: 600;
+                color: #1d1d1f;
+                margin-bottom: 15px;
+                line-height: 1.3;
+                min-height: 52px;
+            }
+            
+            .product-footer {
+                margin-top: auto;
+            }
+            
+            .product-price-label {
+                font-size: 12px;
+                color: #86868b;
+                display: block;
+                margin-bottom: 8px;
+            }
+            
+            .price-container {
+                margin-bottom: 15px;
+            }
+            
+            .product-price {
+                font-size: 24px;
+                font-weight: 700;
+                color: #1d1d1f;
+                margin-bottom: 15px;
+            }
+            
+            .product-price-original {
+                font-size: 16px;
+                color: #86868b;
+                text-decoration: line-through;
+                margin-bottom: 5px;
+            }
+            
+            .product-price-discount {
+                font-size: 24px;
+                font-weight: 700;
+                color: #ff3b30;
+            }
+            
+            .product-cta {
+                width: 100%;
+                padding: 14px 20px;
+                background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+                color: white;
+                border: none;
+                border-radius: 12px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 10px;
+            }
+            
+            .product-cta:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            }
+            
+            .product-cta-secondary {
+                width: 100%;
+                padding: 14px 20px;
+                background: white;
+                color: #007aff;
+                border: 2px solid #007aff;
+                border-radius: 12px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .product-cta-secondary:hover {
+                background: #007aff;
+                color: white;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(0, 122, 255, 0.3);
+            }
+            
+            .empty-state {
+                text-align: center;
+                padding: 80px 20px;
+                color: #86868b;
+            }
+            
+            .empty-state i {
+                font-size: 64px;
+                margin-bottom: 20px;
+                opacity: 0.3;
+            }
+            
+            .empty-state h3 {
+                font-size: 24px;
+                font-weight: 700;
+                color: #1d1d1f;
+                margin-bottom: 10px;
+            }
+            
+            .empty-state p {
+                font-size: 16px;
+                color: #6e6e73;
+            }
+            
+            @media (max-width: 768px) {
+                .products-title {
+                    font-size: 32px;
+                }
+                
+                .products-grid {
+                    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                    gap: 15px;
+                }
+                
+                .product-name {
+                    font-size: 16px;
+                    min-height: auto;
+                }
+                
+                .product-price, .product-price-discount {
+                    font-size: 20px;
+                }
+            }
+            
+            @media (min-width: 1400px) {
+                .products-grid {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
+        </style>
+        
+        <div class="products-header">
+            <h1 class="products-title">Produk Populer</h1>
+            <p class="products-subtitle">Produk Apple paling diminati dan terpopuler</p>
+        </div>
+        
+        <div class="products-grid">
+            <?php if (count($popular_products) > 0): ?>
+                <?php foreach ($popular_products as $product): ?>
+                    <div class="product-card" 
+                         onclick="window.location.href='../../checkout/checkout.php?id=<?php echo $product['id']; ?>&tipe=<?php echo $product['type']; ?>'">
+                        <div class="product-image-container">
+                            <img src="../../../admin/uploads/<?php echo htmlspecialchars($product['image']); ?>" 
+                                 alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                                 class="product-image"
+                                 onerror="this.src='../../../admin/uploads/placeholder.jpg'">
+                            <div class="product-badge"><?php echo htmlspecialchars($product['category']); ?></div>
+                            <?php if ($product['has_discount']): ?>
+                                <div class="product-discount-badge">
+                                    <i class="fas fa-tag"></i> DISKON
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="product-info">
+                            <div class="product-category"><?php echo htmlspecialchars($product['category']); ?></div>
+                            <h3 class="product-name"><?php echo htmlspecialchars($product['name']); ?></h3>
+                            
+                            <div class="product-footer">
+                                <span class="product-price-label">Mulai dari</span>
+                                <?php if ($product['has_discount']): ?>
+                                    <div class="price-container">
+                                        <div class="product-price-original">Rp <?php echo number_format($product['original_price'], 0, ',', '.'); ?></div>
+                                        <div class="product-price-discount">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></div>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="product-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></div>
+                                <?php endif; ?>
+                                <button class="product-cta" onclick="event.stopPropagation(); window.location.href='../../checkout/checkout.php?id=<?php echo $product['id']; ?>&tipe=<?php echo $product['type']; ?>'">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Beli Sekarang
+                                </button>
+                                <button class="product-cta-secondary" onclick="event.stopPropagation(); addToCart(<?php echo $product['id']; ?>, '<?php echo $product['type']; ?>')">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    Keranjang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="empty-state" style="grid-column: 1 / -1;">
+                    <i class="fas fa-box-open"></i>
+                    <h3>Belum Ada Produk Populer</h3>
+                    <p>Produk populer akan segera ditampilkan</p>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+
+    <!-- Variant Selection Modal -->
+    <div class="modal fade" id="variantModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Pilih Varian Produk</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex mb-4">
+                        <div class="variant-img-wrapper me-3" style="width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: #f8f9fa;">
+                            <img id="variantModalImg" src="" alt="Product" style="width: 100%; height: 100%; object-fit: contain;">
+                        </div>
+                        <div>
+                            <h6 id="variantModalTitle" class="fw-bold mb-1">Product Name</h6>
+                            <p id="variantModalPrice" class="text-primary fw-bold mb-0">Rp 0</p>
+                        </div>
+                    </div>
+                    
+                    <form id="variantForm">
+                        <input type="hidden" id="modalProductId">
+                        <input type="hidden" id="modalProductType">
+                        <div id="variantSelectors">
+                            <!-- Dynamic Selectors will be injected here -->
+                        </div>
+                    </form>
+                    
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <div>
+                            <label class="form-label small text-muted mb-2 fw-bold">Jumlah</label>
+                            <div class="qty-selector" style="display: flex; align-items: center; background: #f5f5f7; border-radius: 25px; padding: 4px; width: fit-content; border: 1px solid #e5e5e5;">
+                                <button class="qty-btn" type="button" onclick="updateQuantity(-1)" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                    <i class="bi bi-dash"></i>
+                                </button>
+                                <input type="text" id="modalQuantity" class="qty-input" value="1" readonly style="width: 40px; text-align: center; border: none; background: transparent; font-weight: 600; font-size: 16px; margin: 0 8px; padding: 0;">
+                                <button class="qty-btn" type="button" onclick="updateQuantity(1)" style="width: 32px; height: 32px; border-radius: 50%; border: none; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <span id="stockStatus" class="badge bg-secondary">Stok: -</span>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-primary w-100 rounded-pill" id="confirmVariantBtn" disabled onclick="submitVariant()">
+                        Tambahkan ke Keranjang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Modal -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4" style="border-radius: 20px; border: none;">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <i id="resultIcon" class="bi" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 id="resultTitle" class="fw-bold mb-2">Title</h4>
+                    <p id="resultMessage" class="text-muted mb-4">Message</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary rounded-pill py-2 fw-bold" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add to cart function with modal for login required
+        function addToCart(productId, productType) {
+            // Using fetch to send data to the server
+            fetch('../../cart/add_to_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    product_type: productType,
+                    quantity: 1
+                })
+            })
+            .then(async response => {
+                const text = await response.text();
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Server returned invalid JSON:', text);
+                    throw new Error('Server Error');
+                }
+            })
+            .then(data => {
+                // Check if auth is required
+                if (data.code === 'auth_required') {
+                    showLoginRequiredModal();
+                    return;
+                }
+                
+                if (data.status === 'success') {
+                    showModalNotification('Produk berhasil ditambahkan ke keranjang!', 'success');
+                } else if (data.status === 'variant_required') {
+                    openVariantModal(data);
+                } else {
+                    showModalNotification(data.message || 'Gagal menambahkan ke keranjang', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showModalNotification('Terjadi kesalahan saat menghubungi server.', 'error');
+            });
+        }
+        
+        // Function to show login required modal
+        function showLoginRequiredModal() {
+            const modalEl = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const msg = document.getElementById('resultMessage');
+            
+            title.textContent = 'Login Diperlukan';
+            msg.textContent = 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.';
+            icon.className = 'bi bi-lock-fill text-warning';
+            
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+            
+            // Redirect to login after modal is hidden
+            modalEl.addEventListener('hidden.bs.modal', function redirectToLogin() {
+                window.location.href = '../../auth/login.php';
+                // Remove listener to avoid multiple bindings
+                modalEl.removeEventListener('hidden.bs.modal', redirectToLogin);
+            });
+        }
+
+        let currentVariants = [];
+        let variantImages = {};
+
+        function openVariantModal(data) {
+            currentVariants = data.variants;
+            variantImages = data.images || {};
+            
+            document.getElementById('modalProductId').value = data.product_id;
+            document.getElementById('modalProductType').value = data.product_type;
+            
+            document.getElementById('variantModalTitle').textContent = 'Pilih Varian Produk';
+            
+            const container = document.getElementById('variantSelectors');
+            container.innerHTML = '';
+            
+            const potentialKeys = [
+                {key: 'warna', label: 'Warna'},
+                {key: 'warna_case', label: 'Warna Case'},
+                {key: 'penyimpanan', label: 'Penyimpanan'},
+                {key: 'ukuran', label: 'Ukuran'},
+                {key: 'ukuran_case', label: 'Ukuran Case'},
+                {key: 'processor', label: 'Processor'},
+                {key: 'ram', label: 'RAM'},
+                {key: 'konektivitas', label: 'Konektivitas'},
+                {key: 'tipe_koneksi', label: 'Tipe Koneksi'},
+                {key: 'tipe', label: 'Tipe'},
+                {key: 'material', label: 'Material'}
+            ];
+            
+            const sample = currentVariants[0];
+            const activeKeys = potentialKeys.filter(k => sample.hasOwnProperty(k.key));
+            
+            activeKeys.forEach(k => {
+                const values = [...new Set(currentVariants.map(v => {
+                    const val = v[k.key];
+                    return val ? val.toString().trim() : null;
+                }))].filter(v => v);
+                
+                if(values.length > 0) {
+                    const div = document.createElement('div');
+                    div.className = 'mb-3';
+                    const label = document.createElement('label');
+                    label.className = 'form-label small text-muted';
+                    label.textContent = k.label;
+                    
+                    const select = document.createElement('select');
+                    select.className = 'form-select variant-select';
+                    select.dataset.key = k.key;
+                    select.onchange = checkSelection;
+                    
+                    select.add(new Option('Pilih ' + k.label, ''));
+                    values.forEach(val => {
+                        select.add(new Option(val, val));
+                    });
+                    
+                    div.appendChild(label);
+                    div.appendChild(select);
+                    container.appendChild(div);
+                }
+            });
+            
+            checkSelection(); 
+            
+            const modal = new bootstrap.Modal(document.getElementById('variantModal'));
+            modal.show();
+        }
+
+        function updateQuantity(change) {
+            const qtyInput = document.getElementById('modalQuantity');
+            const btn = document.getElementById('confirmVariantBtn');
+            let maxStock = parseInt(btn.dataset.maxStock) || 999;
+            
+            let currentQty = parseInt(qtyInput.value);
+            let newQty = currentQty + change;
+            
+            if (newQty < 1) newQty = 1;
+            if (newQty > maxStock) newQty = maxStock;
+            
+            qtyInput.value = newQty;
+        }
+
+        function checkSelection() {
+            const selectors = document.querySelectorAll('.variant-select');
+            const selectedCriteria = {};
+            let isComplete = true;
+            
+            selectors.forEach(sel => {
+                if(sel.value) {
+                    selectedCriteria[sel.dataset.key] = sel.value.trim();
+                } else {
+                    isComplete = false;
+                }
+            });
+            
+            const btn = document.getElementById('confirmVariantBtn');
+            const priceEl = document.getElementById('variantModalPrice');
+            const stokEl = document.getElementById('stockStatus');
+            const imgEl = document.getElementById('variantModalImg');
+            
+            const colorKey = selectedCriteria['warna'] || selectedCriteria['warna_case'];
+            if(colorKey && variantImages[colorKey]) {
+                imgEl.src = '../../../admin/uploads/' + variantImages[colorKey];
+            } else if (Object.values(variantImages).length > 0) {
+                 imgEl.src = '../../../admin/uploads/' + Object.values(variantImages)[0];
+            }
+
+            if(!isComplete) {
+                btn.disabled = true;
+                priceEl.textContent = 'Rp -';
+                stokEl.textContent = 'Stok: -';
+                return;
+            }
+            
+            const match = currentVariants.find(v => {
+                for(let key in selectedCriteria) {
+                    const variantValue = (v[key] || '').toString().trim();
+                    const selectedValue = selectedCriteria[key].toString().trim();
+                    if(variantValue !== selectedValue) return false;
+                }
+                return true;
+            });
+            
+            if(match) {
+                priceEl.textContent = 'Rp ' + parseInt(match.harga).toLocaleString('id-ID');
+                
+                if(match.jumlah_stok > 0) {
+                    stokEl.textContent = 'Stok: ' + match.jumlah_stok;
+                    stokEl.className = 'badge bg-success me-2';
+                    btn.disabled = false;
+                    btn.dataset.combinationId = match.id;
+                    btn.dataset.maxStock = match.jumlah_stok;
+                    document.getElementById('modalQuantity').value = 1;
+                } else {
+                    stokEl.textContent = 'Stok Habis';
+                    stokEl.className = 'badge bg-danger me-2';
+                    btn.disabled = true;
+                    btn.dataset.maxStock = 0;
+                }
+            } else {
+                priceEl.textContent = 'Tidak Tersedia';
+                stokEl.textContent = 'Kombinasi tidak ditemukan';
+                stokEl.className = 'badge bg-warning text-dark me-2';
+                btn.disabled = true;
+                btn.dataset.maxStock = 0;
+            }
+        }
+
+        function submitVariant() {
+            const btn = document.getElementById('confirmVariantBtn');
+            const combId = btn.dataset.combinationId;
+            const productId = document.getElementById('modalProductId').value;
+            const productType = document.getElementById('modalProductType').value;
+            
+            if(!combId) return;
+
+            const quantity = parseInt(document.getElementById('modalQuantity').value) || 1;
+            
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menambahkan...';
+            btn.disabled = true;
+            
+            fetch('../../cart/add_to_cart.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_id: productId,
+                    product_type: productType,
+                    quantity: quantity,
+                    combination_id: combId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    const modalEl = document.getElementById('variantModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    modal.hide();
+                    showModalNotification('Produk berhasil ditambahkan ke keranjang!', 'success');
+                } else {
+                    showModalNotification('Gagal: ' + data.message, 'error');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                showModalNotification('Terjadi kesalahan.', 'error');
+            })
+            .finally(() => {
+                btn.innerHTML = 'Tambahkan ke Keranjang';
+                btn.disabled = false;
+            });
+        }
+
+        function showModalNotification(message, type = 'success') {
+            const modalEl = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const msg = document.getElementById('resultMessage');
+            
+            msg.textContent = message;
+            
+            if (type === 'success') {
+                title.textContent = 'Berhasil!';
+                icon.className = 'bi bi-check-circle-fill text-success';
+            } else if (type === 'error') {
+                title.textContent = 'Gagal';
+                icon.className = 'bi bi-x-circle-fill text-danger';
+            } else {
+                title.textContent = 'Info';
+                icon.className = 'bi bi-info-circle-fill text-primary';
+            }
+            
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    </script>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 
     <script>
