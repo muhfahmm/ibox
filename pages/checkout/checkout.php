@@ -3615,7 +3615,7 @@ while ($row = $res->fetch_assoc()) {
                 const isComplete = requiredFields.every(field => selectedAttributes[field]);
                 
                 if (!isComplete) {
-                    alert('Silakan lengkapi pilihan varian produk terlebih dahulu!');
+                    showErrorModal('Pilihan Belum Lengkap', 'Silakan lengkapi pilihan varian produk terlebih dahulu!');
                     return;
                 }
                 
@@ -3684,22 +3684,49 @@ while ($row = $res->fetch_assoc()) {
             })
             .then(data => {
                 console.log('Response data:', data);
+                
+                // Check if auth is required
+                if (data.code === 'auth_required') {
+                    showLoginRequiredModal();
+                    return;
+                }
+                
                 if (data.success) {
                     // Show custom success modal
                     document.getElementById('cartSuccessModal').classList.add('active');
                     document.body.style.overflow = 'hidden';
                 } else {
-                    alert('Gagal: ' + (data.message || 'Unknown error') + '\n\nDebug: ' + JSON.stringify(data.debug || {}));
+                    showErrorModal('Gagal Menambahkan', data.message || 'Terjadi kesalahan yang tidak diketahui');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghubungi server: ' + error.message);
+                showErrorModal('Kesalahan Server', 'Terjadi kesalahan saat menghubungi server: ' + error.message);
             })
             .finally(() => {
                 btnCart.innerHTML = originalText;
                 btnCart.disabled = false;
             });
+        }
+        
+        // Function to show login required modal
+        function showLoginRequiredModal() {
+            const modal = document.getElementById('loginRequiredModal');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+        
+        // Function to show error modal
+        function showErrorModal(title, message) {
+            const modal = document.getElementById('errorModal');
+            if (modal) {
+                document.getElementById('errorModalTitle').textContent = title;
+                document.getElementById('errorModalMessage').textContent = message;
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         }
 
         // Inisialisasi: Enable tombol jika produk tidak memiliki varian
@@ -3955,5 +3982,45 @@ while ($row = $res->fetch_assoc()) {
             });
         });
     </script>
+    
+    <!-- Login Required Modal -->
+    <div id="loginRequiredModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-body" style="padding: 40px 30px; text-align: center;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ffa500 0%, #ffb733 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; box-shadow: 0 10px 30px rgba(255, 165, 0, 0.3);">
+                    <i class="fas fa-lock" style="font-size: 40px; color: white;"></i>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Login Diperlukan</h3>
+                <p style="font-size: 15px; color: #6e6e73; margin-bottom: 35px; line-height: 1.5;">Silakan login terlebih dahulu untuk menambahkan produk ke keranjang belanja Anda.</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn-modal btn-secondary" onclick="closeModal('loginRequiredModal')" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; transition: all 0.2s;">
+                        <i class="fas fa-times" style="margin-right: 6px;"></i>Batal
+                    </button>
+                    <button class="btn-modal btn-primary" onclick="window.location.href='../auth/login.php'" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; background: linear-gradient(135deg, #007aff 0%, #0051d5 100%); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); transition: all 0.2s;">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i>Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal-overlay">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-body" style="padding: 40px 30px; text-align: center;">
+                <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #ff3b30 0%, #ff6b60 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; box-shadow: 0 10px 30px rgba(255, 59, 48, 0.3);">
+                    <i class="fas fa-exclamation-circle" style="font-size: 40px; color: white;"></i>
+                </div>
+                <h3 id="errorModalTitle" style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Error</h3>
+                <p id="errorModalMessage" style="font-size: 15px; color: #6e6e73; margin-bottom: 35px; line-height: 1.5;">Terjadi kesalahan.</p>
+                <div style="display: flex; gap: 12px; justify-content: center;">
+                    <button class="btn-modal btn-primary" onclick="closeModal('errorModal')" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; transition: all 0.2s;">
+                        <i class="fas fa-check" style="margin-right: 6px;"></i>OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

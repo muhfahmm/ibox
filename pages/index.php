@@ -9506,7 +9506,8 @@ if ($is_logged_in) {
         <!-- GRID CARDS -->
         <div class="cards-apple-care">
             <!-- Card 1 - MacBook Air -->
-            <div class="card-apple-care">
+            <a href="other/apple care/apple-care.php">
+                <div class="card-apple-care">
                 <img src="https://esmeralda.cygnuss-district8.com/media/wysiwyg/ibox-v4/images/applecare/applecare-macbook-air.png" alt="MacBook Air">
                 <h3 class="apple-care-card-title">MacBook Air</h3>
                 <p class="applecare-feature">Perlindungan hingga 500,000 kerusakan</p>
@@ -9515,9 +9516,11 @@ if ($is_logged_in) {
                 <p class="applecare-feature">Dukungan teknis prioritas</p>
                 <span class="applecare-price">Mulai Rp 1.499.000/tahun</span>
             </div>
+            </a>
 
             <!-- Card 2 - MacBook Pro -->
-            <div class="card-apple-care">
+            <a href="other/apple care/apple-care.php">
+                <div class="card-apple-care">
                 <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="MacBook Pro">
                 <h3 class="apple-care-card-title">MacBook Pro</h3>
                 <p class="applecare-feature">Perlindungan hingga 600,000 kerusakan</p>
@@ -9526,9 +9529,11 @@ if ($is_logged_in) {
                 <p class="applecare-feature">Battery service coverage</p>
                 <span class="applecare-price">Mulai Rp 1.999.000/tahun</span>
             </div>
+            </a>
 
             <!-- Card 3 - iMac -->
-            <div class="card-apple-care">
+            <a href="other/apple care/apple-care.php">
+                <div class="card-apple-care">
                 <img src="https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="iMac">
                 <h3 class="apple-care-card-title">iMac</h3>
                 <p class="applecare-feature">Perlindungan hingga 2,000,000 kerusakan</p>
@@ -9537,6 +9542,7 @@ if ($is_logged_in) {
                 <p class="applecare-feature">On-site service available</p>
                 <span class="applecare-price">Mulai Rp 2.499.000/tahun</span>
             </div>
+            </a>
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {

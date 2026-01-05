@@ -3077,15 +3077,6 @@ if ($is_logged_in) {
 
         // Initial cart add function
         function addToCart(productId, productType) {
-            // Check login status first
-            const isLoggedIn = <?php echo $is_logged_in ? 'true' : 'false'; ?>;
-            
-            if (!isLoggedIn) {
-                showModalNotification('Silakan login terlebih dahulu.', 'error');
-                setTimeout(() => window.location.href = '../auth/login.php', 1500);
-                return;
-            }
-
             // Using fetch to send data to the server
             fetch('../cart/add_to_cart.php', {
                 method: 'POST',
@@ -3108,6 +3099,12 @@ if ($is_logged_in) {
                 }
             })
             .then(data => {
+                // Check if auth is required
+                if (data.code === 'auth_required') {
+                    showLoginRequiredModal();
+                    return;
+                }
+                
                 if (data.status === 'success') {
                     showModalNotification('Produk berhasil ditambahkan ke keranjang!', 'success');
                 } else if (data.status === 'variant_required') {
@@ -3119,6 +3116,28 @@ if ($is_logged_in) {
             .catch(error => {
                 console.error('Error:', error);
                 showModalNotification('Terjadi kesalahan saat menghubungi server.', 'error');
+            });
+        }
+        
+        // Function to show login required modal
+        function showLoginRequiredModal() {
+            const modalEl = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const msg = document.getElementById('resultMessage');
+            
+            title.textContent = 'Login Diperlukan';
+            msg.textContent = 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.';
+            icon.className = 'bi bi-lock-fill text-warning';
+            
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+            
+            // Redirect to login after modal is hidden
+            modalEl.addEventListener('hidden.bs.modal', function redirectToLogin() {
+                window.location.href = '../auth/login.php';
+                // Remove listener to avoid multiple bindings
+                modalEl.removeEventListener('hidden.bs.modal', redirectToLogin);
             });
         }
 
