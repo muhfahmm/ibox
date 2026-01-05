@@ -5471,7 +5471,7 @@ if ($is_logged_in) {
                     </p>
                     <div class="button-container">
                         <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                            <i class="fas fa-shopping-bag"></i>
+                            <i class="bi bi-bag-fill"></i>
                             Beli sekarang
                         </a>
                     </div>
@@ -5499,7 +5499,7 @@ if ($is_logged_in) {
                                 <?php endif; ?>
                             </p>
                             <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                                <i class="fas fa-shopping-bag"></i>
+                                <i class="bi bi-bag-fill"></i>
                                 Beli sekarang
                             </a>
                         </div>
@@ -5525,7 +5525,7 @@ if ($is_logged_in) {
                                 <?php endif; ?>
                             </p>
                             <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                                <i class="fas fa-shopping-bag"></i>
+                                <i class="bi bi-bag-fill"></i>
                                 Beli sekarang
                             </a>
                         </div>
@@ -6727,7 +6727,7 @@ if ($is_logged_in) {
                     type: "pickup",
                     category: "PICKUP",
                     title: "Kirim dan Ambil. Belanja online dan bebas biaya kirim.",
-                    icon: "fas fa-shopping-bag",
+                    icon: "bi bi-bag-check-fill",
                     badge: "Gratis Ongkir",
                     ctaText: "Pelajari"
                 },
@@ -6736,7 +6736,7 @@ if ($is_logged_in) {
                     type: "eraxpress",
                     category: "eraXpress",
                     title: "Kirim cepat, tanpa takut telat.",
-                    icon: "fas fa-shipping-fast",
+                    icon: "bi bi-truck",
                     badge: "Same Day Delivery",
                     ctaText: "Cek Jadwal"
                 },
@@ -6745,7 +6745,7 @@ if ($is_logged_in) {
                     type: "financing",
                     category: "FINANCING",
                     title: "Dapatkan harga spesial dan cicilan 0% untuk produk Apple.",
-                    icon: "fas fa-credit-card",
+                    icon: "bi bi-credit-card-fill",
                     badge: "0% Bunga",
                     ctaText: "Ajukan Sekarang"
                 },
@@ -6754,7 +6754,7 @@ if ($is_logged_in) {
                     type: "experience",
                     category: "IBOX EXPERIENCE DAYS",
                     title: "Memaksimalkan penggunaan produk Apple anda bersama Apple expert",
-                    icon: "fas fa-chalkboard-teacher",
+                    icon: "bi bi-mortarboard-fill",
                     badge: "Expert Session",
                     ctaText: "Daftar Kelas"
                 },
@@ -6763,7 +6763,7 @@ if ($is_logged_in) {
                     type: "sale",
                     category: "SALE",
                     title: "Penawaran terbaik hari ini untuk Belanja Online dan Click & PickUp",
-                    icon: "fas fa-tags",
+                    icon: "bi bi-tags-fill",
                     badge: "Limited Time",
                     ctaText: "Lihat Promo"
                 }
@@ -6843,7 +6843,7 @@ if ($is_logged_in) {
                 <div class="simple-footer">
                     <div class="simple-badge">${service.badge}</div>
                     <a href="#" class="simple-cta" onclick="simpleServiceAction(${service.id})">
-                        ${service.ctaText} <i class="fas fa-arrow-right"></i>
+                        ${service.ctaText} <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             `;
@@ -11114,7 +11114,7 @@ if ($is_logged_in) {
                     <a href="#">Cookies</a>
                 </div>
                 <button class="back-to-top" id="backToTop">
-                    <i class="fas fa-arrow-up"></i> Kembali ke Atas
+                    <i class="bi bi-arrow-up"></i> Kembali ke Atas
                 </button>
             </div>
         </div>
