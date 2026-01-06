@@ -5151,27 +5151,27 @@ if ($is_logged_in) {
             .container-grid-products {
                 width: 100%;
                 max-width: 1400px;
-                margin: 0 auto;
-                padding: 0 20px
+                margin: 40px auto;
+                padding: 0 20px;
             }
 
             .grid-main {
                 display: grid;
                 grid-template-columns: 1fr 1fr;
-                gap: 24px;
+                gap: 16px;
             }
 
             .grid-side {
                 display: grid;
                 grid-template-rows: 1fr 1fr;
-                gap: 24px;
+                gap: 16px;
             }
 
             /* Styling Kartu */
             .card {
                 background-color: #ffffff;
                 border-radius: 18px;
-                padding: 24px;
+                padding: 20px;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
                 position: relative;
                 overflow: hidden;
@@ -5196,28 +5196,28 @@ if ($is_logged_in) {
                 text-align: center;
                 display: flex;
                 flex-direction: column;
-                justify-content: center; /* Ubah dari space-between ke center */
+                justify-content: flex-start;
                 align-items: center;
-                gap: 20px; /* Gunakan gap yang fixed */
+                gap: 8px;
             }
 
             .card-horizontal {
                 display: flex;
-                flex-direction: row; /* Paksa row */
+                flex-direction: row;
                 align-items: center;
-                justify-content: flex-start; /* Jangan space-between */
-                gap: 20px;
-                height: 100%; /* Pastikan mengisi tinggi grid row */
+                justify-content: flex-start;
+                gap: 16px;
+                height: 100%;
             }
 
             /* Badge */
             .badge {
                 color: var(--apple-new-badge);
-                font-size: 12px;
+                font-size: 11px;
                 font-weight: 600;
                 letter-spacing: 0.3px;
                 display: block;
-                margin-bottom: 2px;
+                margin-bottom: 4px;
                 text-transform: uppercase;
             }
 
@@ -5225,38 +5225,38 @@ if ($is_logged_in) {
             .title {
                 font-weight: 700;
                 line-height: 1.1;
-                margin: 2px 0;
+                margin: 0 0 6px 0;
             }
 
             .card-large .title {
-                font-size: 24px;
+                font-size: 22px;
             }
 
             .card-horizontal .title {
-                font-size: 20px;
+                font-size: 18px;
             }
 
             /* Teks */
             .text {
                 color: var(--apple-dark-text);
-                margin: 2px 0 4px 0;
+                margin: 0 0 8px 0;
             }
 
             .card-large .text {
-                font-size: 16px;
+                font-size: 14px;
                 font-weight: 500;
                 line-height: 1.3;
             }
 
             .card-horizontal .text {
-                font-size: 14px;
+                font-size: 13px;
             }
 
             /* Harga dalam teks */
             .price-text {
-                font-size: 17px;
+                font-size: 16px;
                 color: var(--apple-dark-text);
-                margin: 4px 0 8px 0;
+                margin: 0 0 8px 0;
             }
 
             .price-start {
@@ -5270,15 +5270,12 @@ if ($is_logged_in) {
                 align-items: center;
                 justify-content: center;
                 gap: 6px;
-                /* DIPERKECIL */
                 background-color: var(--apple-blue);
                 color: #ffffff;
                 padding: 8px 16px;
-                /* DIPERKECIL: dari 10px 22px */
                 border-radius: 980px;
                 text-decoration: none;
                 font-size: 14px;
-                /* DIPERKECIL: dari 15px */
                 font-weight: 500;
                 border: none;
                 cursor: pointer;
@@ -5286,11 +5283,8 @@ if ($is_logged_in) {
                 position: relative;
                 overflow: hidden;
                 z-index: 2;
-                margin-top: 4px;
-                /* Tambahkan ini agar button tidak terlalu panjang */
                 width: auto;
                 min-width: 120px;
-                /* Lebar minimum yang sama untuk semua */
             }
 
             .button:hover {
@@ -5324,8 +5318,9 @@ if ($is_logged_in) {
 
             /* Gambar */
             .image-large {
-                margin-top: 10px;
-                height: 180px; /* Perkecil lagi */
+                margin-top: 0;
+                margin-bottom: 12px;
+                height: 140px;
                 width: auto;
                 max-width: 100%;
                 border-radius: 12px;
@@ -5338,9 +5333,9 @@ if ($is_logged_in) {
             }
 
             .image-small {
-                width: 100px; /* Perkecil lagi agar muat */
-                height: 100px;
-                object-fit: contain; /* Ganti cover ke contain agar gambar produk utuh */
+                width: 80px;
+                height: 80px;
+                object-fit: contain;
                 background: #fff;
                 border-radius: 10px;
                 transition: transform 0.5s ease;
@@ -5456,6 +5451,7 @@ if ($is_logged_in) {
             <?php if (isset($gridProducts[0])): $p = $gridProducts[0]; ?>
                 <!-- Main Card (Large) -->
                 <div class="card card-large">
+                    <img src="<?php echo $p['image']; ?>" class="image-large" alt="<?php echo htmlspecialchars($p['name']); ?>">
                     <?php if (!empty($p['label'])): ?>
                         <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
                     <?php endif; ?>
@@ -5475,7 +5471,6 @@ if ($is_logged_in) {
                             Beli sekarang
                         </a>
                     </div>
-                    <img src="<?php echo $p['image']; ?>" class="image-large" alt="<?php echo htmlspecialchars($p['name']); ?>">
                 </div>
             <?php endif; ?>
 
