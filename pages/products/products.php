@@ -3055,9 +3055,19 @@ if ($is_logged_in) {
                 }
             });
 
-            // Update count
+            // Update count - gunakan resultsCount yang sesuai dengan HTML
             setTimeout(() => {
-                document.getElementById('productCount').textContent = visibleCount;
+                // Update count di header (Menampilkan X produk)
+                const resultsCountElement = document.getElementById('resultsCount');
+                if (resultsCountElement) {
+                    resultsCountElement.textContent = visibleCount;
+                }
+                
+                // Update count di sidebar filter (X Produk)
+                const productCountElement = document.getElementById('productCount');
+                if (productCountElement) {
+                    productCountElement.textContent = visibleCount;
+                }
             }, 400);
         }
 

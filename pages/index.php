@@ -4038,17 +4038,55 @@ if ($is_logged_in) {
                 border-radius: 25px;
                 font-weight: 500;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 display: inline-flex;
                 align-items: center;
+                justify-content: center;
                 gap: 8px;
                 font-size: 14px;
                 margin-top: auto;
+                position: relative;
+                overflow: hidden;
+                z-index: 2;
             }
 
             .product-btn:hover {
-                background-color: #0056cc;
+                background-color: var(--apple-blue-hover);
                 transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.25);
+            }
+
+            /* Efek ripple pada button */
+            .product-btn::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+                z-index: -1;
+            }
+
+            .product-btn:hover::after {
+                width: 200px;
+                height: 200px;
+            }
+
+            /* Efek ikon pada button saat hover */
+            .product-btn i {
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                opacity: 0;
+                transform: translateX(-8px);
+                font-size: 12px;
+            }
+
+            .product-btn:hover i {
+                opacity: 1;
+                transform: translateX(0);
             }
 
             /* Navigation Buttons untuk semua slider */
@@ -5788,18 +5826,42 @@ if ($is_logged_in) {
                 border-radius: 25px;
                 font-weight: 500;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
                 font-size: 14px;
                 margin-top: auto;
+                position: relative;
+                overflow: hidden;
+                z-index: 2;
             }
 
             .tradein-btn:hover {
-                background-color: #0056cc;
+                background-color: var(--apple-blue-hover);
                 transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.25);
+            }
+
+            /* Efek ripple pada button */
+            .tradein-btn::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+                z-index: -1;
+            }
+
+            .tradein-btn:hover::after {
+                width: 200px;
+                height: 200px;
             }
 
             /* NAVIGATION BUTTONS */
@@ -6500,11 +6562,36 @@ if ($is_logged_in) {
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                transition: background-color 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                position: relative;
+                overflow: hidden;
+                z-index: 2;
             }
 
             .simple-cta:hover {
                 background-color: #005a9c;
+                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 113, 188, 0.25);
+            }
+
+            /* Efek ripple pada button */
+            .simple-cta::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+                z-index: -1;
+            }
+
+            .simple-cta:hover::after {
+                width: 150px;
+                height: 150px;
             }
 
             .simple-cta i {
@@ -7222,7 +7309,7 @@ if ($is_logged_in) {
                 font-size: 0.95rem;
                 font-weight: 600;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -7230,12 +7317,35 @@ if ($is_logged_in) {
                 width: 100%;
                 box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
                 box-sizing: border-box;
+                position: relative;
+                overflow: hidden;
+                z-index: 2;
             }
 
             .btn-beli:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 16px rgba(0, 122, 255, 0.3);
-                background: #0066cc;
+                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.25);
+                background: var(--apple-blue-hover);
+            }
+
+            /* Efek ripple pada button */
+            .btn-beli::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+                z-index: -1;
+            }
+
+            .btn-beli:hover::after {
+                width: 200px;
+                height: 200px;
             }
 
             .btn-beli i {
