@@ -33,7 +33,6 @@ if ($is_logged_in) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="css/product-grid-compact.css">
     <style>
         * {
             padding: 0;
@@ -5127,77 +5126,407 @@ if ($is_logged_in) {
         $tradeInProductsFromDB = getTradeInProducts($db);
 
         ?>
-        <!-- CSS untuk grid products sudah dipindahkan ke css/product-grid-compact.css -->
-        <div class="product-grid-wrapper">
+        <style>
+            /* Variabel Warna Apple */
+            :root {
+                --apple-blue: #0071e3;
+                --apple-blue-hover: #0077ed;
+                --apple-gray-bg: #f5f5f7;
+                --apple-gray-light: #f5f5f7;
+                --apple-gray-text: #86868b;
+                --apple-dark-text: #1d1d1f;
+                --apple-new-badge: #bf4800;
+                --apple-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+                --apple-card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+                --apple-border-color: rgba(0, 0, 0, 0.1);
+            }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                background-color: var(--apple-gray-bg);
+                color: var(--apple-dark-text);
+                line-height: 1.5;
+            }
+
+            .container-grid-products {
+                width: 100%;
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 0 20px
+            }
+
+            .grid-main {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+
+            .grid-side {
+                display: grid;
+                grid-template-rows: 1fr 1fr;
+                gap: 24px;
+            }
+
+            /* Styling Kartu */
+            .card {
+                background-color: #ffffff;
+                border-radius: 18px;
+                padding: 24px;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+                position: relative;
+                overflow: hidden;
+                border: 1px solid var(--apple-border-color);
+                box-shadow: var(--apple-card-shadow);
+            }
+
+            /* Efek hover default pada kartu */
+            .card:hover {
+                transform: translateY(-6px);
+                box-shadow: var(--apple-card-shadow-hover);
+            }
+
+            /* Efek khusus saat hover button */
+            .button-hover-active {
+                transform: translateY(-8px) scale(1.02);
+                box-shadow: 0 12px 40px rgba(0, 113, 227, 0.18);
+                border-color: var(--apple-blue);
+            }
+
+            .card-large {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                justify-content: center; /* Ubah dari space-between ke center */
+                align-items: center;
+                gap: 20px; /* Gunakan gap yang fixed */
+            }
+
+            .card-horizontal {
+                display: flex;
+                flex-direction: row; /* Paksa row */
+                align-items: center;
+                justify-content: flex-start; /* Jangan space-between */
+                gap: 20px;
+                height: 100%; /* Pastikan mengisi tinggi grid row */
+            }
+
+            /* Badge */
+            .badge {
+                color: var(--apple-new-badge);
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.3px;
+                display: block;
+                margin-bottom: 2px;
+                text-transform: uppercase;
+            }
+
+            /* Judul */
+            .title {
+                font-weight: 700;
+                line-height: 1.1;
+                margin: 2px 0;
+            }
+
+            .card-large .title {
+                font-size: 24px;
+            }
+
+            .card-horizontal .title {
+                font-size: 20px;
+            }
+
+            /* Teks */
+            .text {
+                color: var(--apple-dark-text);
+                margin: 2px 0 4px 0;
+            }
+
+            .card-large .text {
+                font-size: 16px;
+                font-weight: 500;
+                line-height: 1.3;
+            }
+
+            .card-horizontal .text {
+                font-size: 14px;
+            }
+
+            /* Harga dalam teks */
+            .price-text {
+                font-size: 17px;
+                color: var(--apple-dark-text);
+                margin: 4px 0 8px 0;
+            }
+
+            .price-start {
+                color: var(--apple-gray-text);
+                font-weight: 400;
+            }
+
+            /* BUTTON KECIL SAMA UNTUK SEMUA */
+            .button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 6px;
+                /* DIPERKECIL */
+                background-color: var(--apple-blue);
+                color: #ffffff;
+                padding: 8px 16px;
+                /* DIPERKECIL: dari 10px 22px */
+                border-radius: 980px;
+                text-decoration: none;
+                font-size: 14px;
+                /* DIPERKECIL: dari 15px */
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+                position: relative;
+                overflow: hidden;
+                z-index: 2;
+                margin-top: 4px;
+                /* Tambahkan ini agar button tidak terlalu panjang */
+                width: auto;
+                min-width: 120px;
+                /* Lebar minimum yang sama untuk semua */
+            }
+
+            .button:hover {
+                background-color: var(--apple-blue-hover);
+                transform: scale(1.05);
+                box-shadow: 0 4px 15px rgba(0, 113, 227, 0.25);
+                /* DIPERKECIL */
+            }
+
+            /* Efek ripple pada button */
+            .button::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translate(-50%, -50%);
+                transition: width 0.6s, height 0.6s;
+                z-index: -1;
+            }
+
+            .button:hover::after {
+                width: 200px;
+                /* DIPERKECIL: dari 300px */
+                height: 200px;
+                /* DIPERKECIL: dari 300px */
+            }
+
+            /* Gambar */
+            .image-large {
+                margin-top: 10px;
+                height: 180px; /* Perkecil lagi */
+                width: auto;
+                max-width: 100%;
+                border-radius: 12px;
+                transition: transform 0.5s ease;
+                object-fit: contain;
+            }
+
+            .card:hover .image-large {
+                transform: scale(1.05);
+            }
+
+            .image-small {
+                width: 100px; /* Perkecil lagi agar muat */
+                height: 100px;
+                object-fit: contain; /* Ganti cover ke contain agar gambar produk utuh */
+                background: #fff;
+                border-radius: 10px;
+                transition: transform 0.5s ease;
+                flex-shrink: 0;
+            }
+
+            .card-horizontal:hover .image-small {
+                transform: scale(1.08);
+            }
+
+            .content-right {
+                text-align: left; /* Paksa rata kiri untuk horizontal card */
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start; /* Rata kiri */
+                justify-content: center;
+            }
+
+            /* Untuk button di card-large (iPhone) */
+            .card-large .button-container {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            /* Efek ikon pada button saat hover */
+            .button i {
+                transition: transform 0.3s ease;
+                opacity: 0;
+                transform: translateX(-8px);
+                /* DIPERKECIL */
+                font-size: 12px;
+                /* DIPERKECIL */
+            }
+
+            .button:hover i {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            /* Responsif */
+            @media (max-width: 900px) {
+                .grid-main {
+                    grid-template-columns: 1fr;
+                }
+
+                .grid-side {
+                    grid-template-rows: auto;
+                }
+
+                .card-horizontal {
+                    flex-direction: column;
+                    text-align: center;
+                }
+
+                .content-right {
+                    text-align: center;
+                    max-width: 100%;
+                    align-items: center;
+                    /* Di mobile, button di tengah */
+                }
+
+                .card-large .title {
+                    font-size: 24px;
+                }
+
+                .card-horizontal .title {
+                    font-size: 20px;
+                }
+
+                .image-large {
+                    height: 250px;
+                }
+
+                .button {
+                    min-width: 110px;
+                    /* Sedikit lebih kecil di mobile */
+                }
+            }
+
+            /* Animasi saat halaman dimuat */
+            @keyframes cardAppear {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .card {
+                animation: cardAppear 0.6s ease-out forwards;
+                opacity: 0;
+            }
+
+            .card-large {
+                animation-delay: 0.1s;
+            }
+
+            .grid-side .card:first-child {
+                animation-delay: 0.2s;
+            }
+
+            .grid-side .card:last-child {
+                animation-delay: 0.3s;
+            }
+        </style>
+        <div class="grid-main">
             <?php if (isset($gridProducts[0])): $p = $gridProducts[0]; ?>
-                <!-- Main Card -->
-                <div class="product-card-main">
-                    <img src="<?php echo $p['image']; ?>" class="product-img" alt="<?php echo htmlspecialchars($p['name']); ?>">
+                <!-- Main Card (Large) -->
+                <div class="card card-large">
                     <?php if (!empty($p['label'])): ?>
-                        <div class="product-badge"><?php echo htmlspecialchars($p['label']); ?></div>
+                        <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
                     <?php endif; ?>
-                    <h2 class="product-title"><?php echo htmlspecialchars($p['name']); ?></h2>
-                    <p class="product-desc"><?php echo htmlspecialchars($p['description']); ?></p>
-                    <div class="product-price">
+                    <h2 class="title"><?php echo htmlspecialchars($p['name']); ?></h2>
+                    <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                    <p class="price-text">
                         <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
-                            <span class="price-original">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
-                            <span class="price-discount">Mulai <?php echo $p['price']; ?></span>
+                            <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                            <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
                         <?php else: ?>
-                            <span class="price-label">Mulai </span><?php echo $p['price']; ?>
+                            <span class="price-start">Mulai </span><?php echo $p['price']; ?>
                         <?php endif; ?>
+                    </p>
+                    <div class="button-container">
+                        <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                            <i class="bi bi-bag-fill"></i>
+                            Beli sekarang
+                        </a>
                     </div>
-                    <a href="#" class="product-btn" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                        <i class="bi bi-bag-fill"></i> Beli sekarang
-                    </a>
+                    <img src="<?php echo $p['image']; ?>" class="image-large" alt="<?php echo htmlspecialchars($p['name']); ?>">
                 </div>
             <?php endif; ?>
 
-            <div class="product-grid-sidebar">
+            <div class="grid-side">
                 <?php if (isset($gridProducts[1])): $p = $gridProducts[1]; ?>
-                    <!-- Second Card -->
-                    <div class="product-card-side">
-                        <img src="<?php echo $p['image']; ?>" class="product-img" alt="<?php echo htmlspecialchars($p['name']); ?>">
-                        <div class="product-content">
+                    <!-- Second Card (Horizontal) -->
+                    <div class="card card-horizontal">
+                        <img src="<?php echo $p['image']; ?>" class="image-small" alt="<?php echo htmlspecialchars($p['name']); ?>">
+                        <div class="content-right">
                             <?php if (!empty($p['label'])): ?>
-                                <div class="product-badge"><?php echo htmlspecialchars($p['label']); ?></div>
+                                <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
                             <?php endif; ?>
-                            <h3 class="product-title"><?php echo htmlspecialchars($p['name']); ?></h3>
-                            <p class="product-desc"><?php echo htmlspecialchars($p['description']); ?></p>
-                            <div class="product-price">
+                            <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
+                            <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                            <p class="price-text">
                                 <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
-                                    <span class="price-original">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
-                                    <span class="price-discount">Mulai <?php echo $p['price']; ?></span>
+                                    <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                                    <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
                                 <?php else: ?>
-                                    <span class="price-label">Mulai </span><?php echo $p['price']; ?>
+                                    <span class="price-start">Mulai </span><?php echo $p['price']; ?>
                                 <?php endif; ?>
-                            </div>
-                            <a href="#" class="product-btn" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                                <i class="bi bi-bag-fill"></i> Beli sekarang
+                            </p>
+                            <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                                <i class="bi bi-bag-fill"></i>
+                                Beli sekarang
                             </a>
                         </div>
                     </div>
                 <?php endif; ?>
 
                 <?php if (isset($gridProducts[2])): $p = $gridProducts[2]; ?>
-                    <!-- Third Card -->
-                    <div class="product-card-side">
-                        <img src="<?php echo $p['image']; ?>" class="product-img" alt="<?php echo htmlspecialchars($p['name']); ?>">
-                        <div class="product-content">
+                    <!-- Third Card (Horizontal) -->
+                    <div class="card card-horizontal">
+                        <img src="<?php echo $p['image']; ?>" class="image-small" alt="<?php echo htmlspecialchars($p['name']); ?>">
+                        <div class="content-right">
                             <?php if (!empty($p['label'])): ?>
-                                <div class="product-badge"><?php echo htmlspecialchars($p['label']); ?></div>
+                                <span class="badge"><?php echo htmlspecialchars($p['label']); ?></span>
                             <?php endif; ?>
-                            <h3 class="product-title"><?php echo htmlspecialchars($p['name']); ?></h3>
-                            <p class="product-desc"><?php echo htmlspecialchars($p['description']); ?></p>
-                            <div class="product-price">
+                            <h3 class="title"><?php echo htmlspecialchars($p['name']); ?></h3>
+                            <p class="text"><?php echo htmlspecialchars($p['description']); ?></p>
+                            <p class="price-text">
                                 <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
-                                    <span class="price-original">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
-                                    <span class="price-discount">Mulai <?php echo $p['price']; ?></span>
+                                    <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
+                                    <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
                                 <?php else: ?>
-                                    <span class="price-label">Mulai </span><?php echo $p['price']; ?>
+                                    <span class="price-start">Mulai </span><?php echo $p['price']; ?>
                                 <?php endif; ?>
-                            </div>
-                            <a href="#" class="product-btn" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
-                                <i class="bi bi-bag-fill"></i> Beli sekarang
+                            </p>
+                            <a href="#" class="button" data-id="<?php echo $p['id']; ?>" data-type="<?php echo $p['tipe']; ?>">
+                                <i class="bi bi-bag-fill"></i>
+                                Beli sekarang
                             </a>
                         </div>
                     </div>
@@ -5205,8 +5534,31 @@ if ($is_logged_in) {
             </div>
         </div>
         <script>
-            // Event handler untuk button
-            document.querySelectorAll('.product-btn').forEach(button => {
+            // Menambahkan efek hover yang mempengaruhi seluruh grid
+            document.querySelectorAll('.button').forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    // Tambah kelas aktif ke semua kartu
+                    document.querySelectorAll('.card').forEach(card => {
+                        card.classList.add('button-hover-active');
+
+                        // Tambah efek glow khusus
+                        card.style.boxShadow = '0 12px 40px rgba(0, 113, 227, 0.18)';
+                        card.style.borderColor = 'rgba(0, 113, 227, 0.3)';
+                    });
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    // Hapus kelas aktif dari semua kartu
+                    document.querySelectorAll('.card').forEach(card => {
+                        card.classList.remove('button-hover-active');
+
+                        // Kembalikan ke semula
+                        card.style.boxShadow = '';
+                        card.style.borderColor = '';
+                    });
+                });
+
+                // Efek klik pada tombol
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
 
@@ -5217,10 +5569,31 @@ if ($is_logged_in) {
                     this.style.transform = 'scale(0.95)';
                     this.style.backgroundColor = '#0056b3';
 
+                    // Efek ripple
+                    const ripple = document.createElement('span');
+                    ripple.style.position = 'absolute';
+                    ripple.style.borderRadius = '50%';
+                    ripple.style.backgroundColor = 'rgba(255, 255, 255, 0.7)';
+                    ripple.style.transform = 'scale(0)';
+                    ripple.style.animation = 'ripple 0.6s linear';
+                    ripple.style.width = '80px';
+                    ripple.style.height = '80px';
+                    ripple.style.top = '50%';
+                    ripple.style.left = '50%';
+                    ripple.style.marginTop = '-40px';
+                    ripple.style.marginLeft = '-40px';
+
+                    this.appendChild(ripple);
+
+                    // Hapus ripple setelah animasi selesai
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+
                     // Redirect ke halaman checkout setelah sedikit delay animasi
                     setTimeout(() => {
                         window.location.href = `checkout/checkout.php?id=${productId}&type=${productType}`;
-                    }, 200);
+                    }, 400);
                 });
             });
 
