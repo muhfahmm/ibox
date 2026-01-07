@@ -2251,7 +2251,6 @@ if ($is_logged_in) {
         </script>
     </nav>
 
-    <!-- Breadcrumb -->
     <div class="breadcrumb-container">
         <a href="../../index.php">Home</a>
         <span class="breadcrumb-separator">/</span>

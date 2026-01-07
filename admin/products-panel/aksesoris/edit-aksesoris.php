@@ -33,6 +33,7 @@ $colors_data = [];
 while ($row = mysqli_fetch_assoc($images_query)) {
     $colors_data[] = [
         'nama' => $row['warna'],
+        'hex_code' => $row['hex_code'] ?? '',
         'thumbnail' => $row['foto_thumbnail'],
         'images' => json_decode($row['foto_produk'], true) ?? []
     ];
@@ -536,6 +537,78 @@ $initialData = [
                 display: block;
                 overflow-x: auto;
             }
+        }
+        
+        /* Color Preview Styles */
+        .color-radio-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .color-radio-item {
+            position: relative;
+        }
+        
+        .color-radio-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .color-radio-item input[type="radio"]:checked + .color-circle {
+            border: 3px solid #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .color-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .hex-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hex-input-wrapper::before {
+            content: '#';
+            position: absolute;
+            left: 12px;
+            color: #666;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .hex-input-wrapper input {
+            padding-left: 28px !important;
+        }
+        
+        .color-picker-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            border: none;
         }
     </style>
 </head>

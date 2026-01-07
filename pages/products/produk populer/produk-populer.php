@@ -2316,7 +2316,6 @@ if ($is_logged_in) {
     }
     ?>
 
-    <!-- Products Section -->
     <div class="products-container">
         <style>
             .products-container {

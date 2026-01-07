@@ -73,7 +73,6 @@ if ($is_logged_in) {
 </head>
 
 <body>
-    <!-- navbar -->
     <nav class="navbar-container">
         <style>
             body {

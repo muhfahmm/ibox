@@ -2536,7 +2536,6 @@ while ($row = $res->fetch_assoc()) {
     }
     ?>
 
-    <!-- Checkout Content -->
     <div class="checkout-wrapper">
         <style>
             .checkout-wrapper {
