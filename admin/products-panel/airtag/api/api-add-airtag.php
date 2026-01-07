@@ -56,6 +56,7 @@ try {
     
     foreach ($warna_data as $color_index => $color_info) {
         $warna_nama = mysqli_real_escape_string($db, $color_info['nama'] ?? '');
+        $hex_code = mysqli_real_escape_string($db, $color_info['hex_code'] ?? '');
         if (empty($warna_nama)) continue; 
         
         // Handle Thumbnail
@@ -108,8 +109,8 @@ try {
         $json_images = json_encode($product_images);
 
         // Insert Image Record
-        $q_img = "INSERT INTO admin_produk_airtag_gambar (produk_id, warna, foto_thumbnail, foto_produk) 
-                  VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$json_images')";
+        $q_img = "INSERT INTO admin_produk_airtag_gambar (produk_id, warna, hex_code, foto_thumbnail, foto_produk) 
+                  VALUES ('$product_id', '$warna_nama', '$hex_code', '$thumbnail_name', '$json_images')";
         if (!mysqli_query($db, $q_img)) {
             throw new Exception("Gagal menyimpan gambar: " . mysqli_error($db));
         }

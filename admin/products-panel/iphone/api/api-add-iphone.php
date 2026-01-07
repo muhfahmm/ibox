@@ -76,6 +76,7 @@ try {
     
     foreach ($warna_data as $color_index => $color_info) {
         $warna_nama = mysqli_real_escape_string($db, $color_info['nama'] ?? '');
+        $hex_code = mysqli_real_escape_string($db, $color_info['hex_code'] ?? '');
         
         if (empty($warna_nama)) {
             error_log("Warna nama kosong pada index: " . $color_index);
@@ -138,8 +139,8 @@ try {
         $product_images_json = json_encode($product_images);
         
         $query_gambar = "INSERT INTO admin_produk_iphone_gambar 
-                        (produk_id, warna, foto_thumbnail, foto_produk) 
-                        VALUES ('$product_id', '$warna_nama', '$thumbnail_name', '$product_images_json')";
+                        (produk_id, warna, hex_code, foto_thumbnail, foto_produk) 
+                        VALUES ('$product_id', '$warna_nama', '$hex_code', '$thumbnail_name', '$product_images_json')";
         
         if (!mysqli_query($db, $query_gambar)) {
             throw new Exception("Gagal menyimpan gambar untuk warna: $warna_nama - " . mysqli_error($db));

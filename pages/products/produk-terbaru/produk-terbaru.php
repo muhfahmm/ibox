@@ -2832,11 +2832,6 @@ if ($is_logged_in) {
             
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
-            
-            modalEl.addEventListener('hidden.bs.modal', function redirectToLogin() {
-                window.location.href = '../../auth/login.php';
-                modalEl.removeEventListener('hidden.bs.modal', redirectToLogin);
-            });
         }
 
         let currentVariants = [];

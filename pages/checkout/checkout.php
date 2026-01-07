@@ -3993,11 +3993,8 @@ while ($row = $res->fetch_assoc()) {
                 <h3 style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 12px;">Login Diperlukan</h3>
                 <p style="font-size: 15px; color: #6e6e73; margin-bottom: 35px; line-height: 1.5;">Silakan login terlebih dahulu untuk menambahkan produk ke keranjang belanja Anda.</p>
                 <div style="display: flex; gap: 12px; justify-content: center;">
-                    <button class="btn-modal btn-secondary" onclick="closeModal('loginRequiredModal')" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; transition: all 0.2s;">
-                        <i class="fas fa-times" style="margin-right: 6px;"></i>Batal
-                    </button>
-                    <button class="btn-modal btn-primary" onclick="window.location.href='../auth/login.php'" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; background: linear-gradient(135deg, #007aff 0%, #0051d5 100%); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); transition: all 0.2s;">
-                        <i class="fas fa-sign-in-alt" style="margin-right: 6px;"></i>Login
+                    <button class="btn-modal btn-primary" onclick="closeModal('loginRequiredModal')" style="flex: 1; padding: 14px; font-size: 16px; border-radius: 12px; transition: all 0.2s;">
+                        <i class="fas fa-check" style="margin-right: 6px;"></i>OK
                     </button>
                 </div>
             </div>

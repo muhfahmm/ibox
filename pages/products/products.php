@@ -3142,13 +3142,6 @@ if ($is_logged_in) {
             
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
-            
-            // Redirect to login after modal is hidden
-            modalEl.addEventListener('hidden.bs.modal', function redirectToLogin() {
-                window.location.href = '../auth/login.php';
-                // Remove listener to avoid multiple bindings
-                modalEl.removeEventListener('hidden.bs.modal', redirectToLogin);
-            });
         }
 
         let currentVariants = [];

@@ -85,6 +85,7 @@ foreach ($images_by_color as $warna => $img_data) {
     $photos = json_decode($img_data['foto_produk'], true) ?? [];
     $initialData['colors'][] = [
         'nama' => trim($warna),
+        'hex_code' => $img_data['hex_code'] ?? '',
         'thumbnail' => $img_data['foto_thumbnail'],
         'images' => $photos
     ];
@@ -537,6 +538,92 @@ foreach ($combinations as $c) {
                 overflow-x: auto;
             }
         }
+        
+        /* Color Radio Button Styles */
+        .color-radio-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .color-radio-item {
+            position: relative;
+        }
+        
+        .color-radio-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .color-radio-item input[type="radio"]:checked + .color-circle {
+            border: 3px solid #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .color-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .color-label-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        /* Hex Input with # prefix */
+        .hex-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hex-input-wrapper::before {
+            content: '#';
+            position: absolute;
+            left: 12px;
+            color: #666;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .hex-input-wrapper input {
+            padding-left: 28px !important;
+        }
+        
+        /* Color Picker Integration */
+        .color-circle {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .color-picker-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            border: none;
+        }
     </style>
 </head>
 
@@ -758,9 +845,29 @@ foreach ($combinations as $c) {
                         <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
                                placeholder="Nama Warna (Contoh: Midnight)" required value="${data ? data.nama : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="form-col col-9">
+                    <div class="form-col col-3">
+                        <label class="form-label">Kode Warna (Hex)</label>
+                        <div class="hex-input-wrapper">
+                            <input type="text" class="form-control" name="warna[${newIndex}][hex_code]" 
+                                   placeholder="000000" value="${data && data.hex_code ? data.hex_code.replace('#', '') : ''}" 
+                                   oninput="updateColorPreviewEdit(${newIndex}, this)">
+                        </div>
+                        <small class="text-muted">Contoh: 2c3e50</small>
+                    </div>
+                    <div class="form-col col-2">
+                        <label class="form-label">Preview Warna</label>
+                        <div class="color-radio-group">
+                            <label class="color-radio-item">
+                                <input type="radio" name="color_preview_edit_${newIndex}" checked>
+                                <div class="color-circle" id="color-preview-edit-${newIndex}" style="background-color: ${data && data.hex_code ? data.hex_code : '#cccccc'};" title="Klik untuk memilih warna">
+                                    <input type="color" class="color-picker-input" id="color-picker-edit-${newIndex}" value="${data && data.hex_code ? data.hex_code : '#cccccc'}" onchange="handleColorPickerEdit(this, ${newIndex})">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-col col-4">
                         <div class="form-row">
-                            <div class="form-col col-6">
+                            <div class="form-col col-12">
                                 <label class="form-label">Thumbnail Warna ${!isExisting ? '<span class="text-danger">*</span>' : ''}</label>
                                 <div class="file-upload" onclick="document.getElementById('thumbnail-${newIndex}').click()">
                                     <i class="fas fa-cloud-upload-alt"></i>
@@ -777,20 +884,22 @@ foreach ($combinations as $c) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-col col-6">
-                                <label class="form-label">Foto Produk</label>
-                                <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
-                                    <i class="fas fa-images"></i>
-                                    <p>${isExisting ? 'Tambah foto' : 'Upload foto produk'}</p>
-                                    <input type="file" id="productImages-${newIndex}" 
-                                           name="warna[${newIndex}][product_images][]" 
-                                           accept="image/*" multiple style="display: none;" 
-                                           onchange="previewProductImages(${newIndex}, this)">
-                                </div>
-                                <div class="preview-container" id="productImagesPreview-${newIndex}">
-                                    ${productImagesPreview}
-                                </div>
-                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col col-12">
+                        <label class="form-label">Foto Produk</label>
+                        <div class="file-upload" onclick="document.getElementById('productImages-${newIndex}').click()">
+                            <i class="fas fa-images"></i>
+                            <p>${isExisting ? 'Tambah foto' : 'Upload foto produk'}</p>
+                            <input type="file" id="productImages-${newIndex}" 
+                                   name="warna[${newIndex}][product_images][]" 
+                                   accept="image/*" multiple style="display: none;" 
+                                   onchange="previewProductImages(${newIndex}, this)">
+                        </div>
+                        <div class="preview-container" id="productImagesPreview-${newIndex}">
+                            ${productImagesPreview}
                         </div>
                     </div>
                 </div>
@@ -851,6 +960,45 @@ foreach ($combinations as $c) {
                     }
                     reader.readAsDataURL(file);
                 });
+            }
+        }
+        
+        // Update color preview when hex code changes (for edit form)
+        function updateColorPreviewEdit(index, input) {
+            let hexValue = input.value.trim();
+            const preview = document.getElementById(`color-preview-edit-${index}`);
+            
+            if (!preview) return;
+            
+            // Add # if not present
+            if (hexValue && !hexValue.startsWith('#')) {
+                hexValue = '#' + hexValue;
+            }
+            
+            // Validate hex color
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(hexValue)) {
+                preview.style.backgroundColor = hexValue;
+            } else {
+                // If invalid, show gray
+                preview.style.backgroundColor = '#cccccc';
+            }
+        }
+        
+        // Handle color picker selection (for edit form)
+        function handleColorPickerEdit(picker, idx) {
+            const selectedColor = picker.value; // Format: #rrggbb
+            const preview = document.getElementById(`color-preview-edit-${idx}`);
+            const hexInput = document.querySelector(`input[name="warna[${idx}][hex_code]"]`);
+            
+            // Update preview
+            if (preview) {
+                preview.style.backgroundColor = selectedColor;
+            }
+            
+            // Update hex input (remove # since we show it as prefix)
+            if (hexInput) {
+                hexInput.value = selectedColor.substring(1); // Remove # from #rrggbb
             }
         }
 

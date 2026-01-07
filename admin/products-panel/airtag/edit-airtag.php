@@ -29,6 +29,7 @@ $res = mysqli_query($db, "SELECT * FROM admin_produk_airtag_gambar WHERE produk_
 while ($row = mysqli_fetch_assoc($res)) {
     $colors[] = [
         'warna' => trim($row['warna']),
+        'hex_code' => $row['hex_code'] ?? '',
         'thumbnail' => $row['foto_thumbnail'],
         'gallery' => json_decode($row['foto_produk'], true) ?? []
     ];
@@ -117,6 +118,16 @@ $initialData = [
         #feedback-message{position:fixed;top:20px;right:20px;z-index:10000;padding:15px 25px;border-radius:8px;color:#fff;font-weight:500;transform:translateX(150%);transition:transform .3s ease-out;box-shadow:0 5px 15px rgba(0,0,0,.2);}
         #feedback-message.success{background:linear-gradient(135deg,#2ecc71,#26a65b);transform:translateX(0);}
         #feedback-message.error{background:linear-gradient(135deg,#e74c3c,#c0392b);transform:translateX(0);}
+        .color-radio-group{display:flex;gap:12px;align-items:center;margin-top:10px;}
+        .color-radio-item{position:relative;}
+        .color-radio-item input[type="radio"]{position:absolute;opacity:0;width:0;height:0;}
+        .color-circle{width:40px;height:40px;border-radius:50%;border:2px solid #ddd;cursor:pointer;transition:all .3s ease;position:relative;box-shadow:0 2px 5px rgba(0,0,0,.1);}
+        .color-radio-item input[type="radio"]:checked + .color-circle{border:3px solid #4a6cf7;box-shadow:0 0 0 3px rgba(74,108,247,.2);transform:scale(1.1);}
+        .color-circle:hover{transform:scale(1.05);box-shadow:0 4px 8px rgba(0,0,0,.15);}
+        .hex-input-wrapper{position:relative;display:flex;align-items:center;}
+        .hex-input-wrapper::before{content:'#';position:absolute;left:12px;color:#666;font-weight:500;pointer-events:none;z-index:1;}
+        .hex-input-wrapper input{padding-left:28px !important;}
+        .color-picker-input{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none;}
     </style>
 </head>
 <body>
@@ -180,7 +191,7 @@ $initialData = [
         const initialData = <?php echo json_encode($initialData); ?>;
         let colorIdx = 0;
         // Add color option (prefill if data provided)
-        function addColorOption(name = '', thumb = '', gallery = []) {
+        function addColorOption(name = '', hexCode = '', thumb = '', gallery = []) {
             const container = document.getElementById('colors-container');
             const html = `
                 <div class="option-card color-option" data-idx="${colorIdx}">
@@ -190,16 +201,34 @@ $initialData = [
                     <input type="hidden" name="warna[${colorIdx}][existing_gallery]" value='${JSON.stringify(gallery)}'>
 
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label small">Nama Warna</label>
                             <input type="text" class="form-control color-name" name="warna[${colorIdx}][nama]" value="${name}" required onkeyup="generateCombinations()">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
+                            <label class="form-label small">Kode Hex</label>
+                            <div class="hex-input-wrapper">
+                                <input type="text" class="form-control" name="warna[${colorIdx}][hex_code]" value="${hexCode.replace('#', '')}" placeholder="000000" oninput="updateColorPreview(this, ${colorIdx})">
+                            </div>
+                            <small class="text-muted">Contoh: 2c3e50</small>
+                        </div>
+                        <div class="col-md-1">
+                            <label class="form-label small">Preview</label>
+                            <div class="color-radio-group">
+                                <label class="color-radio-item">
+                                    <input type="radio" name="color_preview_${colorIdx}" checked>
+                                    <div class="color-circle" id="color-preview-${colorIdx}" style="background-color: ${hexCode || '#cccccc'};" title="Klik untuk memilih warna">
+                                        <input type="color" class="color-picker-input" id="color-picker-${colorIdx}" value="${hexCode || '#cccccc'}" onchange="handleColorPicker(this, ${colorIdx})">
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
                             <label class="form-label small">Thumbnail</label>
                             <input type="file" class="form-control" name="warna[${colorIdx}][thumbnail]" accept="image/*" ${name ? '' : 'required'}>
                             ${thumb ? `<img src="../../uploads/${thumb}" class="img-thumbnail mt-2" style="width:80px;height:80px;object-fit:cover;">` : ''}
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label small">Galeri</label>
                             <input type="file" class="form-control" name="warna[${colorIdx}][product_images][]" accept="image/*" multiple>
                             ${gallery.length ? gallery.map(g=>`<img src="../../uploads/${g}" class="img-thumbnail mt-2" style="width:60px;height:60px;object-fit:cover; margin-right:4px;">`).join('') : ''}
@@ -241,6 +270,40 @@ $initialData = [
             generateCombinations();
         }
         function removeOption(btn){ btn.closest('.option-card').remove(); generateCombinations(); }
+        
+        // Update color preview when hex code changes
+        function updateColorPreview(input, idx) {
+            let hexValue = input.value.trim();
+            const preview = document.getElementById(`color-preview-${idx}`);
+            
+            // Add # if not present
+            if (hexValue && !hexValue.startsWith('#')) {
+                hexValue = '#' + hexValue;
+            }
+            
+            // Validate hex color
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(hexValue)) {
+                preview.style.backgroundColor = hexValue;
+            } else {
+                preview.style.backgroundColor = '#cccccc';
+            }
+        }
+        
+        // Handle color picker selection
+        function handleColorPicker(picker, idx) {
+            const selectedColor = picker.value;
+            const preview = document.getElementById(`color-preview-${idx}`);
+            const hexInput = document.querySelector(`input[name="warna[${idx}][hex_code]"]`);
+            
+            if (preview) {
+                preview.style.backgroundColor = selectedColor;
+            }
+            
+            if (hexInput) {
+                hexInput.value = selectedColor.substring(1);
+            }
+        }
         function generateCombinations(){
             // Use colors from initialData to ensure exact match with database keys
             const colors = initialData.colors.map(c => c.warna);
@@ -297,7 +360,7 @@ $initialData = [
         // Init with existing data
         window.addEventListener('DOMContentLoaded',()=>{
             // Colors
-            initialData.colors.forEach(c=>addColorOption(c.warna, c.thumbnail, c.gallery));
+            initialData.colors.forEach(c=>addColorOption(c.warna, c.hex_code, c.thumbnail, c.gallery));
             
             // Packs - get price from combos
             if(initialData.packs.length>0) {
