@@ -164,6 +164,105 @@ while ($row = $res->fetch_assoc()) {
             color: #86868b; 
             font-weight: 400; 
         }
+        /* Lightbox Modal CSS - Glassmorphism */
+        .image-preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(20, 20, 20, 0.75);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 3000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .image-preview-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+        .preview-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .preview-image {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transition: transform 0.3s ease;
+        }
+        .preview-nav-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .preview-nav-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .preview-prev { left: -80px; }
+        .preview-next { right: -80px; }
+        
+        .preview-close-btn {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 3001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .preview-close-btn:hover { 
+            background: rgba(255, 255, 255, 0.25);
+            transform: rotate(90deg);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        @media (max-width: 900px) {
+            .preview-prev { left: 20px; }
+            .preview-next { right: 20px; }
+            .preview-nav-btn {
+                background: rgba(0, 0, 0, 0.3); /* Slightly darker for better visibility on mobile */
+            }
+        }
     </style>
     <style>
         /* Address Management Styles */
@@ -3324,7 +3423,8 @@ while ($row = $res->fetch_assoc()) {
                                 if (is_array($photos) && !empty($photos)):
                                     foreach ($photos as $photo_file):
                             ?>
-                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?>>
+                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?> 
+                                         onclick="openImagePreview(this.querySelector('img').src)">
                                         <img src="../../admin/uploads/<?php echo htmlspecialchars($photo_file); ?>" 
                                              alt="<?php echo htmlspecialchars($image_row['warna']); ?>">
                                     </div>
@@ -3333,7 +3433,8 @@ while ($row = $res->fetch_assoc()) {
                                 elseif (!empty($image_row['foto_produk']) && is_string($image_row['foto_produk']) && !is_array(json_decode($image_row['foto_produk']))):
                                     // Fallback if not JSON (legacy support or plain string)
                              ?>
-                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?>>
+                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?>
+                                         onclick="openImagePreview(this.querySelector('img').src)">
                                         <img src="../../admin/uploads/<?php echo htmlspecialchars($image_row['foto_produk']); ?>" 
                                              alt="<?php echo htmlspecialchars($image_row['warna']); ?>">
                                     </div>
@@ -4248,6 +4349,84 @@ while ($row = $res->fetch_assoc()) {
             </div>
         </div>
     </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imagePreviewModal" class="image-preview-modal">
+        <button class="preview-close-btn" onclick="closeImagePreview()">&times;</button>
+        <div class="preview-content">
+            <button class="preview-nav-btn preview-prev" onclick="prevImage()"><i class="fas fa-chevron-left"></i></button>
+            <img id="previewImageDisplay" class="preview-image" src="" alt="Preview">
+            <button class="preview-nav-btn preview-next" onclick="nextImage()"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // Image Preview Logic
+        let currentPreviewIndex = 0;
+        let previewImagesList = [];
+
+        function openImagePreview(src) {
+            // Collect visible images
+            previewImagesList = [];
+            const visibleGridItems = document.querySelectorAll('.grid-item');
+            
+            // Filter only visible items (based on selected color)
+            visibleGridItems.forEach(item => {
+                if (window.getComputedStyle(item).display !== 'none') {
+                    const img = item.querySelector('img');
+                    if (img) previewImagesList.push(img.src);
+                }
+            });
+
+            // Find current index
+            currentPreviewIndex = previewImagesList.findIndex(url => url === src);
+            if (currentPreviewIndex === -1 && previewImagesList.length > 0) {
+                 currentPreviewIndex = 0;
+            }
+
+            updatePreviewImage();
+            document.getElementById('imagePreviewModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', handlePreviewKeys);
+        }
+
+        function closeImagePreview() {
+            document.getElementById('imagePreviewModal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.removeEventListener('keydown', handlePreviewKeys);
+        }
+
+        function updatePreviewImage() {
+            if (previewImagesList.length > 0) {
+                document.getElementById('previewImageDisplay').src = previewImagesList[currentPreviewIndex];
+            }
+        }
+
+        function nextImage() {
+            if (previewImagesList.length === 0) return;
+            currentPreviewIndex = (currentPreviewIndex + 1) % previewImagesList.length;
+            updatePreviewImage();
+        }
+
+        function prevImage() {
+            if (previewImagesList.length === 0) return;
+            currentPreviewIndex = (currentPreviewIndex - 1 + previewImagesList.length) % previewImagesList.length;
+            updatePreviewImage();
+        }
+        
+        function handlePreviewKeys(e) {
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'Escape') closeImagePreview();
+        }
+
+        // Close on overlay click
+        document.getElementById('imagePreviewModal').addEventListener('click', function(e) {
+            if (e.target === this) closeImagePreview();
+        });
+    </script>
 
 </body>
 </html>
