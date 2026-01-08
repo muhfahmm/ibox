@@ -2340,7 +2340,6 @@ while ($row = $res->fetch_assoc()) {
     </nav>
     
     <!-- Breadcrumb -->
-    <!-- Breadcrumb -->
     <div class="breadcrumb-container">
         <div class="breadcrumb-inner">
             <a href="../index.php"><i class="fas fa-home" style="margin-right: 5px;"></i> Home</a>
@@ -2458,8 +2457,8 @@ while ($row = $res->fetch_assoc()) {
             // Default ke 'warna' jika tidak diset di config
             $col_warna_img = isset($cfg['col_warna_img']) ? $cfg['col_warna_img'] : 'warna';
             
-            // Ambil semua gambar produk
-            $gambar_query = "SELECT {$col_warna_img} as warna, foto_thumbnail, foto_produk 
+            // Ambil semua gambar produk dengan hex_code
+            $gambar_query = "SELECT {$col_warna_img} as warna, hex_code, foto_thumbnail, foto_produk 
                             FROM {$cfg['table_gambar']} 
                             WHERE produk_id = '$id'";
             $gambar_result = mysqli_query($db, $gambar_query);
@@ -2711,6 +2710,67 @@ while ($row = $res->fetch_assoc()) {
                 background-color: #f5f5f7;
                 color: #86868b;
             }
+            
+            /* Color Circle Styles */
+            .color-circle-option {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+                cursor: pointer;
+                padding: 8px;
+                border-radius: 12px;
+                transition: all 0.2s ease;
+                border: 2px solid transparent;
+            }
+            
+            .color-circle-option:hover {
+                background-color: #f5f5f7;
+            }
+            
+            .color-circle-option.selected {
+                border-color: #007aff;
+                background-color: #f2f7ff;
+            }
+            
+            .color-circle {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                border: 3px solid #e5e5e7;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                transition: all 0.2s ease;
+                position: relative;
+            }
+            
+            .color-circle-option:hover .color-circle {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .color-circle-option.selected .color-circle {
+                border-color: #007aff;
+                border-width: 3px;
+                box-shadow: 0 0 0 2px white, 0 0 0 4px #007aff;
+                transform: scale(1.05);
+            }
+            
+            .color-name-label {
+                font-size: 13px;
+                color: #1d1d1f;
+                font-weight: 500;
+                text-align: center;
+                max-width: 80px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .color-circle-option.selected .color-name-label {
+                color: #007aff;
+                font-weight: 600;
+            }
+
 
             .variant-card:hover {
                 border-color: #007aff;
@@ -3242,6 +3302,9 @@ while ($row = $res->fetch_assoc()) {
                                 'pack' => 'Paket',
                                 'aksesoris' => 'Aksesoris Tambahan'
                             ];
+                            
+                            // Field warna yang akan ditampilkan sebagai color circles
+                            $color_fields = ['warna', 'warna_case'];
 
                             // Tampilkan grup opsi
                             foreach ($grouped_options as $field => $options): 
@@ -3249,18 +3312,46 @@ while ($row = $res->fetch_assoc()) {
                                 if (empty($options)) continue;
                                 
                                 $label = isset($field_labels[$field]) ? $field_labels[$field] : ucfirst($field);
+                                $is_color_field = in_array($field, $color_fields);
                             ?>
                                 <div class="variant-group" data-group-field="<?php echo $field; ?>">
                                     <h3 class="variant-group-title">Pilih <?php echo $label; ?></h3>
                                     <div class="variant-options">
-                                        <?php foreach ($options as $option): 
-                                            $trimmed_option = trim($option);
+                                        <?php 
+                                        if ($is_color_field):
+                                            // Tampilkan sebagai color circles
+                                            foreach ($options as $option): 
+                                                $trimmed_option = trim($option);
+                                                
+                                                // Cari hex_code untuk warna ini dari product images
+                                                $hex_code = '#cccccc'; // Default gray
+                                                foreach ($product['images'] as $img) {
+                                                    if (trim($img['warna']) === $trimmed_option && !empty($img['hex_code'])) {
+                                                        $hex_code = '#' . ltrim($img['hex_code'], '#');
+                                                        break;
+                                                    }
+                                                }
+                                        ?>
+                                            <div class="color-circle-option" 
+                                                 onclick="selectOption('<?php echo $field; ?>', '<?php echo htmlspecialchars($trimmed_option); ?>', this)">
+                                                <div class="color-circle" style="background-color: <?php echo $hex_code; ?>;"></div>
+                                                <span class="color-name-label"><?php echo htmlspecialchars($trimmed_option); ?></span>
+                                            </div>
+                                        <?php 
+                                            endforeach;
+                                        else:
+                                            // Tampilkan sebagai button biasa
+                                            foreach ($options as $option): 
+                                                $trimmed_option = trim($option);
                                         ?>
                                             <button class="variant-option-btn" 
                                                     onclick="selectOption('<?php echo $field; ?>', '<?php echo htmlspecialchars($trimmed_option); ?>', this)">
                                                 <?php echo htmlspecialchars($trimmed_option); ?>
                                             </button>
-                                        <?php endforeach; ?>
+                                        <?php 
+                                            endforeach;
+                                        endif;
+                                        ?>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -3430,37 +3521,60 @@ while ($row = $res->fetch_assoc()) {
             // Update state seleksi
             selectedAttributes[field] = value;
             
-            // Update UI tombol
+            // Update UI - handle both color circles and regular buttons
             const group = btnElement.closest('.variant-group');
-            group.querySelectorAll('.variant-option-btn').forEach(btn => {
-                btn.classList.remove('selected');
+            
+            // Remove selected class from all options in this group
+            group.querySelectorAll('.variant-option-btn, .color-circle-option').forEach(item => {
+                item.classList.remove('selected');
             });
+            
+            // Add selected class to clicked element
             btnElement.classList.add('selected');
 
             // Ganti gambar jika yang dipilih adalah warna
             if (field === colorFieldName) {
-                const matchingImage = productImages.find(img => img.warna === value);
+                const matchingImage = productImages.find(img => {
+                    // Trim untuk menghindari masalah spasi
+                    const imgWarna = (img.warna || '').toString().trim();
+                    const selectedWarna = value.toString().trim();
+                    return imgWarna === selectedWarna;
+                });
+                
                 if (matchingImage) {
                     const mainImg = document.getElementById('mainProductImage');
                     
-                    // Update Main Image
-                    mainImg.style.opacity = '0.5';
+                    // Update Main Image dengan animasi smooth
+                    mainImg.style.transition = 'opacity 0.3s ease';
+                    mainImg.style.opacity = '0';
+                    
                     setTimeout(() => {
                         mainImg.src = '../../admin/uploads/' + matchingImage.foto_thumbnail;
-                        mainImg.style.opacity = '1';
-                    }, 200);
+                        mainImg.onload = function() {
+                            mainImg.style.opacity = '1';
+                        };
+                    }, 300);
                     
                     // Update active thumbnail
                     document.querySelectorAll('.thumbnail-item').forEach(item => {
                         const img = item.querySelector('img');
-                        if (img && img.alt === value) {
-                            item.classList.add('active');
-                            // Scroll thumbnail ke view jika perlu (untuk mobile)
-                            item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                        } else {
-                            item.classList.remove('active');
+                        if (img) {
+                            const imgAlt = (img.alt || '').toString().trim();
+                            const selectedWarna = value.toString().trim();
+                            
+                            if (imgAlt === selectedWarna) {
+                                item.classList.add('active');
+                                // Scroll thumbnail ke view jika perlu (untuk mobile)
+                                item.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                            } else {
+                                item.classList.remove('active');
+                            }
                         }
                     });
+                    
+                    console.log('Gambar berhasil diganti ke warna:', value);
+                } else {
+                    console.warn('Gambar untuk warna "' + value + '" tidak ditemukan');
                 }
             }
 
