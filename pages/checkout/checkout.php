@@ -3247,7 +3247,34 @@ while ($row = $res->fetch_assoc()) {
                 font-weight: 500;
                 color: #1d1d1f;
             }
-        </style>
+        /* Product Photo Grid */
+        .product-photo-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .product-photo-grid .grid-item {
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid #d2d2d7;
+            background: #fff;
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+        .product-photo-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        .product-photo-grid .grid-item:hover img {
+            transform: scale(1.05);
+        }
+    </style>
 
         <?php if ($product): ?>
             <div class="checkout-grid">
@@ -3261,7 +3288,7 @@ while ($row = $res->fetch_assoc()) {
                         <p class="product-description"><?php echo nl2br(htmlspecialchars($product['deskripsi_produk'])); ?></p>
                     </div>
 
-                    <!-- Image Gallery -->
+                    <!-- thumbnail produk -->
                     <?php if (!empty($product['images'])): ?>
                         <div class="image-gallery">
                             <div class="thumbnail-list">
@@ -3281,6 +3308,42 @@ while ($row = $res->fetch_assoc()) {
                         </div>
                     <?php endif; ?>
 
+                    <!-- foto produk -->
+                    <?php if (!empty($product['images'])): ?>
+                        <div class="product-photo-grid">
+                            <?php 
+                            $first_color = isset($product['images'][0]['warna']) ? trim($product['images'][0]['warna']) : null;
+                            foreach ($product['images'] as $image_row): 
+                                // Decode JSON array from database
+                                $photos = json_decode($image_row['foto_produk'], true);
+                                $row_color = trim($image_row['warna']);
+                                $is_visible = ($first_color && $row_color === $first_color);
+                                $display_style = $is_visible ? '' : 'style="display: none;"';
+
+                                // Validation: ensure it's an array and not empty
+                                if (is_array($photos) && !empty($photos)):
+                                    foreach ($photos as $photo_file):
+                            ?>
+                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?>>
+                                        <img src="../../admin/uploads/<?php echo htmlspecialchars($photo_file); ?>" 
+                                             alt="<?php echo htmlspecialchars($image_row['warna']); ?>">
+                                    </div>
+                            <?php 
+                                    endforeach;
+                                elseif (!empty($image_row['foto_produk']) && is_string($image_row['foto_produk']) && !is_array(json_decode($image_row['foto_produk']))):
+                                    // Fallback if not JSON (legacy support or plain string)
+                             ?>
+                                    <div class="grid-item" data-color="<?php echo htmlspecialchars($row_color); ?>" <?php echo $display_style; ?>>
+                                        <img src="../../admin/uploads/<?php echo htmlspecialchars($image_row['foto_produk']); ?>" 
+                                             alt="<?php echo htmlspecialchars($image_row['warna']); ?>">
+                                    </div>
+                            <?php
+                                endif;
+                            endforeach; 
+                            ?>
+                        </div>
+                    <?php endif; ?>
+                    
                     <!-- Variants Section -->
                     <div class="variants-section">
                         <h2 class="section-title">Pilih Varian</h2>
@@ -3515,6 +3578,41 @@ while ($row = $res->fetch_assoc()) {
                 item.classList.remove('active');
             });
             element.classList.add('active');
+
+            // --- SYNC COLOR SELECTION ---
+            // 1. Get the color from the clicked thumbnail image's alt attribute
+            const img = element.querySelector('img');
+            const colorValue = img ? (img.alt || '').trim() : null;
+
+            if (colorValue && colorFieldName) {
+                // 2. Find the corresponding color button/circle
+                const allButtons = document.querySelectorAll('.variant-option-btn, .color-circle-option');
+                let targetBtn = null;
+
+                for (let btn of allButtons) {
+                    let btnText = '';
+                    
+                    // Check if it's a color circle
+                    if (btn.classList.contains('color-circle-option')) {
+                        const labelSpan = btn.querySelector('.color-name-label');
+                        if (labelSpan) btnText = labelSpan.textContent.trim();
+                    } else {
+                        // Standard button
+                        btnText = btn.textContent.trim();
+                    }
+                    
+                    // Normalize comparison
+                    if (btnText.toLowerCase() === colorValue.toLowerCase()) {
+                        targetBtn = btn;
+                        break;
+                    }
+                }
+
+                // 3. Trigger selection if matching button found
+                if (targetBtn) {
+                    selectOption(colorFieldName, colorValue, targetBtn);
+                }
+            }
         }
 
         function selectOption(field, value, btnElement) {
@@ -3576,6 +3674,25 @@ while ($row = $res->fetch_assoc()) {
                 } else {
                     console.warn('Gambar untuk warna "' + value + '" tidak ditemukan');
                 }
+
+                // Update Grid Photos
+                const allGridItems = document.querySelectorAll('.product-photo-grid .grid-item');
+                let foundMatch = false;
+
+                if (allGridItems.length > 0) {
+                    allGridItems.forEach(item => {
+                        const itemColor = (item.dataset.color || '').toString().trim();
+                        const selectedWarna = value.toString().trim();
+                        
+                        if (itemColor === selectedWarna) {
+                            item.style.display = 'flex'; // Restore if using flex from CSS
+                            foundMatch = true;
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                }
+                console.log('Grid photos updated for color:', value, 'Matches found:', foundMatch);
             }
 
             // Cek apakah semua atribut sudah dipilih
