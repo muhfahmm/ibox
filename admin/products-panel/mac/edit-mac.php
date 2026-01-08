@@ -119,6 +119,7 @@ foreach($color_images as $color) {
     $photos = json_decode($color['foto_produk'], true) ?? [];
     $initialData['colors'][] = [
         'nama' => trim($color['warna']),
+        'hex_code' => $color['hex_code'] ?? '',
         'thumbnail' => $color['foto_thumbnail'],
         'images' => $photos
     ];
@@ -518,6 +519,87 @@ foreach($combinations as $c) {
                 overflow-x: auto;
             }
         }
+        
+        /* Color Radio Button Styles */
+        .color-radio-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .color-radio-item {
+            position: relative;
+        }
+        
+        .color-radio-item input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .color-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .color-radio-item input[type="radio"]:checked + .color-circle {
+            border: 3px solid #4a6cf7;
+            box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .color-circle:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .color-label-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            text-align: center;
+        }
+        
+        /* Hex Input with # prefix */
+        .hex-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .hex-input-wrapper::before {
+            content: '#';
+            position: absolute;
+            left: 12px;
+            color: #666;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .hex-input-wrapper input {
+            padding-left: 28px !important;
+        }
+        
+        /* Color Picker Integration */
+        .color-picker-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -752,6 +834,7 @@ foreach($combinations as $c) {
                 }
             }
             
+            
             newColor.innerHTML = `
                 <div class="form-row">
                     <div class="form-col col-3">
@@ -759,7 +842,26 @@ foreach($combinations as $c) {
                         <input type="text" class="form-control" name="warna[${newIndex}][nama]" 
                                placeholder="Nama Warna (Contoh: Space Gray)" required value="${data ? data.nama : ''}" onchange="generateCombinations()">
                     </div>
-                    <div class="form-col col-9">
+                    <div class="form-col col-2">
+                        <label class="form-label">Kode Warna (Hex)</label>
+                        <div class="hex-input-wrapper">
+                            <input type="text" class="form-control color-hex" name="warna[${newIndex}][hex_code]" 
+                                   placeholder="000000" value="${data ? (data.hex_code || '') : ''}" oninput="updateColorPreview(this, ${newIndex})">
+                        </div>
+                        <small class="text-muted">Contoh: 2c3e50</small>
+                    </div>
+                    <div class="form-col col-1">
+                        <label class="form-label">Preview</label>
+                        <div class="color-radio-group">
+                            <label class="color-radio-item">
+                                <input type="radio" name="color_preview_${newIndex}" checked>
+                                <div class="color-circle" id="color-preview-${newIndex}" style="background-color: ${data && data.hex_code ? '#' + data.hex_code.replace('#', '') : '#cccccc'};" title="Klik untuk memilih warna">
+                                    <input type="color" class="color-picker-input" id="color-picker-${newIndex}" value="${data && data.hex_code ? '#' + data.hex_code.replace('#', '') : '#cccccc'}" onchange="handleColorPicker(this, ${newIndex})">
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-col col-6">
                         <div class="form-row">
                             <div class="form-col col-6">
                                 <label class="form-label">Thumbnail Warna ${!isExisting ? '<span class="text-danger">*</span>' : ''}</label>
@@ -804,6 +906,49 @@ foreach($combinations as $c) {
             colorCount++;
             generateCombinations();
         }
+        
+        // Update color preview when hex code changes
+        function updateColorPreview(input, idx) {
+            let hexValue = input.value.trim();
+            const preview = document.getElementById(`color-preview-${idx}`);
+            
+            // Add # if not present
+            if (hexValue && !hexValue.startsWith('#')) {
+                hexValue = '#' + hexValue;
+            }
+            
+            // Validate hex color
+            const hexRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+            if (hexRegex.test(hexValue)) {
+                preview.style.backgroundColor = hexValue;
+                // Update color picker
+                const picker = document.getElementById(`color-picker-${idx}`);
+                if (picker) {
+                    picker.value = hexValue;
+                }
+            } else {
+                // If invalid, show gray
+                preview.style.backgroundColor = '#cccccc';
+            }
+        }
+        
+        // Handle color picker selection
+        function handleColorPicker(picker, idx) {
+            const selectedColor = picker.value; // Format: #rrggbb
+            const preview = document.getElementById(`color-preview-${idx}`);
+            const hexInput = document.querySelector(`input[name="warna[${idx}][hex_code]"]`);
+            
+            // Update preview
+            if (preview) {
+                preview.style.backgroundColor = selectedColor;
+            }
+            
+            // Update hex input (remove # since we show it as prefix)
+            if (hexInput) {
+                hexInput.value = selectedColor.substring(1); // Remove # from #rrggbb
+            }
+        }
+
         
         function removeColor(index) {
             const colorElements = document.querySelectorAll('.color-option');
