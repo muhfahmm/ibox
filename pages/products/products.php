@@ -2505,10 +2505,13 @@ if ($is_logged_in) {
                 justify-content: space-between;
                 align-items: center;
                 margin-bottom: 25px;
-                padding: 20px 25px;
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+                padding: 16px 24px;
+                background: rgba(255, 255, 255, 0.65);
+                backdrop-filter: blur(16px);
+                -webkit-backdrop-filter: blur(16px);
+                border: 1px solid rgba(255, 255, 255, 0.5);
+                border-radius: 20px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); 
             }
 
             .results-info {
@@ -2520,6 +2523,70 @@ if ($is_logged_in) {
             .results-count {
                 font-weight: 700;
                 color: #007aff;
+            }
+
+            /* Sort Styles - Glassmorphism */
+            .sort-container {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: rgba(255, 255, 255, 0.4);
+                padding: 4px 4px 4px 14px;
+                border-radius: 14px;
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.02);
+            }
+
+            .sort-label {
+                font-size: 13px;
+                color: #555;
+                font-weight: 600;
+                letter-spacing: 0.2px;
+            }
+
+            .sort-select {
+                border: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 10px;
+                padding: 8px 32px 8px 14px;
+                font-size: 13px;
+                font-weight: 500;
+                color: #333;
+                background: rgba(255, 255, 255, 0.5);
+                cursor: pointer;
+                outline: none;
+                transition: all 0.3s ease;
+                appearance: none;
+                backdrop-filter: blur(4px);
+                background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007AFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                background-size: 10px auto;
+            }
+
+            .sort-select:hover {
+                background-color: rgba(255, 255, 255, 0.9);
+                border-color: rgba(0, 122, 255, 0.3);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.1);
+                transform: translateY(-1px);
+            }
+
+            .sort-select:focus {
+                background-color: white;
+                border-color: #007aff;
+                box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+            }
+
+            @media (max-width: 768px) {
+                .products-content-header {
+                     flex-direction: column;
+                     gap: 15px;
+                     align-items: stretch;
+                }
+                
+                .sort-container {
+                     width: 100%;
+                     justify-content: space-between;
+                }
             }
 
             /* Products Grid */
@@ -2951,13 +3018,27 @@ if ($is_logged_in) {
                     <div class="results-info">
                         Menampilkan <span class="results-count" id="resultsCount"><?php echo count($products); ?></span> produk
                     </div>
+                    <div class="sort-container">
+                        <label for="sortProducts" class="sort-label">Urutkan:</label>
+                        <select id="sortProducts" class="sort-select" onchange="sortProducts(this.value)">
+                            <option value="default">Terbaru</option>
+                            <option value="price_low">Harga Terendah</option>
+                            <option value="price_high">Harga Tertinggi</option>
+                            <option value="name_asc">Nama (A-Z)</option>
+                            <option value="name_desc">Nama (Z-A)</option>
+                        </select>
+                    </div>
                 </div>
 
                 <!-- Products Grid -->
                 <div class="products-grid" id="productsGrid">
             <?php if (count($products) > 0): ?>
                 <?php foreach ($products as $product): ?>
-                    <div class="product-card" data-category="<?php echo $product['type']; ?>" 
+                    <div class="product-card" 
+                         data-category="<?php echo $product['type']; ?>" 
+                         data-price="<?php echo $product['price']; ?>"
+                         data-name="<?php echo htmlspecialchars($product['name']); ?>"
+                         data-id="<?php echo $product['id']; ?>"
                          onclick="window.location.href='../checkout/checkout.php?id=<?php echo $product['id']; ?>&tipe=<?php echo $product['type']; ?>'">
                         <div class="product-image-container">
                             <img src="../../admin/uploads/<?php echo htmlspecialchars($product['image']); ?>" 
@@ -3011,6 +3092,41 @@ if ($is_logged_in) {
         </div>
     </div>
     <script>
+        function sortProducts(sortType) {
+            const grid = document.getElementById('productsGrid');
+            const cards = Array.from(grid.getElementsByClassName('product-card'));
+
+            cards.sort((a, b) => {
+                let valA, valB;
+
+                switch(sortType) {
+                    case 'price_low':
+                        valA = parseFloat(a.dataset.price) || 0;
+                        valB = parseFloat(b.dataset.price) || 0;
+                        return valA - valB;
+                    case 'price_high':
+                        valA = parseFloat(a.dataset.price) || 0;
+                        valB = parseFloat(b.dataset.price) || 0;
+                        return valB - valA;
+                    case 'name_asc':
+                        valA = (a.dataset.name || '').toLowerCase();
+                        valB = (b.dataset.name || '').toLowerCase();
+                        return valA.localeCompare(valB);
+                    case 'name_desc':
+                        valA = (a.dataset.name || '').toLowerCase();
+                        valB = (b.dataset.name || '').toLowerCase();
+                        return valB.localeCompare(valA);
+                    default: // default (newest / ID desc)
+                        valA = parseInt(a.dataset.id) || 0;
+                        valB = parseInt(b.dataset.id) || 0;
+                        return valB - valA;
+                }
+            });
+
+            // Re-append to grid
+            cards.forEach(card => grid.appendChild(card));
+        }
+
         function filterProducts(category) {
             const cards = document.querySelectorAll('.product-card');
             const buttons = document.querySelectorAll('.filter-btn');
@@ -3076,8 +3192,8 @@ if ($is_logged_in) {
             const typeParam = urlParams.get('type');
             if(typeParam) {
                 // Map common types if necessary, or pass directly
-                // valid types: iphone, ipad, mac, watch, aksesoris
-                const validTypes = ['iphone', 'ipad', 'mac', 'watch', 'aksesoris'];
+                // valid types: iphone, ipad, mac, watch, aksesoris, airtag, music
+                const validTypes = ['iphone', 'ipad', 'mac', 'watch', 'aksesoris', 'airtag', 'music'];
                 if(validTypes.includes(typeParam)) {
                     filterProducts(typeParam);
                 }

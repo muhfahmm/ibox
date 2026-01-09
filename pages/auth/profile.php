@@ -57,47 +57,131 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
             color: #1d1d1f;
         }
 
-        /* Navbar Styles */
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        /* Navbar CSS from cart.php */
+        .navbar-container {
             position: sticky;
             top: 0;
             z-index: 100;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .navbar-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 15px 20px;
+        .nav-top-container {
+            padding: 0 5%;
+            background-color: whitesmoke;
+        }
+
+        .navbar-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #e0e0e0;
+            background-color: transparent;
         }
 
-        .navbar-logo img {
-            height: 40px;
-        }
-
-        .navbar-user {
+        .logo-hamburger-container {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .user-initials-badge {
+        /* Animasi Hamburger Button */
+        .hamburger-menu {
+            display: none;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 8px;
+            position: relative;
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #007aff, #0056cc);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 16px;
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
         }
 
+        .hamburger-menu:hover {
+            color: #007aff;
+            background-color: rgba(0, 122, 255, 0.1);
+            transform: rotate(180deg) scale(1.1);
+        }
+
+        .hamburger-menu:active {
+            transform: rotate(180deg) scale(0.95);
+        }
+
+        .hamburger-menu i {
+            transition: transform 0.3s ease;
+        }
+
+        .logo img {
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .search-bar-menu {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 20px;
+        }
+
+        .search-bar-menu input[type="text"] {
+            padding: 10px 20px;
+            border: 1px solid #cccccc;
+            border-radius: 20px;
+            width: 100%;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s;
+        }
+
+        .search-bar-menu input[type="text"]:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+        }
+
+        .nav-other-menu {
+            display: flex;
+            gap: 20px;
+            font-size: 22px;
+            color: #333;
+            align-items: center;
+        }
+
+        .nav-other-menu i {
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-other-menu i:hover {
+            color: #007aff;
+        }
+        
+        .user-name-link {
+            color: #333;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+
+        .user-name-link:hover {
+            color: #007aff;
+        }
+        
+        .user-icon {
+            color: #333;
+            font-size: 22px;
+            transition: color 0.2s;
+            text-decoration: none;
+        }
+        
+        .user-icon:hover {
+            color: #007aff;
+        }
+
+        /* Profile specific styles */
         /* Profile Container */
         .profile-container {
             max-width: 800px;
@@ -227,6 +311,30 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
 
         /* Responsive */
         @media (max-width: 768px) {
+            .navbar-top {
+                flex-wrap: wrap;
+                padding-bottom: 10px;
+            }
+
+            .logo-hamburger-container {
+                order: 1;
+            }
+
+            .search-bar-menu {
+                order: 3;
+                margin: 15px 0 0;
+                max-width: 100%;
+                flex: 0 0 100%;
+            }
+
+            .nav-other-menu {
+                order: 2;
+            }
+
+            .nav-top-container {
+                padding: 0 15px;
+            }
+
             .profile-container {
                 margin: 20px auto;
             }
@@ -245,8 +353,11 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                 font-size: 24px;
             }
         }
-
             /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
+            .cart-dropdown-wrapper {
+                position: relative;
+            }
+
             .cart-dropdown {
                 position: absolute;
                 top: 100%;
@@ -423,41 +534,55 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <div class="navbar-logo">
-                <a href="../index.php">
-                    <img src="../../../assets/img/logo/logo.png" alt="iBox Logo">
-                </a>
-            </div>
-            <div class="navbar-user">
-                <div class="user-initials-badge">
-                    <?php echo $user_initials; ?>
+    <!-- Navbar from cart.php structure -->
+    <nav class="navbar-container">
+        <div class="nav-top-container">
+            <div class="navbar-top">
+                <div class="logo-hamburger-container">
+                    <button class="hamburger-menu" id="hamburgerBtn" style="display: none;">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <div class="logo">
+                        <a href="../index.php">
+                            <img src="../../assets/img/logo/logo.png" alt="iBox Logo">
+                        </a>
+                    </div>
                 </div>
-                <!-- Cart Icon with Dropdown Wrapper -->
-                <div class="position-relative cart-dropdown-wrapper">
-                    <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; font-size: 20px;" id="cartDropdownTrigger">
-                        <i class="bi bi-bag"></i>
-                        <?php if (isset($cart_count) && $cart_count > 0): ?>
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
-                                <?php echo $cart_count; ?>
-                            </span>
-                        <?php endif; ?>
+                <div class="search-bar-menu">
+                    <form action="">
+                        <input type="text" placeholder="Cari produk di iBox">
+                    </form>
+                </div>
+                <div class="nav-other-menu">
+                    <a href="profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-person-circle" style="font-size: 20px;"></i>
+                        <span><?php echo htmlspecialchars($user_initials); ?></span>
                     </a>
+                    
+                    <!-- Cart Icon with Dropdown Wrapper -->
+                    <div class="position-relative cart-dropdown-wrapper">
+                        <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
+                            <i class="bi bi-bag"></i>
+                            <?php if (isset($cart_count) && $cart_count > 0): ?>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
+                                    <?php echo $cart_count; ?>
+                                </span>
+                            <?php endif; ?>
+                        </a>
 
-                    <!-- Dropdown Content -->
-                    <div class="cart-dropdown" id="cartDropdown">
-                        <div class="cart-dropdown-header">
-                            <div class="cart-dropdown-title">
-                                Keranjang (<span id="cartDropdownCount">0</span>)
+                        <!-- Dropdown Content -->
+                        <div class="cart-dropdown" id="cartDropdown">
+                            <div class="cart-dropdown-header">
+                                <div class="cart-dropdown-title">
+                                    Keranjang (<span id="cartDropdownCount">0</span>)
+                                </div>
+                                <a href="../cart/cart.php" class="cart-dropdown-link">Lihat</a>
                             </div>
-                            <a href="../cart/cart.php" class="cart-dropdown-link">Lihat</a>
+                            <ul class="cart-items-list" id="cartItemsList">
+                                <!-- Items will be populated via JS -->
+                                <li class="cart-empty-state">Memuat keranjang...</li>
+                            </ul>
                         </div>
-                        <ul class="cart-items-list" id="cartItemsList">
-                            <!-- Items will be populated via JS -->
-                            <li class="cart-empty-state">Memuat keranjang...</li>
-                        </ul>
                     </div>
                 </div>
             </div>
