@@ -11,13 +11,25 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 
 // Fetch user data from database
-$query = "SELECT firstname, lastname, no_hp, email FROM user_autentikasi WHERE id = ?";
+$query = "SELECT firstname, lastname, no_hp, email, password FROM user_autentikasi WHERE id = ?";
 $stmt = $db->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 $user = $result->fetch_assoc();
 $stmt->close();
+
+// Fetch user addresses
+$query_alamat = "SELECT * FROM user_alamat WHERE user_id = ?";
+$stmt_alamat = $db->prepare($query_alamat);
+$stmt_alamat->bind_param("i", $user_id);
+$stmt_alamat->execute();
+$result_alamat = $stmt_alamat->get_result();
+$addresses = [];
+while ($row = $result_alamat->fetch_assoc()) {
+    $addresses[] = $row;
+}
+$stmt_alamat->close();
 
 // Calculate initials
 $firstname = $user['firstname'];
@@ -258,6 +270,68 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
             font-size: 15px;
             color: #1d1d1f;
             font-weight: 600;
+        }
+
+        /* Address List Styles */
+        .address-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .address-item {
+            background: #f9f9fa;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .address-item:hover {
+            border-color: #007aff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .address-label-badge {
+            display: inline-block;
+            background: #e1effe;
+            color: #007aff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .address-recipient {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .address-details {
+            font-size: 14px;
+            color: #424245;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .address-contact {
+            font-size: 13px;
+            color: #86868b;
+        }
+        
+        .empty-address {
+            text-align: center;
+            color: #86868b;
+            padding: 30px;
+            background: #f9f9fa;
+            border-radius: 12px;
+            font-style: italic;
         }
 
         .password-value {
@@ -544,7 +618,7 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                     </button>
                     <div class="logo">
                         <a href="../index.php">
-                            <img src="../../assets/img/logo/logo.png" alt="iBox Logo">
+                            <img src="../assets/img/logo/logo.png" alt="iBox Logo">
                         </a>
                     </div>
                 </div>
@@ -604,36 +678,99 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
             <p class="profile-email"><?php echo htmlspecialchars($user['email']); ?></p>
         </div>
 
-        <!-- Account Information -->
+        <!-- Account Information Form -->
         <div class="profile-card">
             <h2 class="profile-section-title">Informasi Akun</h2>
             
-            <div class="profile-info-row">
-                <span class="profile-info-label">Nama Depan</span>
-                <span class="profile-info-value"><?php echo htmlspecialchars($firstname); ?></span>
-            </div>
+            <form action="update_profile.php" method="POST" id="profileForm">
+                <div class="profile-info-row">
+                    <label for="firstname" class="profile-info-label">Nama Depan</label>
+                    <input type="text" id="firstname" name="firstname" class="form-control profile-input" value="<?php echo htmlspecialchars($firstname); ?>" required>
+                </div>
 
-            <div class="profile-info-row">
-                <span class="profile-info-label">Nama Belakang</span>
-                <span class="profile-info-value"><?php echo htmlspecialchars($lastname); ?></span>
-            </div>
+                <div class="profile-info-row">
+                    <label for="lastname" class="profile-info-label">Nama Belakang</label>
+                    <input type="text" id="lastname" name="lastname" class="form-control profile-input" value="<?php echo htmlspecialchars($lastname); ?>" required>
+                </div>
 
-            <div class="profile-info-row">
-                <span class="profile-info-label">Email</span>
-                <span class="profile-info-value"><?php echo htmlspecialchars($user['email']); ?></span>
-            </div>
+                <div class="profile-info-row">
+                    <label for="email" class="profile-info-label">Email</label>
+                    <input type="email" id="email" name="email" class="form-control profile-input" value="<?php echo htmlspecialchars($user['email']); ?>" required>
+                </div>
 
-            <div class="profile-info-row">
-                <span class="profile-info-label">Nomor HP</span>
-                <span class="profile-info-value"><?php echo htmlspecialchars($user['no_hp']); ?></span>
-            </div>
+                <div class="profile-info-row">
+                    <label for="no_hp" class="profile-info-label">Nomor HP</label>
+                    <input type="tel" id="no_hp" name="no_hp" class="form-control profile-input" value="<?php echo htmlspecialchars($user['no_hp']); ?>" required>
+                </div>
 
-            <div class="profile-info-row">
-                <span class="profile-info-label">Password</span>
-                <span class="profile-info-value password-value">
-                    <span class="password-dots">••••••••</span>
-                </span>
+                <div class="profile-info-row">
+                    <label class="profile-info-label">Password Saat Ini (Hash)</label>
+                    <input type="text" class="form-control" style="background-color: #f5f5f7; color: #86868b; font-size: 12px;" value="<?php echo htmlspecialchars($user['password']); ?>" readonly>
+                </div>
+
+                <div class="profile-info-row">
+                    <label for="new_password" class="profile-info-label">Password Baru</label>
+                    <div class="input-group" style="flex: 1; max-width: 60%;">
+                        <input type="password" id="new_password" name="new_password" class="form-control" placeholder="Isi untuk mengubah password">
+                        <button class="btn btn-outline-secondary" type="button" id="toggleNewPassword">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-primary" style="background-color: #007aff; border: none; padding: 10px 20px; border-radius: 8px;">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Address List Section -->
+        <div class="profile-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 class="profile-section-title" style="margin-bottom: 0;">Daftar Alamat</h2>
+                <a href="add_address.php" class="btn btn-primary" style="background-color: #007aff; border: none; padding: 8px 16px; border-radius: 8px; font-size: 14px; text-decoration: none;">
+                    <i class="bi bi-plus-lg"></i> Tambah Alamat
+                </a>
             </div>
+            
+            <?php if (count($addresses) > 0): ?>
+                <div class="address-list">
+                    <?php foreach ($addresses as $addr): ?>
+                        <div class="address-item">
+                            <?php if (!empty($addr['label_alamat'])): ?>
+                                <span class="address-label-badge"><?php echo htmlspecialchars($addr['label_alamat']); ?></span>
+                            <?php endif; ?>
+                            
+                            <div class="address-recipient">
+                                <?php echo htmlspecialchars($addr['username'] ?? $user['firstname']); ?>
+                            </div>
+                            
+                            <div class="address-details">
+                                <?php 
+                                    $parts = [];
+                                    if(!empty($addr['alamat_lengkap'])) $parts[] = $addr['alamat_lengkap'];
+                                    if(!empty($addr['kecamatan'])) $parts[] = "Kec. " . $addr['kecamatan'];
+                                    if(!empty($addr['kota'])) $parts[] = $addr['kota'];
+                                    if(!empty($addr['provinsi'])) $parts[] = $addr['provinsi'];
+                                    if(!empty($addr['kode_post'])) $parts[] = $addr['kode_post'];
+                                    echo htmlspecialchars(implode(', ', $parts));
+                                ?>
+                            </div>
+                            
+                            <div class="address-contact">
+                                <div><i class="bi bi-telephone"></i> <?php echo htmlspecialchars($addr['no_hp']); ?></div>
+                                <?php if(!empty($addr['email'])): ?>
+                                    <div><i class="bi bi-envelope"></i> <?php echo htmlspecialchars($addr['email']); ?></div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <div class="empty-address">
+                    Belum ada alamat yang tersimpan.
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- Logout Button -->
@@ -655,6 +792,22 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
 </body>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+             // Password Toggle
+            const togglePassword = document.querySelector('#toggleNewPassword');
+            const password = document.querySelector('#new_password');
+
+            if(togglePassword && password) {
+                togglePassword.addEventListener('click', function (e) {
+                    // toggle the type attribute
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    
+                    // toggle the eye icon
+                    this.querySelector('i').classList.toggle('bi-eye');
+                    this.querySelector('i').classList.toggle('bi-eye-slash');
+                });
+            }
+
              // Cart Dropdown Elements
             const cartTrigger = document.getElementById('cartDropdownTrigger');
             const cartDropdown = document.getElementById('cartDropdown');
@@ -738,13 +891,13 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                             imgPath = '../../admin/uploads/' + item.image;
                         }
                     } else {
-                         imgPath = '../../assets/img/logo/logo.png';
+                         imgPath = '../assets/img/logo/logo.png';
                     } 
                     
                     html += `
                         <li class="cart-item">
                             <div class="cart-item-img">
-                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
+                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../assets/img/logo/logo.png'">
                             </div>
                             <div class="cart-item-details">
                                 <div class="cart-item-name">${item.name}</div>
