@@ -109,16 +109,24 @@ while ($row = $res->fetch_assoc()) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkout - iBox Indonesia</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Checkout - iBox</title>
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet CSS for Maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Leaflet JS for Maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
     <style>
         * {
             padding: 0;
@@ -126,12 +134,11 @@ while ($row = $res->fetch_assoc()) {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
         }
-
+        
         body {
             background-color: #f7f7f7;
         }
         
-        /* Breadcrumb CSS */
         /* Breadcrumb CSS */
         .breadcrumb-container {
             padding: 15px 0;
@@ -3373,7 +3380,252 @@ while ($row = $res->fetch_assoc()) {
         .product-photo-grid .grid-item:hover img {
             transform: scale(1.05);
         }
+        
+        /* Map Picker Button */
+        .btn-map-picker {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.2);
+        }
+        
+        .btn-map-picker:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+        }
+        
+        .btn-map-picker:active {
+            transform: translateY(0);
+        }
+        
+        .btn-map-picker i {
+            font-size: 18px;
+        }
+        
+        /* Map Picker Modal */
+        .map-picker-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .map-picker-modal.active {
+            display: flex;
+        }
+        
+        .map-picker-container {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .map-picker-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e5e5e7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+        }
+        
+        .map-picker-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1d1d1f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .map-picker-title i {
+            color: #007aff;
+        }
+        
+        .btn-close-map {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f5f5f7;
+            border-radius: 50%;
+            font-size: 20px;
+            color: #6e6e73;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn-close-map:hover {
+            background: #e5e5e7;
+            color: #1d1d1f;
+            transform: rotate(90deg);
+        }
+        
+        .map-picker-body {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #mapContainer {
+            width: 100%;
+            height: 100%;
+            min-height: 400px;
+        }
+        
+        .map-search-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            padding: 12px 18px;
+            gap: 12px;
+        }
+        
+        .map-search-box i {
+            color: #6e6e73;
+            font-size: 16px;
+        }
+        
+        .map-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #1d1d1f;
+        }
+        
+        .map-search-input::placeholder {
+            color: #86868b;
+        }
+        
+        .map-picker-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e5e5e7;
+            background: #f5f5f7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .selected-coords {
+            font-size: 13px;
+            color: #6e6e73;
+            flex: 1;
+        }
+        
+        .selected-coords strong {
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+        
+        .map-picker-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn-map-action {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-map-cancel {
+            background: white;
+            color: #6e6e73;
+            border: 1px solid #d2d2d7;
+        }
+        
+        .btn-map-cancel:hover {
+            background: #f5f5f7;
+            border-color: #86868b;
+        }
+        
+        .btn-map-confirm {
+            background: linear-gradient(135deg, #34c759 0%, #28a745 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(52, 199, 89, 0.3);
+        }
+        
+        .btn-map-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 199, 89, 0.4);
+        }
+        
+        .btn-map-confirm:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        @media (max-width: 768px) {
+            .map-picker-container {
+                width: 95%;
+                max-height: 85vh;
+            }
+            
+            .map-search-box {
+                left: 10px;
+                right: 10px;
+            }
+            
+            .map-picker-footer {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .selected-coords {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            
+            .map-picker-actions {
+                width: 100%;
+            }
+            
+            .btn-map-action {
+                flex: 1;
+            }
+        }
     </style>
+
 
         <?php if ($product): ?>
             <div class="checkout-grid">
@@ -4137,6 +4389,9 @@ while ($row = $res->fetch_assoc()) {
                 <form id="addressForm" method="POST">
                     <input type="hidden" name="address_action" id="formAction" value="add">
                     <input type="hidden" name="address_id" id="addressId" value="">
+                    <input type="hidden" name="latitude" id="latitude" value="">
+                    <input type="hidden" name="longitude" id="longitude" value="">
+                    <input type="hidden" name="maps_url" id="mapsUrl" value="">
                     
                     <div class="form-grid-modal">
                         <div class="form-group">
@@ -4159,6 +4414,20 @@ while ($row = $res->fetch_assoc()) {
                             <label class="form-label">Alamat Lengkap</label>
                             <textarea name="alamat_lengkap" id="alamatLengkap" class="form-input" rows="3" required placeholder="Nama jalan, nomor rumah, detail lainnya"></textarea>
                         </div>
+                        
+                        <!-- Pilih Lokasi di Peta -->
+                        <div class="form-group full-width">
+                            <label class="form-label">Lokasi Pengiriman</label>
+                            <button type="button" class="btn-map-picker" onclick="openMapPicker()">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span id="mapPickerText">Pilih Lokasi di Peta</span>
+                            </button>
+                            <div id="selectedLocationInfo" style="display: none; margin-top: 10px; padding: 12px; background: #f5f5f7; border-radius: 8px; font-size: 13px; color: #6e6e73;">
+                                <i class="fas fa-check-circle" style="color: #34c759; margin-right: 6px;"></i>
+                                <span id="locationCoordinates"></span>
+                            </div>
+                        </div>
+                        
                         <div class="form-group">
                             <label class="form-label">Provinsi</label>
                             <input type="text" name="provinsi" id="provinsi" class="form-input" required placeholder="Provinsi">
@@ -4428,5 +4697,233 @@ while ($row = $res->fetch_assoc()) {
         });
     </script>
 
+    <!-- Map Picker Modal -->
+    <div id="mapPickerModal" class="map-picker-modal">
+        <div class="map-picker-container">
+            <div class="map-picker-header">
+                <h3 class="map-picker-title">
+                    <i class="fas fa-map-marked-alt"></i>
+                    Pilih Lokasi Pengiriman
+                </h3>
+                <button class="btn-close-map" onclick="closeMapPicker()">&times;</button>
+            </div>
+            <div class="map-picker-body">
+                <div class="map-search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="map-search-input" id="mapSearchInput" placeholder="Cari lokasi...">
+                </div>
+                <div id="mapContainer"></div>
+            </div>
+            <div class="map-picker-footer">
+                <div class="selected-coords">
+                    <strong>Koordinat:</strong> <span id="displayCoords">Klik pada peta untuk memilih lokasi</span>
+                </div>
+                <div class="map-picker-actions">
+                    <button class="btn-map-action btn-map-cancel" onclick="closeMapPicker()">Batal</button>
+                    <button class="btn-map-action btn-map-confirm" id="btnConfirmLocation" onclick="confirmLocation()" disabled>
+                        <i class="fas fa-check"></i> Konfirmasi Lokasi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Map Picker Variables
+        let map = null;
+        let marker = null;
+        let selectedLat = null;
+        let selectedLng = null;
+
+        function openMapPicker() {
+            const modal = document.getElementById('mapPickerModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Initialize map if not already initialized
+            if (!map) {
+                initializeMap();
+            }
+            
+            // If editing and has existing coordinates, show them
+            const existingLat = document.getElementById('latitude').value;
+            const existingLng = document.getElementById('longitude').value;
+            
+            if (existingLat && existingLng) {
+                const lat = parseFloat(existingLat);
+                const lng = parseFloat(existingLng);
+                setMapLocation(lat, lng);
+            }
+        }
+
+        function closeMapPicker() {
+            const modal = document.getElementById('mapPickerModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function initializeMap() {
+            // Default location: Jakarta, Indonesia
+            const defaultLat = -6.2088;
+            const defaultLng = 106.8456;
+            
+            // Create map
+            map = L.map('mapContainer').setView([defaultLat, defaultLng], 13);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Add click event to map
+            map.on('click', function(e) {
+                setMapLocation(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Try to get user's current location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const userLat = position.coords.latitude;
+                    const userLng = position.coords.longitude;
+                    map.setView([userLat, userLng], 15);
+                }, function(error) {
+                    console.log('Geolocation error:', error);
+                });
+            }
+        }
+
+        function setMapLocation(lat, lng) {
+            selectedLat = lat;
+            selectedLng = lng;
+            
+            // Remove existing marker
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            
+            // Add new marker
+            marker = L.marker([lat, lng], {
+                draggable: true
+            }).addTo(map);
+            
+            // Update marker position on drag
+            marker.on('dragend', function(e) {
+                const position = marker.getLatPosition();
+                selectedLat = position.lat;
+                selectedLng = position.lng;
+                updateCoordinatesDisplay();
+            });
+            
+            // Update display
+            updateCoordinatesDisplay();
+            
+            // Enable confirm button
+            document.getElementById('btnConfirmLocation').disabled = false;
+            
+            // Pan map to location
+            map.panTo([lat, lng]);
+        }
+
+        function updateCoordinatesDisplay() {
+            const display = document.getElementById('displayCoords');
+            if (selectedLat && selectedLng) {
+                display.textContent = `${selectedLat.toFixed(6)}, ${selectedLng.toFixed(6)}`;
+            }
+        }
+
+        function confirmLocation() {
+            if (!selectedLat || !selectedLng) {
+                alert('Silakan pilih lokasi terlebih dahulu');
+                return;
+            }
+            
+            // Set hidden form fields
+            document.getElementById('latitude').value = selectedLat.toFixed(8);
+            document.getElementById('longitude').value = selectedLng.toFixed(8);
+            
+            // Generate Google Maps URL
+            const mapsUrl = `https://www.google.com/maps?q=${selectedLat},${selectedLng}`;
+            document.getElementById('mapsUrl').value = mapsUrl;
+            
+            // Update button text
+            document.getElementById('mapPickerText').textContent = 'Lokasi Dipilih';
+            
+            // Show selected location info
+            const locationInfo = document.getElementById('selectedLocationInfo');
+            const locationCoords = document.getElementById('locationCoordinates');
+            locationCoords.textContent = `Lat: ${selectedLat.toFixed(6)}, Lng: ${selectedLng.toFixed(6)}`;
+            locationInfo.style.display = 'block';
+            
+            // Close modal
+            closeMapPicker();
+        }
+
+        // Search functionality (basic implementation)
+        document.getElementById('mapSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const searchQuery = this.value;
+                if (searchQuery.trim()) {
+                    // Use Nominatim API for geocoding
+                    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.length > 0) {
+                                const result = data[0];
+                                const lat = parseFloat(result.lat);
+                                const lng = parseFloat(result.lon);
+                                setMapLocation(lat, lng);
+                                map.setView([lat, lng], 15);
+                            } else {
+                                alert('Lokasi tidak ditemukan');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Search error:', error);
+                            alert('Terjadi kesalahan saat mencari lokasi');
+                        });
+                }
+            }
+        });
+
+        // Close map picker on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const mapModal = document.getElementById('mapPickerModal');
+                if (mapModal.classList.contains('active')) {
+                    closeMapPicker();
+                }
+            }
+        });
+
+        // Close on overlay click
+        document.getElementById('mapPickerModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMapPicker();
+            }
+        });
+
+        // Update openEditAddressModal to populate map coordinates
+        const originalOpenEditAddressModal = openEditAddressModal;
+        openEditAddressModal = function(data) {
+            originalOpenEditAddressModal(data);
+            
+            // Populate map coordinates if available
+            if (data.latitude && data.longitude) {
+                document.getElementById('latitude').value = data.latitude;
+                document.getElementById('longitude').value = data.longitude;
+                document.getElementById('mapsUrl').value = data.maps_url || '';
+                
+                // Update UI
+                document.getElementById('mapPickerText').textContent = 'Lokasi Dipilih';
+                const locationInfo = document.getElementById('selectedLocationInfo');
+                const locationCoords = document.getElementById('locationCoordinates');
+                locationCoords.textContent = `Lat: ${parseFloat(data.latitude).toFixed(6)}, Lng: ${parseFloat(data.longitude).toFixed(6)}`;
+                locationInfo.style.display = 'block';
+            }
+        };
+    </script>
+
 </body>
+
 </html>
