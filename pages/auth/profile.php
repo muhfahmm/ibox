@@ -775,20 +775,86 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
 
         <!-- Logout Button -->
         <div class="profile-card">
-            <button class="btn-logout" onclick="confirmLogout()">
+            <button class="btn-logout" onclick="openLogoutModal()">
                 <i class="fas fa-sign-out-alt"></i>
                 Keluar dari Akun
             </button>
         </div>
     </div>
+    
+    <!-- Logout Confirmation Modal -->
+    <div class="glass-modal-overlay" id="logoutModal" style="display: none;">
+        <div class="glass-modal-content">
+            <div class="glass-modal-body">
+                <div class="glass-modal-icon" style="color: #ff3b30;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <h3 class="glass-modal-title">Keluar Akun?</h3>
+                <p class="glass-modal-text">Anda yakin ingin keluar dari akun Anda?</p>
+            </div>
+            <div class="glass-modal-actions">
+                <button class="glass-btn-cancel" onclick="closeLogoutModal()">Batal</button>
+                <button class="glass-btn-destructive" onclick="performLogout()">Keluar</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        function confirmLogout() {
-            if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
-                window.location.href = 'logout.php';
-            }
+        const logoutModal = document.getElementById('logoutModal');
+
+        function openLogoutModal() {
+            logoutModal.style.display = 'flex';
+            logoutModal.offsetHeight; // Force reflow
+            logoutModal.classList.add('active');
+        }
+
+        function closeLogoutModal() {
+            logoutModal.classList.remove('active');
+            setTimeout(() => {
+                logoutModal.style.display = 'none';
+            }, 200);
+        }
+
+        function performLogout() {
+            window.location.href = 'logout.php';
         }
     </script>
+    
+    <style>
+        /* Additional Styles for Logout Modal Buttons */
+        .glass-btn-cancel {
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            background: white;
+            color: #007aff;
+            border-right: 1px solid #e5e5e5;
+            transition: background 0.2s;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .glass-btn-destructive {
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            background: white;
+            color: #ff3b30; /* Red */
+            transition: background 0.2s;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .glass-btn-cancel:hover, .glass-btn-destructive:hover {
+            background: #f5f5f7;
+        }
+    </style>
 </body>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -807,7 +873,128 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                     this.querySelector('i').classList.toggle('bi-eye-slash');
                 });
             }
+        });
+    </script>
+    
+    <!-- Glassmorphism Response Modal -->
+    <div class="glass-modal-overlay" id="responseModal" style="display: none;">
+        <div class="glass-modal-content">
+            <div class="glass-modal-body">
+                <div class="glass-modal-icon" id="modalIcon">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <h3 class="glass-modal-title" id="modalTitle">Berhasil</h3>
+                <p class="glass-modal-text" id="modalText">Data berhasil disimpan.</p>
+            </div>
+            <div class="glass-modal-actions">
+                <button class="glass-btn-confirm" onclick="closeResponseModal()" style="width: 100%;">OK</button>
+            </div>
+        </div>
+    </div>
 
+    <style>
+        /* Premium iBox/Apple Style Modal */
+        .glass-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .glass-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glass-modal-content {
+            background: #ffffff;
+            border-radius: 14px;
+            width: 90%;
+            max-width: 320px;
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transform: scale(0.95);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .glass-modal-overlay.active .glass-modal-content {
+            transform: scale(1);
+        }
+
+        .glass-modal-body {
+            padding: 24px 24px 20px;
+        }
+
+        .glass-modal-icon {
+            font-size: 42px;
+            color: #34c759; /* Default Green for Success */
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .glass-modal-icon i {
+            display: inline-block;
+        }
+
+        .glass-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 8px;
+        }
+
+        .glass-modal-text {
+            font-size: 14px;
+            color: #424245;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .glass-modal-actions {
+            display: flex;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .glass-btn-confirm {
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            background: white;
+            color: #007aff; /* Blue for OK */
+            transition: background 0.2s;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .glass-btn-confirm:hover {
+            background: #f5f5f7;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
              // Cart Dropdown Elements
             const cartTrigger = document.getElementById('cartDropdownTrigger');
             const cartDropdown = document.getElementById('cartDropdown');
@@ -864,7 +1051,6 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                         }
                     })
                     .catch(err => {
-                        console.error('Cart fetch error:', err);
                          renderError('Gagal memuat keranjang');
                     });
             }
@@ -915,6 +1101,58 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
             function renderError(msg) {
                 cartList.innerHTML = `<li class="cart-empty-state text-danger">${msg}</li>`;
             }
+            
+            // Check for PHP Flash Messages
+            <?php if (isset($_SESSION['flash_message'])): ?>
+                const msg = "<?php echo addslashes($_SESSION['flash_message']); ?>";
+                const type = "<?php echo $_SESSION['flash_status'] ?? 'info'; ?>";
+                showResponseModal(msg, type);
+                <?php 
+                // Clear session
+                unset($_SESSION['flash_message']);
+                unset($_SESSION['flash_status']);
+                ?>
+            <?php endif; ?>
         });
+        
+        // Modal Logic
+        const responseModal = document.getElementById('responseModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalText = document.getElementById('modalText');
+        const modalIcon = document.getElementById('modalIcon');
+        
+        function showResponseModal(message, type) {
+            modalText.textContent = message;
+            
+            // Customize based on type
+            if (type === 'success') {
+                modalTitle.textContent = 'Berhasil';
+                modalTitle.style.color = '#1d1d1f';
+                modalIcon.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                modalIcon.style.color = '#34c759';
+            } else if (type === 'error') {
+                modalTitle.textContent = 'Gagal';
+                modalTitle.style.color = '#1d1d1f';
+                modalIcon.innerHTML = '<i class="bi bi-exclamation-circle-fill"></i>';
+                modalIcon.style.color = '#ff3b30';
+            } else {
+                modalTitle.textContent = 'Info';
+                modalIcon.innerHTML = '<i class="bi bi-info-circle-fill"></i>';
+                modalIcon.style.color = '#007aff';
+            }
+            
+            responseModal.style.display = 'flex';
+            // Force reflow
+            responseModal.offsetHeight;
+            responseModal.classList.add('active');
+        }
+
+        function closeResponseModal() {
+            responseModal.classList.remove('active');
+            setTimeout(() => {
+                responseModal.style.display = 'none';
+            }, 200);
+        }
     </script>
+</body>
 </html>

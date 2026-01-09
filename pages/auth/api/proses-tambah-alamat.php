@@ -20,7 +20,9 @@ $kode_post = trim($_POST['kode_post']);
 
 // Basic validation
 if (empty($username) || empty($no_hp) || empty($alamat_lengkap) || empty($kota) || empty($provinsi)) {
-    echo "<script>alert('Mohon lengkapi data alamat.'); window.history.back();</script>";
+    $_SESSION['flash_status'] = 'error';
+    $_SESSION['flash_message'] = 'Mohon lengkapi data alamat.';
+    header("Location: ../add_address.php"); // Redirect back to form
     exit;
 }
 
@@ -34,9 +36,13 @@ $stmt = $db->prepare($query);
 $stmt->bind_param("isssssssss", $user_id, $label, $username, $no_hp, $alamat_lengkap, $kota, $kecamatan, $provinsi, $kode_post, $email);
 
 if ($stmt->execute()) {
-    echo "<script>alert('Alamat berhasil ditambahkan!'); window.location='../profile.php';</script>";
+    $_SESSION['flash_status'] = 'success';
+    $_SESSION['flash_message'] = 'Alamat berhasil ditambahkan!';
+    header("Location: ../profile.php");
 } else {
-    echo "<script>alert('Gagal menambahkan alamat: " . $stmt->error . "'); window.history.back();</script>";
+    $_SESSION['flash_status'] = 'error';
+    $_SESSION['flash_message'] = 'Gagal menambahkan alamat: ' . $stmt->error;
+    header("Location: ../add_address.php");
 }
 
 $stmt->close();

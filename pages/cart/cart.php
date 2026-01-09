@@ -2303,213 +2303,202 @@ if ($is_logged_in) {
 
         .cart-product-card {
             background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            color: inherit;
-            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
             position: relative;
+            border: 1px solid #e0e0e0;
         }
 
         .cart-product-card:hover {
-            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.15);
-            border-color: #e8f4ff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
         }
 
+        /* Flex container for the whole row */
         .cart-product-content {
             display: flex;
-            gap: 24px;
-            align-items: center;
+            gap: 20px;
+            align-items: flex-start; /* Align top so long descriptions don't center actions awkwardly */
         }
 
+        /* LEFT SIDE: Image */
         .cart-product-image {
-            width: 120px;
-            height: 120px;
-            border-radius: 12px;
-            background: #f5f5f7;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            background: #f0f0f0;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             flex-shrink: 0;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .cart-product-image img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            padding: 10px;
+            padding: 5px;
         }
 
-        .cart-product-details {
-            flex: 1;
+        /* MIDDLE SECTION: Product Info (Name, Variant) */
+        .cart-product-info-wrapper {
+            flex: 1; /* Takes up available space */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes price to top, actions to bottom */
+            min-height: 100px; /* Match image height */
+        }
+
+        .cart-product-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
         }
 
         .cart-product-name {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 8px;
-        }
-
-        .cart-product-variant {
-            font-size: 14px;
-            color: #86868b;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .variant-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            background: #f0f7ff;
-            border: 1px solid #d0e8ff;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #0066cc;
-            font-weight: 500;
-        }
-
-        .variant-badge i {
-            margin-right: 4px;
-            font-size: 12px;
-        }
-
-        .cart-product-meta {
-            display: flex;
-            gap: 20px;
-            margin-top: 12px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .cart-product-qty {
-            font-size: 15px;
-            color: #86868b;
-        }
-
-        .cart-product-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #007aff;
-        }
-
-        /* Quantity Controls */
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #f5f5f7;
-            padding: 8px 12px;
-            border-radius: 12px;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-        }
-
-        .quantity-controls:hover {
-            border-color: #007aff;
-            background: #e8f4ff;
-        }
-
-        .qty-btn {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: white;
-            color: #007aff;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .qty-btn:hover {
-            background: #007aff;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(0, 122, 255, 0.3);
-        }
-
-        .qty-btn:active {
-            transform: scale(0.95);
-        }
-
-        .qty-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .qty-display {
-            min-width: 40px;
-            text-align: center;
             font-size: 16px;
             font-weight: 600;
             color: #1d1d1f;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
-        .delete-btn {
-            width: 36px;
-            height: 36px;
+        .cart-product-variant {
+            font-size: 13px;
+            color: #86868b;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        
+        /* Direct Checkout Button (keeping per item as per original) */
+        .btn-direct-checkout {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px; 
+            background: #007aff; 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 20px; 
+            font-size: 13px; 
+            font-weight: 500; 
+            transition: all 0.2s;
+            width: fit-content;
+        }
+        
+        .btn-direct-checkout:hover {
+            background: #0056cc;
+            color: white;
+            transform: none;
+        }
+
+        /* RIGHT SECTION: Price & Actions */
+        .cart-product-right-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes price to top, actions to bottom */
+            align-items: flex-end; /* Align to right */
+            min-width: 180px; /* Ensure enough space */
+            min-height: 100px; /* Match image height */
+        }
+
+        /* Price at Top Right */
+        .cart-product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff3b30; /* Red color as per image */
+            letter-spacing: -0.5px;
+            text-align: right;
+            margin-bottom: auto; /* Pushes actions to bottom */
+        }
+
+        /* Bottom Right Actions Row */
+        .cart-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: auto; /* Pushes actions to bottom */
+        }
+        
+        /* Action Icons (Heart/Trash) */
+        .action-icon-btn {
+            background: none;
             border: none;
-            background: #fff0f0;
+            cursor: pointer;
+            font-size: 20px; /* Larger icons */
+            color: #86868b;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s;
+        }
+        
+        .action-icon-btn:hover {
+            color: #1d1d1f;
+        }
+        
+        .action-icon-btn.delete-btn:hover {
             color: #ff3b30;
-            border-radius: 10px;
+        }
+
+        /* Pill Shaped Quantity Control matching the image */
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: 1px solid #d2d2d7;
+            border-radius: 20px; /* Pill shape */
+            padding: 4px 8px;
+            height: 36px;
+            min-width: 100px;
+            justify-content: space-between;
+        }
+
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: transparent;
+            color: #1d1d1f;
             font-size: 18px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
-            margin-left: 8px;
+            transition: color 0.2s;
         }
 
-        .delete-btn:hover {
-            background: #ff3b30;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 4px 8px rgba(255, 59, 48, 0.3);
+        .qty-btn:hover:not(:disabled) {
+            color: #007aff;
+            background: transparent;
+        }
+        
+        .qty-btn:disabled {
+            color: #ccc;
+            cursor: default;
         }
 
-        .delete-btn:active {
-            transform: scale(0.95);
+        .qty-display {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1d1d1f;
+            min-width: 20px;
+            text-align: center;
         }
 
-        /* Loading state */
-        .cart-product-card.updating {
-            opacity: 0.6;
-            pointer-events: none;
-        }
-
-        .cart-product-card.updating::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #007aff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: translate(-50%, -50%) rotate(0deg); }
-            100% { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-
+        /* Empty State */
         .cart-empty {
             text-align: center;
             padding: 80px 20px;
@@ -2552,11 +2541,10 @@ if ($is_logged_in) {
         .btn-browse-products:hover {
             background: #0056cc;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
             color: white;
-            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
-
+        
         .cart-checkout-hint {
             margin-top: 16px;
             padding: 16px;
@@ -2579,18 +2567,38 @@ if ($is_logged_in) {
         @media (max-width: 768px) {
             .cart-product-content {
                 flex-direction: column;
-                text-align: center;
+                gap: 15px;
+            }
+            
+            .cart-product-info-wrapper {
+                min-height: auto;
             }
 
-            .cart-product-image {
+            .cart-product-right-section {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
                 width: 100%;
-                max-width: 200px;
+                min-height: auto;
+                padding-top: 15px;
+                border-top: 1px solid #f0f0f0;
             }
-
-            .cart-product-meta {
-                justify-content: center;
+            
+            .cart-product-price {
+                order: 1; /* Price comes first on mobile */
+                margin-bottom: 0;
+            }
+            .cart-actions-row {
+                order: 2; /* Actions come second on mobile */
+                margin-top: 0;
+            }
+            
+            .cart-product-image {
+                width: 80px;
+                height: 80px;
             }
         }
+
     </style>
 
     <div class="cart-content-wrapper">
@@ -2702,18 +2710,43 @@ if ($is_logged_in) {
                         ?>
                         <div class="cart-product-card" data-cart-id="<?php echo $cart_id; ?>">
                             <div class="cart-product-content">
+                                <!-- LEFT: Image -->
                                 <div class="cart-product-image">
                                     <img src="<?php echo $img_final; ?>" alt="<?php echo htmlspecialchars($name); ?>" onerror="this.src='../../assets/img/logo/logo.png'">
                                 </div>
-                                <div class="cart-product-details">
-                                    <h3 class="cart-product-name"><?php echo htmlspecialchars($name); ?></h3>
-                                    <?php if (!empty($variant_str)): ?>
-                                    <div class="cart-product-variant">
-                                        <i class="bi bi-tag" style="color: #86868b;"></i>
-                                        <span><?php echo htmlspecialchars($variant_str); ?></span>
+                                
+                                <!-- MIDDLE: Info -->
+                                <div class="cart-product-info-wrapper">
+                                    <div class="cart-product-info">
+                                        <h3 class="cart-product-name"><?php echo htmlspecialchars($name); ?></h3>
+                                        <?php if (!empty($variant_str)): ?>
+                                        <div class="cart-product-variant">
+                                            <i class="bi bi-tag" style="color: #86868b;"></i>
+                                            <span><?php echo htmlspecialchars($variant_str); ?></span>
+                                        </div>
+                                        <?php endif; ?>
+                                        <a href="../checkout/checkout.php?id=<?php echo $product_id; ?>&tipe=<?php echo $tipe; ?>" class="btn-direct-checkout">
+                                            <i class="bi bi-cart-check"></i> Checkout
+                                        </a>
                                     </div>
-                                    <?php endif; ?>
-                                    <div class="cart-product-meta">
+                                </div>
+
+                                <!-- RIGHT: Price (Top) & Actions (Bottom) -->
+                                <div class="cart-product-right-section">
+                                    <span class="cart-product-price"><?php echo $formatted_price; ?></span>
+                                    
+                                    <div class="cart-actions-row">
+                                        <!-- Wishlist (UI Only) -->
+                                        <button class="action-icon-btn" title="Simpan ke Wishlist">
+                                            <i class="bi bi-heart"></i>
+                                        </button>
+                                        
+                                        <!-- Delete -->
+                                        <button class="action-icon-btn delete-btn" onclick="deleteCartItem(<?php echo $cart_id; ?>)" title="Hapus dari keranjang">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                        
+                                        <!-- Quantity Control Pill -->
                                         <div class="quantity-controls">
                                             <button class="qty-btn qty-decrease" onclick="updateQuantity(<?php echo $cart_id; ?>, 'decrease')" <?php echo $qty <= 1 ? 'disabled' : ''; ?>>
                                                 <i class="bi bi-dash"></i>
@@ -2723,14 +2756,7 @@ if ($is_logged_in) {
                                                 <i class="bi bi-plus"></i>
                                             </button>
                                         </div>
-                                        <span class="cart-product-price"><?php echo $formatted_price; ?></span>
-                                        <button class="delete-btn" onclick="deleteCartItem(<?php echo $cart_id; ?>)" title="Hapus dari keranjang">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
                                     </div>
-                                    <a href="../checkout/checkout.php?id=<?php echo $product_id; ?>&tipe=<?php echo $tipe; ?>" class="btn" style="display: inline-block; margin-top: 12px; padding: 8px 16px; background: #007aff; color: white; text-decoration: none; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.2s;">
-                                        <i class="bi bi-cart-check"></i> Checkout
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -2767,19 +2793,160 @@ if ($is_logged_in) {
         </div>
     </div>
 
+    <!-- Glassmorphism Delete Confirmation Modal -->
+    <div class="glass-modal-overlay" id="deleteModal" style="display: none;">
+        <div class="glass-modal-content">
+            <div class="glass-modal-icon">
+                <i class="bi bi-trash-fill"></i>
+            </div>
+            <h3 class="glass-modal-title">Hapus Produk?</h3>
+            <p class="glass-modal-text">Produk ini akan dihapus dari keranjang belanja Anda. Tindakan ini tidak dapat dibatalkan.</p>
+            <div class="glass-modal-actions">
+                <button class="glass-btn-cancel" onclick="closeDeleteModal()">Batal</button>
+                <button class="glass-btn-confirm" id="confirmDeleteBtn">Hapus</button>
+            </div>
+        </div>
+    </div>
+
     <style>
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* Premium iBox/Apple Style Modal */
+        .glass-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3); /* Darker, simpler dimming */
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 10001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .glass-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .glass-modal-content {
+            background: #ffffff; /* Solid white for crisp look */
+            border-radius: 14px; /* classic iOS radius */
+            width: 90%;
+            max-width: 320px; /* Compact */
+            padding: 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            transform: scale(0.95);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .glass-modal-overlay.active .glass-modal-content {
+            transform: scale(1);
+        }
+
+        .glass-modal-body {
+            padding: 24px 24px 20px;
+        }
+
+        .glass-modal-icon {
+            font-size: 42px;
+            color: #ff3b30;
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        /* Remove the circle background for a cleaner look */
+        .glass-modal-icon i {
+            display: inline-block;
+        }
+
+        .glass-modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin: 0 0 8px;
+        }
+
+        .glass-modal-text {
+            font-size: 14px;
+            color: #424245;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .glass-modal-actions {
+            display: flex;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .glass-btn-cancel, .glass-btn-confirm {
+            padding: 14px 0;
+            font-size: 16px;
+            font-weight: 400;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+            background: white;
+            transition: background 0.2s;
+            margin: 0;
+            border-radius: 0;
+        }
+        
+        .glass-btn-cancel {
+            color: #007aff; /* Apple Blue for Cancel/Action */
+            border-right: 1px solid #e5e5e5;
+            font-weight: 400;
+        }
+
+        .glass-btn-confirm {
+            color: #ff3b30; /* Red for destructive */
+            font-weight: 600; /* Bold for destructive/primary */
+        }
+
+        .glass-btn-cancel:hover, .glass-btn-confirm:hover {
+            background: #f5f5f7;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 
     <script>
-        // Reload page logic replaces client-side fetching
-        document.addEventListener('DOMContentLoaded', function() {
-            // No initial fetch needed as it is server-side rendered
-        });
+        let itemToDelete = null;
+        const deleteModal = document.getElementById('deleteModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
+        function openDeleteModal(cartId) {
+            itemToDelete = cartId;
+            deleteModal.style.display = 'flex';
+            // Force reflow
+            deleteModal.offsetHeight;
+            deleteModal.classList.add('active');
+        }
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove('active');
+            setTimeout(() => {
+                deleteModal.style.display = 'none';
+                itemToDelete = null;
+            }, 200);
+        }
+        
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (itemToDelete) {
+                performDelete(itemToDelete);
+                closeDeleteModal();
+            }
+        });
 
         // Update cart quantity
         function updateQuantity(cartId, action) {
@@ -2807,7 +2974,7 @@ if ($is_logged_in) {
                         // Remove card with animation
                         card.style.transition = 'all 0.3s ease';
                         card.style.opacity = '0';
-                        card.style.transform = 'translateX(-20px)';
+                        card.style.transform = 'translateY(-10px)';
                         setTimeout(() => {
                             location.reload(); // Reload page to reflect changes
                         }, 300);
@@ -2839,12 +3006,13 @@ if ($is_logged_in) {
             });
         }
 
-        // Delete cart item
+        // Trigger Delete Modal
         function deleteCartItem(cartId) {
-            if (!confirm('Hapus produk ini dari keranjang?')) {
-                return;
-            }
+            openDeleteModal(cartId);
+        }
 
+        // Actual Delete Logic
+        function performDelete(cartId) {
             const card = document.querySelector(`[data-cart-id="${cartId}"]`);
             if (!card) return;
 
@@ -2869,11 +3037,11 @@ if ($is_logged_in) {
                     // Remove card with animation
                     card.style.transition = 'all 0.3s ease';
                     card.style.opacity = '0';
-                    card.style.transform = 'translateX(-20px)';
+                    card.style.transform = 'scale(0.95)';
                     setTimeout(() => {
-                        location.reload(); // Reload page to reflect changes
+                        location.reload(); 
                     }, 300);
-                    showToast('Produk dihapus dari keranjang', 'success');
+                    showToast('Produk dihapus', 'success');
                 } else {
                     showToast(data.message || 'Gagal menghapus produk', 'error');
                 }
@@ -2885,32 +3053,57 @@ if ($is_logged_in) {
             });
         }
 
-        // Simple toast notification
+        // Modern iBox Style Toast
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
+            
+            // Icon selection
+            let icon = 'bi-info-circle-fill';
+            let iconColor = '#007aff';
+            if (type === 'success') { icon = 'bi-check-circle-fill'; iconColor = '#34c759'; }
+            if (type === 'error') { icon = 'bi-exclamation-circle-fill'; iconColor = '#ff3b30'; }
+
+            toast.innerHTML = `<i class="bi ${icon}" style="color: ${iconColor}; font-size: 18px; margin-right: 10px;"></i> <span>${message}</span>`;
+            
             toast.style.cssText = `
                 position: fixed;
-                bottom: 30px;
-                right: 30px;
-                background: ${type === 'success' ? '#34c759' : type === 'error' ? '#ff3b30' : '#007aff'};
-                color: white;
-                padding: 16px 24px;
-                border-radius: 12px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                z-index: 10000;
-                font-weight: 600;
-                animation: slideIn 0.3s ease;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%); /* Start centered */
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                color: #1d1d1f;
+                padding: 12px 24px;
+                border-radius: 50px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                z-index: 10002;
+                font-weight: 500;
+                font-size: 14px;
+                display: flex;
+                align-items: center;
+                border: 1px solid rgba(0,0,0,0.05);
+                opacity: 0;
+                margin-top: -20px;
+                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             `;
-            toast.textContent = message;
+            
             document.body.appendChild(toast);
 
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.marginTop = '0';
+            });
+
             setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
+                toast.style.opacity = '0';
+                toast.style.marginTop = '-20px';
+                setTimeout(() => toast.remove(), 400);
             }, 3000);
         }
 
-        // Add animation styles
+        // Add CSS for toast if needed
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {

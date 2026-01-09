@@ -20,7 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Basic Validation
     if (empty($firstname) || empty($lastname) || empty($email) || empty($no_hp)) {
-         echo "<script>alert('Semua field data diri wajib diisi.'); window.location='profile.php';</script>";
+         $_SESSION['flash_status'] = 'error';
+         $_SESSION['flash_message'] = 'Semua field data diri wajib diisi.';
+         header("Location: profile.php");
          exit;
     }
     
@@ -44,9 +46,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['user_firstname'] = $firstname;
         $_SESSION['user_lastname'] = $lastname;
 
-        echo "<script>alert('Profil berhasil diperbarui!'); window.location='profile.php';</script>";
+        $_SESSION['flash_status'] = 'success';
+        $_SESSION['flash_message'] = 'Profil berhasil diperbarui!';
+        header("Location: profile.php");
     } else {
-        echo "<script>alert('Gagal memperbarui profil: " . $stmt->error . "'); window.location='profile.php';</script>";
+        $_SESSION['flash_status'] = 'error';
+        $_SESSION['flash_message'] = 'Gagal memperbarui profil: ' . $stmt->error;
+        header("Location: profile.php");
     }
     
     $stmt->close();
