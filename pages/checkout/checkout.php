@@ -140,6 +140,7 @@ while ($row = $res->fetch_assoc()) {
         }
         
         /* Breadcrumb CSS */
+        /* Breadcrumb CSS */
         .breadcrumb-container {
             padding: 15px 0;
             background-color: #fff;
