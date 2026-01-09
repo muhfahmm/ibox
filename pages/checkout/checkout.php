@@ -4682,6 +4682,110 @@ while ($row = $res->fetch_assoc()) {
             }
         }
 
+        // Process Checkout Transaction
+        function processCheckout() {
+            // 1. Check Address
+            const addressCard = document.querySelector('.address-display-card');
+            if (!addressCard) {
+                showErrorModal('Alamat Diperlukan', 'Silakan pilih atau tambahkan alamat pengiriman terlebih dahulu.');
+                return;
+            }
+            
+            // 2. Prepare Data
+            const thumbnailImg = document.getElementById('mainProductImage');
+            const thumbnail = thumbnailImg ? thumbnailImg.src.split('/').pop() : 'default.png';
+            
+            const paymentSelected = document.querySelector('.payment-option.selected .payment-name');
+            const paymentMethod = paymentSelected ? paymentSelected.textContent.trim() : 'Transfer Bank';
+            
+            const requestData = {
+                product_id: <?php echo $product_id; ?>,
+                product_type: '<?php echo $product_type; ?>',
+                quantity: currentQuantity,
+                combination_id: selectedCombinationId,
+                thumbnail: thumbnail,
+                payment_method: paymentMethod,
+                address_id: <?php echo $selected_address ? $selected_address['id'] : '0'; ?>
+            };
+            
+            console.log('Checkout Data:', requestData);
+            
+            // 3. UI Loading
+            const btnCheckout = document.querySelector('.btn-checkout');
+            const originalText = btnCheckout.innerHTML;
+            btnCheckout.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+            btnCheckout.disabled = true;
+            btnCheckout.style.opacity = '0.7';
+
+            // 4. Fetch API
+            fetch('process_checkout.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => {
+                return response.text().then(text => {
+                    console.log('Raw Server Response:', text); // Debugging
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('Server Return Invalid JSON: ' + text.substring(0, 100));
+                    }
+                });
+            })
+            .then(data => {
+                if (data.success) {
+                    showCheckoutSuccessModal();
+                } else {
+                    showErrorModal('Gagal Checkout', data.message || 'Terjadi kesalahan saat memproses transaksi.');
+                    btnCheckout.innerHTML = originalText;
+                    btnCheckout.disabled = false;
+                    btnCheckout.style.opacity = '1';
+                }
+            })
+            .catch(error => {
+                console.error('Checkout Error:', error);
+                
+                // Show more specific error messages
+                let msg = 'Gagal menghubungi server.';
+                if (error.message.includes('Invalid JSON')) {
+                    msg = 'Server Error (Invalid JSON). Cek Console untuk detail.';
+                }
+                
+                showErrorModal('Kesalahan Sistem', msg);
+                btnCheckout.innerHTML = originalText;
+                btnCheckout.disabled = false;
+                btnCheckout.style.opacity = '1';
+            });
+        }
+
+        function showCheckoutSuccessModal() {
+            // Remove existing if any
+            const existing = document.getElementById('checkoutSuccessModal');
+            if (existing) existing.remove();
+
+            const modalHtml = `
+            <div id="checkoutSuccessModal" class="modal-overlay active" style="z-index: 10000;">
+                <div class="modal-box" style="max-width: 450px; text-align: center;">
+                    <div class="modal-body" style="padding: 40px 30px;">
+                        <div style="width: 80px; height: 80px; background: #34c759; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+                            <i class="fas fa-check" style="font-size: 40px; color: white;"></i>
+                        </div>
+                        <h3 style="font-size: 24px; font-weight: 700; color: #1d1d1f; margin-bottom: 15px;">Pembayaran Berhasil!</h3>
+                        <p style="font-size: 15px; color: #6e6e73; margin-bottom: 30px;">Transaksi Anda telah berhasil diproses dan tersimpan di riwayat.</p>
+                        <a href="../auth/profile.php" class="btn-modal btn-primary" style="display: block; width: 100%; padding: 14px; font-size: 16px; border-radius: 12px; background: #007aff; text-decoration: none; color: white;">
+                            Lihat Riwayat Transaksi
+                        </a>
+                    </div>
+                </div>
+            </div>`;
+            
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            document.body.style.overflow = 'hidden';
+        }
+
         // Inisialisasi: Enable tombol jika produk tidak memiliki varian
         window.addEventListener('DOMContentLoaded', function() {
             console.log('Page loaded');
