@@ -1254,13 +1254,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1280,13 +1280,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1306,13 +1306,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1332,13 +1332,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1358,13 +1358,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1384,13 +1384,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1410,13 +1410,13 @@ if ($is_logged_in) {
                                         echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
-                                        $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
+                                        $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
                                         $produk_result = mysqli_query($db, $produk_query);
 
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="#">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
