@@ -124,6 +124,23 @@ maps_url:  https://www.google.com/maps?q=-6.208800,106.845600
 
 ## 📝 Pembaruan Terkini (Changelog)
 
+### Version 2.1 (Januari 2026) - Glassmorphism & UI Consistency
+*   **🎨 Glassmorphism UI Overhaul**:
+    *   Penerapan desain *Glassmorphism* (efek kaca cair) yang konsisten dan premium pada seluruh Navigasi Bar (Navbar), Dropdown Menu, dan Sidebar.
+    *   Update mencakup seluruh halaman utama: `index.php`, `products.php`, `cart.php`, `checkout.php`, `profile.php`, `produk-terbaru.php`, dan `produk-populer.php`.
+    *   Styling dropdown dengan backdrop-filter blur, border gradient halus, dan shadow multi-layer.
+*   **🛒 Cart & Checkout Improvements**:
+    *   Perbaikan fungsionalitas "Hapus Item" pada keranjang belanja.
+    *   Sinkronisasi tampilan dropdown keranjang dengan desain glassmorphism.
+    *   Penyelesaian masalah "Network Error" pada halaman checkout.
+*   **📱 Sidebar & Responsiveness**:
+    *   Perbaikan krusial pada **Hamburger Menu** dan **Sidebar Mobile**.
+    *   Penyelesaian konflik `z-index` yang menyebabkan sidebar tidak bisa dibuka/tutup.
+    *   Transisi dan animasi sidebar yang lebih halus (iOS style).
+*   **👤 User Profile**:
+    *   Redesign halaman Profil Pengguna (`profile.php`) agar selaras dengan tema baru.
+    *   Perbaikan link navigasi user pada navbar.
+
 ### Version 2.0 (Januari 2026)
 *   **🗺️ Fitur Maps Interaktif**:
     *   Integrasi Leaflet.js untuk pemilihan lokasi pengiriman via peta.

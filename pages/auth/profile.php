@@ -522,7 +522,7 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 0, 0, 0.02); 
+                background-color: rgba(0, 122, 255, 0.05); 
             }
 
             .cart-item-img {

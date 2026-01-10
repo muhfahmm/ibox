@@ -53,77 +53,7 @@ if ($is_logged_in) {
             font-weight: 500;
         }
 
-        /* New style for product links in dropdown */
-        .dropdown-product-link {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            color: #2c3e50;
-            border-left: 3px solid #e3e8ef;
-            margin-bottom: 4px;
-            text-decoration: none;
-            display: block;
-            padding: 8px 15px;
-            font-size: 13px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
 
-        .dropdown-product-link::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(0, 122, 255, 0.05) 0%, rgba(0, 122, 255, 0.1) 100%);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 0;
-        }
-
-        .dropdown-product-link:hover::before {
-            width: 100%;
-        }
-
-        .dropdown-product-link:hover {
-            background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
-            color: #007aff;
-            border-left-color: #007aff;
-            padding-left: 20px;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
-            transform: translateX(4px);
-        }
-
-        .dropdown-category {
-            font-size: 11px;
-            color: #1d1d1f;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 18px;
-            margin-top: 10px;
-            margin-bottom: 8px;
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            border-left: 4px solid #007aff;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.12), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-        }
-
-        .dropdown-category::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 60px;
-            height: 100%;
-            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 100%);
-            pointer-events: none;
-        }
 
         .breadcrumb-container a {
             color: #007aff;
@@ -309,22 +239,30 @@ if ($is_logged_in) {
                 border-bottom-color: #007aff;
             }
 
-            /* MODIFIKASI: Dropdown Styles dengan efek toggle dan scroll */
+            /* MODIFIKASI: Dropdown Styles dengan efek toggle dan scroll - GLASSMORPHISM */
             .dropdown {
                 position: absolute;
                 top: 100%;
                 left: 0;
-                background-color: white;
+                /* Glassmorphism Background */
+                background: rgba(255, 255, 255, 0.75);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 min-width: 220px;
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-                border-radius: 8px;
+                /* Premium Shadow dengan multiple layers */
+                box-shadow: 
+                    0 8px 32px rgba(0, 0, 0, 0.1),
+                    0 2px 8px rgba(0, 0, 0, 0.05),
+                    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+                border-radius: 16px;
                 opacity: 0;
                 visibility: hidden;
                 transform: translateY(10px);
-                transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 z-index: 100;
                 padding: 15px 0;
-                border: 1px solid #f0f0f0;
+                /* Gradient Border */
+                border: 1px solid rgba(255, 255, 255, 0.4);
                 max-height: 0;
                 overflow: hidden;
                 overflow-y: auto;
@@ -390,10 +328,13 @@ if ($is_logged_in) {
                 left: 25px;
                 width: 16px;
                 height: 16px;
-                background-color: white;
+                /* Glassmorphism Arrow */
+                background: rgba(255, 255, 255, 0.75);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 transform: rotate(45deg);
-                border-top: 1px solid #f0f0f0;
-                border-left: 1px solid #f0f0f0;
+                border-top: 1px solid rgba(255, 255, 255, 0.4);
+                border-left: 1px solid rgba(255, 255, 255, 0.4);
                 z-index: -1;
             }
 
@@ -416,29 +357,40 @@ if ($is_logged_in) {
                 display: block;
                 transition: all 0.2s;
                 border-left: 3px solid transparent;
+                border-radius: 8px;
+                margin: 2px 8px;
             }
 
             .dropdown a:hover {
-                background-color: #f8faff;
+                /* Glassmorphism Hover */
+                background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(0, 122, 255, 0.05));
                 color: #007aff;
                 padding-left: 25px;
                 border-left-color: #007aff;
+                transform: translateX(3px);
+                box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
             }
 
             .dropdown-category {
                 font-size: 11px;
-                color: #999;
-                font-weight: 600;
+                color: #666;
+                font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.5px;
-                padding: 8px 20px;
+                letter-spacing: 1px;
+                padding: 10px 20px;
                 margin-top: 5px;
-                border-bottom: 1px solid #f0f0f0;
+                border-bottom: 1px solid rgba(0, 122, 255, 0.15);
                 margin-bottom: 5px;
                 position: sticky;
                 top: 0;
                 z-index: 2;
-                background-color: white;
+                /* Glassmorphism Category Header */
+                background: rgba(255, 255, 255, 0.85);
+                backdrop-filter: blur(15px) saturate(180%);
+                -webkit-backdrop-filter: blur(15px) saturate(180%);
+                border-radius: 8px;
+                margin-left: 8px;
+                margin-right: 8px;
             }
 
             .dropdown-category:first-child {
@@ -495,7 +447,7 @@ if ($is_logged_in) {
                 min-width: 200px;
             }
 
-            /* MODIFIKASI: Close button untuk focused mode dengan sticky positioning */
+            /* MODIFIKASI: Close button untuk focused mode dengan sticky positioning - GLASSMORPHISM */
             .dropdown-close-btn {
                 position: sticky;
                 /* Ubah dari absolute ke sticky */
@@ -505,20 +457,24 @@ if ($is_logged_in) {
                 width: 30px;
                 height: 30px;
                 border-radius: 50%;
-                background-color: #f8f9fa;
-                border: none;
+                /* Glassmorphism Button */
+                background: rgba(248, 249, 250, 0.7);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.5);
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 16px;
                 color: #666;
-                transition: all 0.2s;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 opacity: 0;
                 visibility: hidden;
                 transform: scale(0.8);
                 z-index: 101;
                 margin-bottom: 10px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             }
 
             .dropdown.active .dropdown-close-btn {
@@ -528,9 +484,11 @@ if ($is_logged_in) {
             }
 
             .dropdown-close-btn:hover {
-                background-color: #007aff;
+                background: linear-gradient(135deg, rgba(0, 122, 255, 0.9), rgba(0, 122, 255, 0.7));
                 color: white;
                 transform: scale(1.1);
+                box-shadow: 0 4px 16px rgba(0, 122, 255, 0.3);
+                border-color: rgba(0, 122, 255, 0.5);
             }
 
             /* MODIFIKASI: Pastikan dropdown tidak melebihi batas layar */
