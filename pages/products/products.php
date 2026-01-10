@@ -1251,7 +1251,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Mac dari database
                                     foreach ($mac_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1277,7 +1277,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPad dari database
                                     foreach ($ipad_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1303,7 +1303,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPhone dari database
                                     foreach ($iphone_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1329,7 +1329,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Watch dari database
                                     foreach ($watch_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1355,7 +1355,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Music dari database
                                     foreach ($music_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1381,7 +1381,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori AirTag dari database
                                     foreach ($airtag_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1407,7 +1407,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Aksesori dari database
                                     foreach ($aksesori_categories as $kategori) {
-                                        echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1541,7 +1541,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Mac dari database untuk sidebar
                             foreach ($mac_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1567,7 +1567,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPad dari database untuk sidebar
                             foreach ($ipad_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1593,7 +1593,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPhone dari database untuk sidebar
                             foreach ($iphone_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1619,7 +1619,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Watch dari database untuk sidebar
                             foreach ($watch_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1645,7 +1645,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Music dari database untuk sidebar
                             foreach ($music_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1671,7 +1671,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori AirTag dari database untuk sidebar
                             foreach ($airtag_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1697,7 +1697,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Aksesori dari database untuk sidebar
                             foreach ($aksesori_categories as $kategori) {
-                                echo '<div class="dropdown-category">' . htmlspecialchars($kategori) . '</div>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";

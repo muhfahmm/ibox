@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../db.php';
+require '../../db/db.php';
 $is_logged_in = isset($_SESSION['user_id']);
 $user_initials = '';
 if ($is_logged_in) {
@@ -18,6 +18,11 @@ if ($is_logged_in) {
         $cart_count = $row_cart['total'] ?? 0;
     }
 }
+    // Page Title Logic
+    $page_title = 'Produk - iBox Indonesia';
+    if (isset($_GET['category']) && !empty($_GET['category'])) {
+        $page_title = htmlspecialchars($_GET['category']) . ' - iBox Indonesia';
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +30,7 @@ if ($is_logged_in) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Produk Populer - iBox Indonesia</title>
+    <title><?php echo $page_title; ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -73,7 +78,6 @@ if ($is_logged_in) {
 </head>
 
 <body>
-    <!-- navbar -->
     <nav class="navbar-container">
         <style>
             body {
@@ -945,7 +949,7 @@ if ($is_logged_in) {
                     font-size: 11px;
                 }
             }
-            
+
             /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
             .cart-dropdown {
                 position: absolute;
@@ -1029,27 +1033,15 @@ if ($is_logged_in) {
             }
 
             .cart-item {
+                display: flex;
+                padding: 15px 20px;
                 border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+                gap: 15px;
                 transition: background 0.2s;
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 122, 255, 0.05); 
-            }
-
-            .cart-item-link {
-                display: flex;
-                padding: 15px 20px;
-                gap: 15px;
-                text-decoration: none;
-                color: inherit;
-                transition: all 0.2s;
-                cursor: pointer;
-            }
-
-            .cart-item-link:hover {
-                text-decoration: none;
-                color: inherit;
+                background-color: rgba(0, 0, 0, 0.02); 
             }
 
             .cart-item-img {
@@ -1165,7 +1157,7 @@ if ($is_logged_in) {
                         <?php endif; ?>
                         <!-- Cart Icon with Dropdown Wrapper -->
                         <div class="position-relative cart-dropdown-wrapper">
-                            <a href="cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
+                            <a href="../cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
                                 <i class="bi bi-bag"></i>
                                 <?php if (isset($cart_count) && $cart_count > 0): ?>
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
@@ -1180,7 +1172,7 @@ if ($is_logged_in) {
                                     <div class="cart-dropdown-title">
                                         Keranjang (<span id="cartDropdownCount">0</span>)
                                     </div>
-                                    <a href="cart.php" class="cart-dropdown-link">Lihat</a>
+                                    <a href="../cart/cart.php" class="cart-dropdown-link">Lihat</a>
                                 </div>
                                 <ul class="cart-items-list" id="cartItemsList">
                                     <!-- Items will be populated via JS -->
@@ -1264,7 +1256,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Mac dari database
                                     foreach ($mac_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1290,7 +1282,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPad dari database
                                     foreach ($ipad_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1316,7 +1308,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPhone dari database
                                     foreach ($iphone_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1342,7 +1334,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Watch dari database
                                     foreach ($watch_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1368,7 +1360,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Music dari database
                                     foreach ($music_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1394,7 +1386,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori AirTag dari database
                                     foreach ($airtag_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1420,7 +1412,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Aksesori dari database
                                     foreach ($aksesori_categories as $kategori) {
-                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1554,7 +1546,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Mac dari database untuk sidebar
                             foreach ($mac_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1580,7 +1572,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPad dari database untuk sidebar
                             foreach ($ipad_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1606,7 +1598,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPhone dari database untuk sidebar
                             foreach ($iphone_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1632,7 +1624,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Watch dari database untuk sidebar
                             foreach ($watch_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1658,7 +1650,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Music dari database untuk sidebar
                             foreach ($music_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1684,7 +1676,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori AirTag dari database untuk sidebar
                             foreach ($airtag_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -1710,7 +1702,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Aksesori dari database untuk sidebar
                             foreach ($aksesori_categories as $kategori) {
-                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT DISTINCT nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' ORDER BY nama_produk ASC";
@@ -2267,873 +2259,332 @@ if ($is_logged_in) {
     <div class="breadcrumb-container">
         <a href="../index.php">Home</a>
         <span class="breadcrumb-separator">/</span>
-        <a href="../products/products.php">Produk</a>
-        <span class="breadcrumb-separator">/</span>
-        <span class="breadcrumb-current">Keranjang</span>
+        <span class="breadcrumb-current">Produk</span>
     </div>
 
-    <!-- Cart Content -->
-    <style>
-        .cart-content-wrapper {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 5%;
-        }
+    <?php
+    // Validasi parameter
+    $category = isset($_GET['category']) ? $_GET['category'] : '';
+    $type = isset($_GET['type']) ? $_GET['type'] : '';
 
-        .cart-header {
-            margin-bottom: 30px;
-        }
+    // Map type to configuration
+    $type_config = [
+        'mac' => ['table' => 'admin_produk_mac', 'image' => 'admin_produk_mac_gambar', 'variant' => 'admin_produk_mac_kombinasi'],
+        'iphone' => ['table' => 'admin_produk_iphone', 'image' => 'admin_produk_iphone_gambar', 'variant' => 'admin_produk_iphone_kombinasi'],
+        'ipad' => ['table' => 'admin_produk_ipad', 'image' => 'admin_produk_ipad_gambar', 'variant' => 'admin_produk_ipad_kombinasi'],
+        'watch' => ['table' => 'admin_produk_watch', 'image' => 'admin_produk_watch_gambar', 'variant' => 'admin_produk_watch_kombinasi'],
+        'music' => ['table' => 'admin_produk_music', 'image' => 'admin_produk_music_gambar', 'variant' => 'admin_produk_music_kombinasi'],
+        'airtag' => ['table' => 'admin_produk_airtag', 'image' => 'admin_produk_airtag_gambar', 'variant' => 'admin_produk_airtag_kombinasi'],
+        'aksesoris' => ['table' => 'admin_produk_aksesoris', 'image' => 'admin_produk_aksesoris_gambar', 'variant' => 'admin_produk_aksesoris_kombinasi']
+    ];
 
-        .cart-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #1d1d1f;
-            margin-bottom: 10px;
-        }
+    $products = [];
 
-        .cart-subtitle {
-            font-size: 16px;
-            color: #86868b;
-        }
-
-        .cart-products-list {
-            display: grid;
-            gap: 20px;
-        }
-
-        .cart-product-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-            position: relative;
-            border: 1px solid #e0e0e0;
-        }
-
-        .cart-product-card:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transform: translateY(-2px);
-        }
-
-        /* Flex container for the whole row */
-        .cart-product-content {
-            display: flex;
-            gap: 20px;
-            align-items: flex-start; /* Align top so long descriptions don't center actions awkwardly */
-        }
-
-        /* LEFT SIDE: Image */
-        .cart-product-image {
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .cart-product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 5px;
-        }
-
-        /* MIDDLE SECTION: Product Info (Name, Variant) */
-        .cart-product-info-wrapper {
-            flex: 1; /* Takes up available space */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Pushes price to top, actions to bottom */
-            min-height: 100px; /* Match image height */
-        }
-
-        .cart-product-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-        }
-
-        .cart-product-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1d1d1f;
-            line-height: 1.4;
-            margin-bottom: 8px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .cart-product-variant {
-            font-size: 13px;
-            color: #86868b;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+    if ($category && $type && isset($type_config[$type])) {
+        $config = $type_config[$type];
+        $table = $config['table'];
         
-        /* Direct Checkout Button (keeping per item as per original) */
-        .btn-direct-checkout {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 8px 16px; 
-            background: #007aff; 
-            color: white; 
-            text-decoration: none; 
-            border-radius: 20px; 
-            font-size: 13px; 
-            font-weight: 500; 
-            transition: all 0.2s;
-            width: fit-content;
-        }
+        // Safety
+        $safe_category = mysqli_real_escape_string($db, $category);
         
-        .btn-direct-checkout:hover {
-            background: #0056cc;
-            color: white;
-            transform: none;
-        }
-
-        /* RIGHT SECTION: Price & Actions */
-        .cart-product-right-section {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between; /* Pushes price to top, actions to bottom */
-            align-items: flex-end; /* Align to right */
-            min-width: 180px; /* Ensure enough space */
-            min-height: 100px; /* Match image height */
-        }
-
-        /* Price at Top Right */
-        .cart-product-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ff3b30; /* Red color as per image */
-            letter-spacing: -0.5px;
-            text-align: right;
-            margin-bottom: auto; /* Pushes actions to bottom */
-        }
-
-        /* Bottom Right Actions Row */
-        .cart-actions-row {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: auto; /* Pushes actions to bottom */
-        }
+        // Query items
+        $sql = "SELECT * FROM $table WHERE kategori = '$safe_category' ORDER BY id DESC";
+        $result = $db->query($sql);
         
-        /* Action Icons (Heart/Trash) */
-        .action-icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 20px; /* Larger icons */
-            color: #86868b;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-        
-        .action-icon-btn:hover {
-            color: #1d1d1f;
-        }
-        
-        .action-icon-btn.delete-btn:hover {
-            color: #ff3b30;
-        }
-
-        /* Pill Shaped Quantity Control matching the image */
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            background: transparent;
-            border: 1px solid #d2d2d7;
-            border-radius: 20px; /* Pill shape */
-            padding: 4px 8px;
-            height: 36px;
-            min-width: 100px;
-            justify-content: space-between;
-        }
-
-        .qty-btn {
-            width: 28px;
-            height: 28px;
-            border: none;
-            background: transparent;
-            color: #1d1d1f;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-        }
-
-        .qty-btn:hover:not(:disabled) {
-            color: #007aff;
-            background: transparent;
-        }
-        
-        .qty-btn:disabled {
-            color: #ccc;
-            cursor: default;
-        }
-
-        .qty-display {
-            font-size: 14px;
-            font-weight: 600;
-            color: #1d1d1f;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        /* Empty State */
-        .cart-empty {
-            text-align: center;
-            padding: 80px 20px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .cart-empty-icon {
-            font-size: 64px;
-            color: #d2d2d7;
-            margin-bottom: 20px;
-        }
-
-        .cart-empty-title {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin-bottom: 12px;
-        }
-
-        .cart-empty-text {
-            font-size: 16px;
-            color: #86868b;
-            margin-bottom: 30px;
-        }
-
-        .btn-browse-products {
-            display: inline-block;
-            padding: 14px 32px;
-            background: #007aff;
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .btn-browse-products:hover {
-            background: #0056cc;
-            transform: translateY(-2px);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
-        }
-        
-        .cart-checkout-hint {
-            margin-top: 16px;
-            padding: 16px;
-            background: #f0f7ff;
-            border-radius: 12px;
-            border-left: 4px solid #007aff;
-        }
-
-        .cart-checkout-hint-text {
-            font-size: 14px;
-            color: #1d1d1f;
-            margin: 0;
-        }
-
-        .cart-checkout-hint-text i {
-            color: #007aff;
-            margin-right: 8px;
-        }
-
-        @media (max-width: 768px) {
-            .cart-product-content {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .cart-product-info-wrapper {
-                min-height: auto;
-            }
-
-            .cart-product-right-section {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-                width: 100%;
-                min-height: auto;
-                padding-top: 15px;
-                border-top: 1px solid #f0f0f0;
-            }
-            
-            .cart-product-price {
-                order: 1; /* Price comes first on mobile */
-                margin-bottom: 0;
-            }
-            .cart-actions-row {
-                order: 2; /* Actions come second on mobile */
-                margin-top: 0;
-            }
-            
-            .cart-product-image {
-                width: 80px;
-                height: 80px;
-            }
-        }
-
-    </style>
-
-    <div class="cart-content-wrapper">
-        <div class="cart-header">
-            <h1 class="cart-title">Keranjang Belanja</h1>
-            <p class="cart-subtitle">Klik pada produk untuk melanjutkan ke checkout</p>
-        </div>
-
-        <div class="cart-checkout-hint">
-            <p class="cart-checkout-hint-text">
-                <i class="bi bi-info-circle-fill"></i>
-                <strong>Cara Checkout:</strong> Klik pada produk yang ingin Anda beli untuk melanjutkan ke halaman checkout.
-            </p>
-        </div>
-
-        <div class="cart-products-list" id="cartProductsList">
-            <?php
-            if ($is_logged_in) {
-                $uid = $_SESSION['user_id'];
-                $stmt = $db->prepare("SELECT * FROM user_keranjang WHERE user_id = ? ORDER BY id DESC");
-                $stmt->bind_param("i", $uid);
-                $stmt->execute();
-                $result_cart = $stmt->get_result();
+        if ($result && $result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                // Get the first image
+                $img_tbl = $config['image'];
+                $img_query = "SELECT foto_thumbnail FROM {$img_tbl} WHERE produk_id = ? LIMIT 1";
+                $img_stmt = $db->prepare($img_query);
+                $img_stmt->bind_param("i", $row['id']);
+                $img_stmt->execute();
+                $img_result = $img_stmt->get_result();
+                $image = $img_result->fetch_assoc();
                 
-                if ($result_cart->num_rows > 0) {
-                    while ($row = $result_cart->fetch_assoc()) {
-                        $cart_id = $row['id'];
-                        $product_id = $row['product_id'];
-                        $tipe = strtolower($row['tipe_produk']);
-                        $qty = $row['jumlah'];
-                        $kombinasi_id = isset($row['kombinasi_id']) ? $row['kombinasi_id'] : null;
-                        $cart_image = $row['foto_thumbnail'] ?? '';
-                        
-                        // Determine table
-                        $table = "";
-                        if (in_array($tipe, ['mac', 'iphone', 'ipad', 'watch', 'music', 'airtag'])) {
-                            $table = "admin_produk_" . $tipe;
-                        } elseif ($tipe == 'aksesori' || $tipe == 'aksesoris') {
-                            $table = "admin_produk_aksesoris";
-                        }
-                        
-                        if (empty($table)) continue;
-                        
-                        // Fetch product details
-                        $q_prod = $db->query("SELECT * FROM $table WHERE id = $product_id");
-                        if (!$q_prod || $q_prod->num_rows == 0) continue;
-                        $prod = $q_prod->fetch_assoc();
-                        
-                        $name = $prod['nama_produk'];
-                        $price = $prod['harga'] ?? 0;
-                        
-                        // Variant Logic - Adjusted to match SQL Schema
-                        $variant_str = "";
-                        if ($kombinasi_id) {
-                            $table_comb = $table . "_kombinasi";
-                            $q_comb = $db->query("SELECT * FROM $table_comb WHERE id = $kombinasi_id");
-                            if ($q_comb && $comb = $q_comb->fetch_assoc()) {
-                                if (isset($comb['harga']) && $comb['harga'] > 0) $price = $comb['harga'];
-                                
-                                $variants = [];
-                                
-                                // 1. Warna (All types usually have color)
-                                if (!empty($comb['warna'])) $variants[] = $comb['warna'];
-                                if (!empty($comb['warna_case'])) $variants[] = $comb['warna_case']; // Watch specific
-                                
-                                // 2. Specific Attributes based on Type and SQL Schema
-                                if ($tipe == 'mac') {
-                                    if (!empty($comb['processor'])) $variants[] = $comb['processor'];
-                                    if (!empty($comb['ram'])) $variants[] = $comb['ram'];
-                                    if (!empty($comb['penyimpanan'])) $variants[] = $comb['penyimpanan'];
-                                } elseif ($tipe == 'iphone' || $tipe == 'ipad') {
-                                    if (!empty($comb['penyimpanan'])) $variants[] = $comb['penyimpanan'];
-                                    if (!empty($comb['konektivitas'])) $variants[] = $comb['konektivitas'];
-                                } elseif ($tipe == 'watch') {
-                                    if (!empty($comb['ukuran_case'])) $variants[] = $comb['ukuran_case'];
-                                    if (!empty($comb['material'])) $variants[] = $comb['material'];
-                                    if (!empty($comb['tipe_koneksi'])) $variants[] = $comb['tipe_koneksi'];
-                                } elseif ($tipe == 'airtag') {
-                                    if (!empty($comb['pack'])) $variants[] = $comb['pack'];
-                                    if (!empty($comb['aksesoris'])) $variants[] = $comb['aksesoris'];
-                                } elseif ($tipe == 'music') {
-                                    if (!empty($comb['tipe'])) $variants[] = $comb['tipe'];
-                                    if (!empty($comb['konektivitas'])) $variants[] = $comb['konektivitas'];
-                                } elseif ($tipe == 'aksesori' || $tipe == 'aksesoris') {
-                                    if (!empty($comb['tipe'])) $variants[] = $comb['tipe'];
-                                    if (!empty($comb['ukuran'])) $variants[] = $comb['ukuran'];
-                                }
-                                
-                                $variant_str = implode(" • ", $variants);
-                            }
-                        } else {
-                            // Fallback for price if variant not selected
-                            if ($price <= 0) {
-                                $table_comb = $table . "_kombinasi";
-                                $q_min = $db->query("SELECT MIN(harga) as min_h FROM $table_comb WHERE produk_id = $product_id AND status_stok = 'tersedia'");
-                                if ($q_min && $r_min = $q_min->fetch_assoc()) $price = $r_min['min_h'];
-                            }
-                        }
-                        
-                        // Image Path
-                        $img_src = !empty($cart_image) ? $cart_image : 'default.png';
-                        if (strpos($img_src, 'assets/') === 0) {
-                            $img_final = '../../' . $img_src;
-                        } else {
-                            $img_final = '../../admin/uploads/' . $img_src;
-                        }
-                        
-                        $formatted_price = "Rp " . number_format($price, 0, ',', '.');
-                        ?>
-                        <div class="cart-product-card" data-cart-id="<?php echo $cart_id; ?>">
-                            <div class="cart-product-content">
-                                <!-- LEFT: Image -->
-                                <div class="cart-product-image">
-                                    <img src="<?php echo $img_final; ?>" alt="<?php echo htmlspecialchars($name); ?>" onerror="this.src='../../assets/img/logo/logo.png'">
-                                </div>
-                                
-                                <!-- MIDDLE: Info -->
-                                <div class="cart-product-info-wrapper">
-                                    <div class="cart-product-info">
-                                        <h3 class="cart-product-name"><?php echo htmlspecialchars($name); ?></h3>
-                                        <?php if (!empty($variant_str)): ?>
-                                        <div class="cart-product-variant">
-                                            <i class="bi bi-tag" style="color: #86868b;"></i>
-                                            <span><?php echo htmlspecialchars($variant_str); ?></span>
-                                        </div>
-                                        <?php endif; ?>
-                                        <a href="../checkout/checkout.php?id=<?php echo $product_id; ?>&tipe=<?php echo $tipe; ?>" class="btn-direct-checkout">
-                                            <i class="bi bi-cart-check"></i> Checkout
-                                        </a>
-                                    </div>
-                                </div>
+                // Get min price
+                $var_tbl = $config['variant'];
+                $price_query = "SELECT 
+                                    MIN(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN harga_diskon ELSE harga END) as min_price,
+                                    MIN(harga) as original_price,
+                                    MAX(CASE WHEN harga_diskon > 0 AND harga_diskon IS NOT NULL THEN 1 ELSE 0 END) as has_discount,
+                                    MIN(harga_diskon) as discount_price
+                                FROM {$var_tbl} 
+                                WHERE produk_id = ? AND jumlah_stok > 0";
+                $price_stmt = $db->prepare($price_query);
+                $price_stmt->bind_param("i", $row['id']);
+                $price_stmt->execute();
+                $price_result = $price_stmt->get_result();
+                $price_data = $price_result->fetch_assoc();
+                
+                if ($price_data && $price_data['min_price'] > 0) {
+                    $products[] = [
+                        'id' => $row['id'],
+                        'type' => $type,
+                        'category' => $category,
+                        'name' => $row['nama_produk'],
+                        'description' => $row['deskripsi_produk'] ?? '',
+                        'image' => $image['foto_thumbnail'] ?? 'placeholder.jpg',
+                        'price' => $price_data['min_price'],
+                        'original_price' => $price_data['original_price'],
+                        'has_discount' => $price_data['has_discount'] > 0 && $price_data['discount_price'] > 0
+                    ];
+                }
+            }
+        }
+    }
+    ?>
 
-                                <!-- RIGHT: Price (Top) & Actions (Bottom) -->
-                                <div class="cart-product-right-section">
-                                    <span class="cart-product-price"><?php echo $formatted_price; ?></span>
-                                    
-                                    <div class="cart-actions-row">
-                                        <!-- Wishlist (UI Only) -->
-                                        <button class="action-icon-btn" title="Simpan ke Wishlist">
-                                            <i class="bi bi-heart"></i>
-                                        </button>
-                                        
-                                        <!-- Delete -->
-                                        <button class="action-icon-btn delete-btn" onclick="deleteCartItem(<?php echo $cart_id; ?>)" title="Hapus dari keranjang">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                        
-                                        <!-- Quantity Control Pill -->
-                                        <div class="quantity-controls">
-                                            <button class="qty-btn qty-decrease" onclick="updateQuantity(<?php echo $cart_id; ?>, 'decrease')" <?php echo $qty <= 1 ? 'disabled' : ''; ?>>
-                                                <i class="bi bi-dash"></i>
-                                            </button>
-                                            <span class="qty-display"><?php echo $qty; ?></span>
-                                            <button class="qty-btn qty-increase" onclick="updateQuantity(<?php echo $cart_id; ?>, 'increase')">
-                                                <i class="bi bi-plus"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+    <div class="products-container">
+        <style>
+            .products-container {
+                margin: 0 auto;
+                padding: 40px 5%;
+                min-height: 60vh;
+            }
+
+            .products-header {
+                background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 100%);
+                padding: 50px 20px; 
+                border-radius: 20px;
+                margin-bottom: 40px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                color: white;
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* Decorative circle for premium look */
+            .products-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 100%;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+                transform: rotate(-15deg);
+                pointer-events: none;
+            }
+
+            .products-title {
+                font-size: 42px;
+                font-weight: 700;
+                color: white; /* Force white text */
+                margin-bottom: 12px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .products-breadcrumb {
+                color: rgba(255, 255, 255, 0.7); /* Lighter white for breadcrumb */
+                font-size: 15px;
+                position: relative;
+                z-index: 1;
+            }
+            
+            .products-breadcrumb a {
+                color: white;
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+            .products-breadcrumb a:hover {
+                text-decoration: underline;
+                color: #fff;
+            }
+            
+             .products-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 30px;
+            }
+
+            .product-card {
+                background: white;
+                border-radius: 20px;
+                overflow: hidden;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid rgba(0, 0, 0, 0.05);
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                position: relative;
+                text-decoration: none;
+            }
+
+            .product-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            }
+
+            .product-image-container {
+                position: relative;
+                padding-top: 100%;
+                background: #fbfbfd;
+                overflow: hidden;
+            }
+
+            .product-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                padding: 20px;
+                transition: transform 0.5s ease;
+            }
+
+            .product-card:hover .product-image {
+                transform: scale(1.05);
+            }
+            
+            .product-content {
+                padding: 20px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .product-category {
+                font-size: 12px;
+                font-weight: 600;
+                color: #86868b;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            
+            .product-title {
+                font-size: 18px;
+                font-weight: 600;
+                color: #1d1d1f;
+                margin-bottom: 8px;
+                text-decoration: none;
+                display: block;
+            }
+            
+            .product-price {
+                font-size: 16px;
+                color: #1d1d1f;
+                margin-top: auto;
+                font-weight: 500;
+            }
+            
+            .original-price {
+                font-size: 13px;
+                color: #86868b;
+                text-decoration: line-through;
+                margin-right: 8px;
+            }
+            
+            .discount-price {
+                color: #e30000;
+                font-weight: 600;
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 50px;
+                color: #86868b;
+                grid-column: 1 / -1;
+            }
+        </style>
+
+        <div class="products-header">
+            <h1 class="products-title"><?php echo htmlspecialchars($category ?: 'Semua Produk'); ?></h1>
+            <div class="products-breadcrumb">
+                <a href="../index.php" style="color: inherit; text-decoration: none;">Home</a> 
+                <?php if ($type): ?>
+                    / <span style="text-transform: capitalize;"><?php echo htmlspecialchars($type); ?></span>
+                <?php endif; ?>
+                <?php if ($category): ?>
+                    / <?php echo htmlspecialchars($category); ?>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="products-grid">
+            <?php if (empty($products)): ?>
+                <div class="empty-state">
+                    <i class="bi bi-inbox" style="font-size: 48px; display: block; margin-bottom: 15px;"></i>
+                    <p>Produk tidak ditemukan untuk kategori ini.</p>
+                </div>
+            <?php else: ?>
+                <?php foreach ($products as $product): ?>
+                    <?php 
+                        // Determine image path
+                        $display_img = '../../admin/uploads/' . $product['image'];
+                    ?>
+                    <div class="product-card">
+                         <div class="product-image-container">
+                            <img src="<?php echo htmlspecialchars($display_img); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image" onerror="this.src='../../assets/img/logo/logo.png'">
+                        </div>
+                        <div class="product-content">
+                            <div class="product-category"><?php echo htmlspecialchars($product['type']); ?></div>
+                            <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
+                            
+                            <div class="product-price">
+                                <?php if ($product['has_discount']): ?>
+                                    <span class="original-price">Rp <?php echo number_format($product['original_price'], 0, ',', '.'); ?></span>
+                                    <span class="discount-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></span>
+                                <?php else: ?>
+                                    Rp <?php echo number_format($product['price'], 0, ',', '.'); ?>
+                                <?php endif; ?>
                             </div>
                         </div>
-                        <?php
-                    }
-                } else {
-                    // Empty Cart HTML
-                    echo '
-                    <div class="cart-empty">
-                        <div class="cart-empty-icon">
-                            <i class="bi bi-cart-x"></i>
-                        </div>
-                        <h2 class="cart-empty-title">Keranjang Anda Kosong</h2>
-                        <p class="cart-empty-text">Belum ada produk di keranjang Anda. Mulai belanja sekarang!</p>
-                        <a href="../products/products.php" class="btn-browse-products">
-                            <i class="bi bi-shop"></i> Jelajahi Produk
-                        </a>
-                    </div>';
-                }
-            } else {
-                 echo '
-                    <div class="cart-empty">
-                        <div class="cart-empty-icon">
-                            <i class="bi bi-person-lock"></i>
-                        </div>
-                        <h2 class="cart-empty-title">Silakan Login</h2>
-                        <p class="cart-empty-text">Anda perlu login untuk melihat keranjang belanja.</p>
-                        <a href="../auth/login.php" class="btn-browse-products">
-                            <i class="bi bi-box-arrow-in-right"></i> Login Sekarang
-                        </a>
-                    </div>';
-            }
-            ?>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
     </div>
-
-    <!-- Glassmorphism Delete Confirmation Modal -->
-    <div class="glass-modal-overlay" id="deleteModal" style="display: none;">
-        <div class="glass-modal-content">
-            <div class="glass-modal-icon">
-                <i class="bi bi-trash-fill"></i>
-            </div>
-            <h3 class="glass-modal-title">Hapus Produk?</h3>
-            <p class="glass-modal-text">Produk ini akan dihapus dari keranjang belanja Anda. Tindakan ini tidak dapat dibatalkan.</p>
-            <div class="glass-modal-actions">
-                <button class="glass-btn-cancel" onclick="closeDeleteModal()">Batal</button>
-                <button class="glass-btn-confirm" id="confirmDeleteBtn">Hapus</button>
+    <!-- Success/Error Modal -->
+    <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center p-4" style="border-radius: 20px; border: none;">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <i id="resultIcon" class="bi" style="font-size: 4rem;"></i>
+                    </div>
+                    <h4 id="resultTitle" class="fw-bold mb-2">Title</h4>
+                    <p id="resultMessage" class="text-muted mb-4">Message</p>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary rounded-pill py-2 fw-bold" data-bs-dismiss="modal">OK</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <style>
-        /* Premium iBox/Apple Style Modal */
-        .glass-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.3); /* Darker, simpler dimming */
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            z-index: 10001;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: fadeIn 0.2s ease;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-        }
-
-        .glass-modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .glass-modal-content {
-            background: #ffffff; /* Solid white for crisp look */
-            border-radius: 14px; /* classic iOS radius */
-            width: 90%;
-            max-width: 320px; /* Compact */
-            padding: 0;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            transform: scale(0.95);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-        }
-
-        .glass-modal-overlay.active .glass-modal-content {
-            transform: scale(1);
-        }
-
-        .glass-modal-body {
-            padding: 24px 24px 20px;
-        }
-
-        .glass-modal-icon {
-            font-size: 42px;
-            color: #ff3b30;
-            margin-bottom: 12px;
-            display: block;
-        }
-        
-        /* Remove the circle background for a cleaner look */
-        .glass-modal-icon i {
-            display: inline-block;
-        }
-
-        .glass-modal-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #1d1d1f;
-            margin: 0 0 8px;
-        }
-
-        .glass-modal-text {
-            font-size: 14px;
-            color: #424245;
-            margin: 0;
-            line-height: 1.4;
-        }
-
-        .glass-modal-actions {
-            display: flex;
-            border-top: 1px solid #e5e5e5;
-        }
-
-        .glass-btn-cancel, .glass-btn-confirm {
-            padding: 14px 0;
-            font-size: 16px;
-            font-weight: 400;
-            cursor: pointer;
-            border: none;
-            flex: 1;
-            background: white;
-            transition: background 0.2s;
-            margin: 0;
-            border-radius: 0;
-        }
-        
-        .glass-btn-cancel {
-            color: #007aff; /* Apple Blue for Cancel/Action */
-            border-right: 1px solid #e5e5e5;
-            font-weight: 400;
-        }
-
-        .glass-btn-confirm {
-            color: #ff3b30; /* Red for destructive */
-            font-weight: 600; /* Bold for destructive/primary */
-        }
-
-        .glass-btn-cancel:hover, .glass-btn-confirm:hover {
-            background: #f5f5f7;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-    </style>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        let itemToDelete = null;
-        const deleteModal = document.getElementById('deleteModal');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-
-        function openDeleteModal(cartId) {
-            itemToDelete = cartId;
-            deleteModal.style.display = 'flex';
-            // Force reflow
-            deleteModal.offsetHeight;
-            deleteModal.classList.add('active');
-        }
-
-        function closeDeleteModal() {
-            deleteModal.classList.remove('active');
-            setTimeout(() => {
-                deleteModal.style.display = 'none';
-                itemToDelete = null;
-            }, 200);
-        }
-        
-        confirmDeleteBtn.addEventListener('click', function() {
-            if (itemToDelete) {
-                performDelete(itemToDelete);
-                closeDeleteModal();
-            }
-        });
-
-        // Update cart quantity
-        function updateQuantity(cartId, action) {
-            const card = document.querySelector(`[data-cart-id="${cartId}"]`);
-            if (!card) return;
-
-            card.classList.add('updating');
-
-            fetch('update_cart_quantity.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    cart_id: cartId,
-                    action: action
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                card.classList.remove('updating');
-                
-                if (data.success) {
-                    if (data.deleted) {
-                        // Remove card with animation
-                        card.style.transition = 'all 0.3s ease';
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(-10px)';
-                        setTimeout(() => {
-                            location.reload(); // Reload page to reflect changes
-                        }, 300);
-                    } else {
-                        // Update quantity display
-                        const qtyDisplay = card.querySelector('.qty-display');
-                        const decreaseBtn = card.querySelector('.qty-decrease');
-                        
-                        if (qtyDisplay) {
-                            qtyDisplay.textContent = data.new_quantity;
-                        }
-                        
-                        // Disable decrease button if quantity is 1
-                        if (decreaseBtn) {
-                            decreaseBtn.disabled = data.new_quantity <= 1;
-                        }
-
-                        // Show success feedback
-                        showToast('Jumlah diperbarui', 'success');
-                    }
-                } else {
-                    showToast(data.message || 'Gagal memperbarui jumlah', 'error');
-                }
-            })
-            .catch(err => {
-                card.classList.remove('updating');
-                console.error('Error updating quantity:', err);
-                showToast('Terjadi kesalahan', 'error');
-            });
-        }
-
-        // Trigger Delete Modal
-        function deleteCartItem(cartId) {
-            openDeleteModal(cartId);
-        }
-
-        // Actual Delete Logic
-        function performDelete(cartId) {
-            const card = document.querySelector(`[data-cart-id="${cartId}"]`);
-            if (!card) return;
-
-            card.classList.add('updating');
-
-            fetch('update_cart_quantity.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    cart_id: cartId,
-                    action: 'set',
-                    quantity: 0
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                card.classList.remove('updating');
-                
-                if (data.success) {
-                    // Remove card with animation
-                    card.style.transition = 'all 0.3s ease';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        location.reload(); 
-                    }, 300);
-                    showToast('Produk dihapus', 'success');
-                } else {
-                    showToast(data.message || 'Gagal menghapus produk', 'error');
-                }
-            })
-            .catch(err => {
-                card.classList.remove('updating');
-                console.error('Error deleting item:', err);
-                showToast('Terjadi kesalahan', 'error');
-            });
-        }
-
-        // Modern iBox Style Toast
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
+        function showModalNotification(message, type = 'success') {
+            const modalEl = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const title = document.getElementById('resultTitle');
+            const msg = document.getElementById('resultMessage');
             
-            // Icon selection
-            let icon = 'bi-info-circle-fill';
-            let iconColor = '#007aff';
-            if (type === 'success') { icon = 'bi-check-circle-fill'; iconColor = '#34c759'; }
-            if (type === 'error') { icon = 'bi-exclamation-circle-fill'; iconColor = '#ff3b30'; }
-
-            toast.innerHTML = `<i class="bi ${icon}" style="color: ${iconColor}; font-size: 18px; margin-right: 10px;"></i> <span>${message}</span>`;
+            msg.textContent = message;
             
-            toast.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%); /* Start centered */
-                background: rgba(255, 255, 255, 0.95);
-                backdrop-filter: blur(10px);
-                -webkit-backdrop-filter: blur(10px);
-                color: #1d1d1f;
-                padding: 12px 24px;
-                border-radius: 50px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-                z-index: 10002;
-                font-weight: 500;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                border: 1px solid rgba(0,0,0,0.05);
-                opacity: 0;
-                margin-top: -20px;
-                transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            `;
+            if (type === 'success') {
+                title.textContent = 'Berhasil!';
+                icon.className = 'bi bi-check-circle-fill text-success';
+            } else if (type === 'error') {
+                title.textContent = 'Gagal';
+                icon.className = 'bi bi-x-circle-fill text-danger';
+            } else {
+                title.textContent = 'Info';
+                icon.className = 'bi bi-info-circle-fill text-primary';
+            }
             
-            document.body.appendChild(toast);
-
-            // Animate in
-            requestAnimationFrame(() => {
-                toast.style.opacity = '1';
-                toast.style.marginTop = '0';
-            });
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.marginTop = '-20px';
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
         }
-
-        // Add CSS for toast if needed
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes slideOut {
-                from {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-                to {
-                    transform: translateX(400px);
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    
     </script>
-
-
 </body>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
              // Cart Dropdown Elements
@@ -3181,8 +2632,8 @@ if ($is_logged_in) {
 
             function fetchCartData() {
                 // Adjust path based on where this file is included
-                // cart.php is in pages/cart/
-                fetch('get_cart_dropdown.php')
+                // products.php is in pages/products/
+                fetch('../cart/get_cart_dropdown.php')
                     .then(response => response.json())
                     .then(data => {
                         if(data.success) {
@@ -3212,35 +2663,139 @@ if ($is_logged_in) {
                     
                     if (item.image) {
                         if (item.image.startsWith('assets/')) {
+                            // products.php -> pages/products/ -> ../../assets/
                             imgPath = '../../' + item.image;
                         } else {
+                             // products.php -> pages/products/ -> ../../admin/uploads/
                             imgPath = '../../admin/uploads/' + item.image;
                         }
                     } else {
                          imgPath = '../../assets/img/logo/logo.png';
                     } 
                     
-                    // Build variant display for dropdown
-                    let variantHtml = '';
-                    if (item.variant && item.variant.trim() !== '') {
-                        variantHtml = `<div style="font-size: 12px; color: #86868b; margin-top: 4px;"><i class="bi bi-tag" style="font-size: 11px;"></i> ${item.variant}</div>`;
+                    html += `
+                        <li class="cart-item">
+                            <div class="cart-item-img">
+                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
+                            </div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price-row">
+                                    <div class="cart-item-qty">${item.qty} Barang</div>
+                                    <div class="cart-item-price">${item.formatted_price}</div>
+                                </div>
+                            </div>
+                        </li>
+                    `;
+                });
+                cartList.innerHTML = html;
+            }
+            
+            function renderError(msg) {
+                cartList.innerHTML = `<li class="cart-empty-state text-danger">${msg}</li>`;
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+             // Cart Dropdown Elements
+            const cartTrigger = document.getElementById('cartDropdownTrigger');
+            const cartDropdown = document.getElementById('cartDropdown');
+            const cartList = document.getElementById('cartItemsList');
+            const cartDropdownCount = document.getElementById('cartDropdownCount');
+            const cartBadge = document.getElementById('cartBadge');
+
+            // Handle Cart Dropdown
+            let isCartOpen = false;
+
+            if(cartTrigger) {
+                cartTrigger.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    if(isCartOpen) {
+                        closeCartDropdown();
+                    } else {
+                        openCartDropdown();
                     }
+                });
+            }
+
+            function openCartDropdown() {
+                if(!cartDropdown) return;
+                cartDropdown.classList.add('active');
+                isCartOpen = true;
+                fetchCartData();
+            }
+
+            function closeCartDropdown() {
+                if(!cartDropdown) return;
+                cartDropdown.classList.remove('active');
+                isCartOpen = false;
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if(isCartOpen && cartDropdown && !cartDropdown.contains(e.target) && !cartTrigger.contains(e.target)) {
+                    closeCartDropdown();
+                }
+            });
+
+            function fetchCartData() {
+                // Adjust path based on where this file is included
+                // products.php is in pages/products/
+                fetch('../cart/get_cart_dropdown.php')
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            renderCartItems(data.items, data.count);
+                        } else {
+                            renderError('Gagal memuat data');
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Cart fetch error:', err);
+                         renderError('Gagal memuat keranjang');
+                    });
+            }
+
+            function renderCartItems(items, count) {
+                // Update counts
+                if(cartDropdownCount) cartDropdownCount.textContent = count;
+                
+                if(items.length === 0) {
+                    cartList.innerHTML = '<li class="cart-empty-state">Keranjang Anda kosong</li>';
+                    return;
+                }
+
+                let html = '';
+                items.forEach(item => {
+                    let imgPath;
+                    
+                    if (item.image) {
+                        if (item.image.startsWith('assets/')) {
+                            // products.php -> pages/products/ -> ../../assets/
+                            imgPath = '../../' + item.image;
+                        } else {
+                             // products.php -> pages/products/ -> ../../admin/uploads/
+                            imgPath = '../../admin/uploads/' + item.image;
+                        }
+                    } else {
+                         imgPath = '../../assets/img/logo/logo.png';
+                    } 
                     
                     html += `
                         <li class="cart-item">
-                            <a href="${item.checkout_url}" class="cart-item-link">
-                                <div class="cart-item-img">
-                                    <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
+                            <div class="cart-item-img">
+                                <img src="${imgPath}" alt="${item.name}" onerror="this.src='../../assets/img/logo/logo.png'">
+                            </div>
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price-row">
+                                    <div class="cart-item-qty">${item.qty} Barang</div>
+                                    <div class="cart-item-price">${item.formatted_price}</div>
                                 </div>
-                                <div class="cart-item-details">
-                                    <div class="cart-item-name">${item.name}</div>
-                                    ${variantHtml}
-                                    <div class="cart-item-price-row">
-                                        <div class="cart-item-qty">${item.qty} Barang</div>
-                                        <div class="cart-item-price">${item.formatted_price}</div>
-                                    </div>
-                                </div>
-                            </a>
+                            </div>
                         </li>
                     `;
                 });
