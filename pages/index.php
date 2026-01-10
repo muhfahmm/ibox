@@ -920,30 +920,29 @@ if ($is_logged_in) {
                     font-size: 11px;
                 }
             }
-
+            
             /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
             .cart-dropdown {
                 position: absolute;
                 top: 100%;
                 right: 0;
                 width: 360px;
-
+                
                 /* White Glassmorphism Background */
-                background: rgba(255, 255, 255, 0.7);
+                background: rgba(255, 255, 255, 0.7); 
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
-
-                border-radius: 16px;
+                
+                border-radius: 16px; 
                 border: 1px solid rgba(255, 255, 255, 0.5);
                 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-
+                
                 z-index: 1000;
                 opacity: 0;
                 visibility: hidden;
                 transform: translateY(10px);
                 transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-                color: #1d1d1f;
-                /* Dark text for white bg */
+                color: #1d1d1f; /* Dark text for white bg */
                 overflow: hidden;
             }
 
@@ -971,8 +970,7 @@ if ($is_logged_in) {
 
             .cart-dropdown-link {
                 font-size: 13px;
-                color: #0071e3;
-                /* Standard Apple Blue */
+                color: #0071e3; /* Standard Apple Blue */
                 text-decoration: none;
                 font-weight: 500;
             }
@@ -989,32 +987,29 @@ if ($is_logged_in) {
                 list-style: none;
                 margin: 0;
             }
-
+            
             /* Custom Scrollbar for Glass */
             .cart-items-list::-webkit-scrollbar {
                 width: 6px;
             }
-
             .cart-items-list::-webkit-scrollbar-track {
                 background: transparent;
             }
-
             .cart-items-list::-webkit-scrollbar-thumb {
                 background: rgba(0, 0, 0, 0.1);
                 border-radius: 3px;
             }
-
             .cart-items-list::-webkit-scrollbar-thumb:hover {
                 background: rgba(0, 0, 0, 0.2);
             }
 
             .cart-item {
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
                 transition: background 0.2s;
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 122, 255, 0.05);
+                background-color: rgba(0, 122, 255, 0.05); 
             }
 
             .cart-item-link {
@@ -1042,9 +1037,8 @@ if ($is_logged_in) {
                 justify-content: center;
                 overflow: hidden;
                 flex-shrink: 0;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-                border: 1px solid rgba(0, 0, 0, 0.05);
-                /* Slight border for image */
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                border: 1px solid rgba(0,0,0,0.05); /* Slight border for image */
             }
 
             .cart-item-img img {
@@ -1083,7 +1077,7 @@ if ($is_logged_in) {
                 font-size: 13px;
                 color: #86868b;
             }
-
+            
             .cart-item-price {
                 font-size: 14px;
                 font-weight: 600;
@@ -1106,7 +1100,7 @@ if ($is_logged_in) {
                 right: 20px;
                 width: 12px;
                 height: 12px;
-                background: rgba(255, 255, 255, 0.7);
+                background: rgba(255, 255, 255, 0.7); 
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 transform: rotate(45deg);
@@ -1123,7 +1117,9 @@ if ($is_logged_in) {
                             <i class="bi bi-list"></i>
                         </button>
                         <div class="logo">
-                            <img src="assets/img/logo/logo.png" alt="iBox Logo">
+                            <a href="../index.php">
+                                <img src="../assets/img/logo/logo.png" alt="iBox Logo">
+                            </a>
                         </div>
                     </div>
                     <div class="search-bar-menu">
@@ -1133,18 +1129,18 @@ if ($is_logged_in) {
                     </div>
                     <div class="nav-other-menu">
                         <?php if ($is_logged_in): ?>
-                            <a href="auth/profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                            <a href="../auth/profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
                                 <i class="bi bi-person-circle" style="font-size: 20px;"></i>
                                 <span><?php echo htmlspecialchars($user_initials); ?></span>
                             </a>
                         <?php else: ?>
-                            <a href="auth/login.php" class="user-icon">
+                            <a href="../auth/login.php" class="user-icon">
                                 <i class="bi bi-person-fill"></i>
                             </a>
                         <?php endif; ?>
                         <!-- Cart Icon with Dropdown Wrapper -->
                         <div class="position-relative cart-dropdown-wrapper">
-                            <a href="cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
+                            <a href="cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
                                 <i class="bi bi-bag"></i>
                                 <?php if (isset($cart_count) && $cart_count > 0): ?>
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
@@ -1159,7 +1155,7 @@ if ($is_logged_in) {
                                     <div class="cart-dropdown-title">
                                         Keranjang (<span id="cartDropdownCount">0</span>)
                                     </div>
-                                    <a href="cart/cart.php" class="cart-dropdown-link">Lihat</a>
+                                    <a href="cart.php" class="cart-dropdown-link">Lihat</a>
                                 </div>
                                 <ul class="cart-items-list" id="cartItemsList">
                                     <!-- Items will be populated via JS -->
@@ -1243,7 +1239,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Mac dari database
                                     foreach ($mac_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1252,7 +1248,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1269,7 +1265,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPad dari database
                                     foreach ($ipad_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1278,7 +1274,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1295,7 +1291,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori iPhone dari database
                                     foreach ($iphone_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1304,7 +1300,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1321,7 +1317,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Watch dari database
                                     foreach ($watch_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1330,7 +1326,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1347,7 +1343,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Music dari database
                                     foreach ($music_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1356,7 +1352,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=music">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1373,7 +1369,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori AirTag dari database
                                     foreach ($airtag_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1382,7 +1378,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1399,7 +1395,7 @@ if ($is_logged_in) {
                                     <?php
                                     // Menampilkan kategori Aksesori dari database
                                     foreach ($aksesori_categories as $kategori) {
-                                        echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                        echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                         // Query untuk mengambil produk berdasarkan kategori
                                         $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1408,7 +1404,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1511,7 +1507,7 @@ if ($is_logged_in) {
 
             <div class="sidebar-header">
                 <!-- Icon X di kiri -->
-                <button class="close-sidebar" id="closeSidebar">
+                <button class="close-sidebar" id="closeSidebar" onclick="toggleSidebar(); return false;">
                     <i class="bi bi-x-lg"></i>
                 </button>
 
@@ -1533,7 +1529,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Mac dari database untuk sidebar
                             foreach ($mac_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=mac" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_mac WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1541,7 +1537,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1559,7 +1555,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPad dari database untuk sidebar
                             foreach ($ipad_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=ipad" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_ipad WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1567,7 +1563,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1585,7 +1581,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori iPhone dari database untuk sidebar
                             foreach ($iphone_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=iphone" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_iphone WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1593,7 +1589,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1611,7 +1607,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Watch dari database untuk sidebar
                             foreach ($watch_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=watch" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_watch WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1619,7 +1615,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1637,7 +1633,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Music dari database untuk sidebar
                             foreach ($music_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=music" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_music WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1645,7 +1641,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=music">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1663,7 +1659,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori AirTag dari database untuk sidebar
                             foreach ($airtag_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=airtag" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_airtag WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1671,7 +1667,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1689,7 +1685,7 @@ if ($is_logged_in) {
                             <?php
                             // Menampilkan kategori Aksesori dari database untuk sidebar
                             foreach ($aksesori_categories as $kategori) {
-                                echo '<a href="products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
+                                echo '<a href="../products/category-products.php?category=' . urlencode($kategori) . '&type=aksesoris" class="dropdown-category" style="text-decoration: none; display: block;">' . htmlspecialchars($kategori) . '</a>';
 
                                 // Query untuk mengambil produk berdasarkan kategori
                                 $produk_query = "SELECT MIN(id) as id, nama_produk FROM admin_produk_aksesoris WHERE kategori = '" . mysqli_real_escape_string($db, $kategori) . "' GROUP BY nama_produk ORDER BY nama_produk ASC";
@@ -1697,7 +1693,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -2017,7 +2013,7 @@ if ($is_logged_in) {
                 if (window.innerWidth < 830) {
                     controlBodyScroll(false);
                 }
-
+                
                 focusedMode = false;
                 focusedMenuItem = null;
             }
@@ -11277,11 +11273,37 @@ if ($is_logged_in) {
         </script>
     </footer>
     <script>
+        // Define toggleSidebar globally as backup
+        function toggleSidebar() {
+            console.log('Global toggleSidebar called');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar && sidebarOverlay) {
+                console.log('Toggling sidebar - current state:', sidebar.classList.contains('active'));
+                sidebar.classList.toggle('active');
+                sidebarOverlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                console.log('Sidebar toggled - new state:', sidebar.classList.contains('active'));
+            } else {
+                console.error('Sidebar or overlay not found!', { sidebar, sidebarOverlay });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM Content Loaded - Initializing...');
+            
             const hamburgerBtn = document.getElementById('hamburgerBtn');
             const sidebar = document.getElementById('sidebar');
             const closeSidebar = document.getElementById('closeSidebar');
             const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+            console.log('Elements found:', {
+                hamburgerBtn: !!hamburgerBtn,
+                sidebar: !!sidebar,
+                closeSidebar: !!closeSidebar,
+                sidebarOverlay: !!sidebarOverlay
+            });
 
             // Cart Dropdown Elements
             const cartTrigger = document.getElementById('cartDropdownTrigger');
@@ -11290,26 +11312,25 @@ if ($is_logged_in) {
             const cartDropdownCount = document.getElementById('cartDropdownCount');
             const cartBadge = document.getElementById('cartBadge');
 
-            // Toggle Sidebar logic (only if not already attached)
+            // Attach event listeners
             if (hamburgerBtn) {
-                hamburgerBtn.removeEventListener('click', toggleSidebar); // remove potential dup
-                hamburgerBtn.addEventListener('click', toggleSidebar);
+                console.log('Attaching click event to hamburger button');
+                hamburgerBtn.addEventListener('click', function(e) {
+                    console.log('Hamburger clicked!', e);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleSidebar();
+                }, true); // Use capture phase
+            } else {
+                console.error('Hamburger button NOT found!');
             }
+            
             if (closeSidebar) {
-                closeSidebar.removeEventListener('click', toggleSidebar);
                 closeSidebar.addEventListener('click', toggleSidebar);
             }
+            
             if (sidebarOverlay) {
-                sidebarOverlay.removeEventListener('click', toggleSidebar);
                 sidebarOverlay.addEventListener('click', toggleSidebar);
-            }
-
-            function toggleSidebar() {
-                if (sidebar) {
-                    sidebar.classList.toggle('active');
-                    sidebarOverlay.classList.toggle('active');
-                    document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
-                }
             }
 
             // Handle Cart Dropdown

@@ -48,12 +48,81 @@ if ($is_logged_in) {
         }
 
         /* Breadcrumb CSS */
-        .breadcrumb-container {
-            padding: 15px 5%;
-            background-color: #f7f7f7;
-            font-size: 14px;
-            color: #888;
-            border-bottom: 1px solid #e0e0e0;
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* New style for product links in dropdown */
+        .dropdown-product-link {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            color: #2c3e50;
+            border-left: 3px solid #e3e8ef;
+            margin-bottom: 4px;
+            text-decoration: none;
+            display: block;
+            padding: 8px 15px;
+            font-size: 13px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-product-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(0, 122, 255, 0.05) 0%, rgba(0, 122, 255, 0.1) 100%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+        }
+
+        .dropdown-product-link:hover::before {
+            width: 100%;
+        }
+
+        .dropdown-product-link:hover {
+            background: linear-gradient(135deg, #f0f7ff 0%, #e3f2fd 100%);
+            color: #007aff;
+            border-left-color: #007aff;
+            padding-left: 20px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+            transform: translateX(4px);
+        }
+
+        .dropdown-category {
+            font-size: 11px;
+            color: #1d1d1f;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 12px 18px;
+            margin-top: 10px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #007aff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.12), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .dropdown-category::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 100%);
+            pointer-events: none;
         }
 
         .breadcrumb-container a {
@@ -1265,7 +1334,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1291,7 +1360,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1317,7 +1386,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1343,7 +1412,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1369,7 +1438,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1395,7 +1464,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1421,7 +1490,7 @@ if ($is_logged_in) {
                                         if (mysqli_num_rows($produk_result) > 0) {
                                             echo '<ul>';
                                             while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
+                                                echo '<li><a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a></li>';
                                             }
                                             echo '</ul>';
                                         }
@@ -1554,7 +1623,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=mac" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1580,7 +1649,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=ipad" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1606,7 +1675,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=iphone" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1632,7 +1701,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=watch" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1658,7 +1727,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=music" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1684,7 +1753,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=airtag" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
@@ -1710,7 +1779,7 @@ if ($is_logged_in) {
 
                                 if (mysqli_num_rows($produk_result) > 0) {
                                     while ($produk = mysqli_fetch_assoc($produk_result)) {
-                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris">' . htmlspecialchars($produk['nama_produk']) . '</a>';
+                                        echo '<a href="../checkout/checkout.php?id=' . $produk['id'] . '&tipe=aksesoris" class="dropdown-product-link">' . htmlspecialchars($produk['nama_produk']) . '</a>';
                                     }
                                 }
                             }
