@@ -43,18 +43,12 @@ if ($is_logged_in) {
         }
 
         /* Breadcrumb CSS */
-        .breadcrumb-current {
-            color: #333;
-            font-weight: 500;
-        }
-
-
         .breadcrumb-container {
-            padding: 15px 0;
-            background-color: #fff;
+            padding: 15px 5%;
+            background-color: #f7f7f7;
             font-size: 14px;
-            color: #86868b;
-            border-bottom: 1px solid #e5e5e7;
+            color: #888;
+            border-bottom: 1px solid #e0e0e0;
         }
 
         .breadcrumb-container a {

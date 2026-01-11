@@ -2838,20 +2838,11 @@ while ($row = $res->fetch_assoc()) {
     
     <!-- Breadcrumb -->
     <div class="breadcrumb-container">
-        <div class="breadcrumb-inner">
-            <a href="../index.php"><i class="fas fa-home" style="margin-right: 5px;"></i> Home</a>
-            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-            <?php 
-            $bcType = isset($_GET['tipe']) ? $_GET['tipe'] : 'iphone';
-            $bcLabel = ucfirst($bcType);
-            if(strtolower($bcType) == 'iphone') $bcLabel = 'iPhone';
-            if(strtolower($bcType) == 'ipad') $bcLabel = 'iPad';
-            if(strtolower($bcType) == 'airtag') $bcLabel = 'AirTag';
-            ?>
-            <a href="../products/products.php?type=<?php echo htmlspecialchars($bcType); ?>"><?php echo $bcLabel; ?></a>
-            <span class="breadcrumb-separator"><i class="fas fa-chevron-right"></i></span>
-            <span class="breadcrumb-current">Checkout</span>
-        </div>
+        <a href="../index.php">Home</a>
+        <span class="breadcrumb-separator">/</span>
+        <a href="../products/products.php">Produk</a>
+        <span class="breadcrumb-separator">/</span>
+        <span class="breadcrumb-current">Checkout</span>
     </div>
 
     <?php

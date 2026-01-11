@@ -43,17 +43,19 @@ if ($is_logged_in) {
             font-family: 'Poppins', sans-serif;
         }
 
+
         body {
             background-color: #f7f7f7;
         }
 
         /* Breadcrumb CSS */
-        .breadcrumb-current {
-            color: #333;
-            font-weight: 500;
+        .breadcrumb-container {
+            padding: 15px 5%;
+            background-color: #f7f7f7;
+            font-size: 14px;
+            color: #888;
+            border-bottom: 1px solid #e0e0e0;
         }
-
-
 
         .breadcrumb-container a {
             color: #007aff;
@@ -2362,174 +2364,354 @@ if ($is_logged_in) {
     }
     ?>
 
-    <div class="products-container">
+        <div class="products-container">
         <style>
             .products-container {
+                max-width: 1200px;
                 margin: 0 auto;
                 padding: 40px 5%;
                 min-height: 60vh;
+                animation: fadeIn 0.6s ease-out;
             }
 
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Simple Header like products.php */
             .products-header {
-                background: linear-gradient(135deg, #1d1d1f 0%, #3a3a3c 100%);
-                padding: 50px 20px; 
-                border-radius: 20px;
                 margin-bottom: 40px;
-                text-align: center;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                color: white;
-                position: relative;
-                overflow: hidden;
-            }
-
-            /* Decorative circle for premium look */
-            .products-header::before {
-                content: '';
-                position: absolute;
-                top: -50%;
-                right: -50%;
-                width: 100%;
-                height: 100%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
-                transform: rotate(-15deg);
-                pointer-events: none;
             }
 
             .products-title {
-                font-size: 42px;
+                font-size: 36px;
                 font-weight: 700;
-                color: white; /* Force white text */
-                margin-bottom: 12px;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .products-breadcrumb {
-                color: rgba(255, 255, 255, 0.7); /* Lighter white for breadcrumb */
-                font-size: 15px;
-                position: relative;
-                z-index: 1;
-            }
-            
-            .products-breadcrumb a {
-                color: white;
-                text-decoration: none;
-                font-weight: 500;
+                color: #1d1d1f;
+                margin-bottom: 10px;
+                background: linear-gradient(135deg, #1d1d1f 0%, #4a4a4a 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
             }
 
-            .products-breadcrumb a:hover {
-                text-decoration: underline;
-                color: #fff;
+            .products-subtitle {
+                font-size: 16px;
+                color: #6e6e73;
+                margin-bottom: 30px;
             }
             
-             .products-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 30px;
-            }
-
-            .product-card {
-                background: white;
-                border-radius: 20px;
-                overflow: hidden;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
+            /* Horizontal List Layout */
+            .products-grid {
                 display: flex;
                 flex-direction: column;
-                height: 100%;
-                position: relative;
+                gap: 0;
+                margin-bottom: 40px;
+            }
+
+            /* Horizontal Product Card */
+            .product-card {
+                background: white;
+                border-bottom: 1px solid #e5e5e5;
+                padding: 40px 0;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
                 text-decoration: none;
+                color: inherit;
+                transition: background 0.3s ease;
+                position: relative;
             }
 
             .product-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                background: #fafafa;
             }
 
+            .product-card:first-child {
+                padding-top: 20px;
+            }
+
+            /* Left Content */
+            .product-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                padding-right: 40px;
+            }
+            
+            .product-category {
+                font-size: 12px;
+                color: #86868b;
+                font-weight: 500;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .product-title {
+                font-size: 28px;
+                font-weight: 700;
+                color: #1d1d1f;
+                line-height: 1.2;
+                margin: 0;
+            }
+
+            .product-footer {
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                margin-top: 8px;
+            }
+
+            .product-price-label {
+                font-size: 14px;
+                color: #1d1d1f;
+                font-weight: 400;
+            }
+            
+            .product-price {
+                font-size: 14px;
+                font-weight: 400;
+                color: #1d1d1f;
+                display: inline;
+            }
+            
+            .price-container {
+                display: inline;
+            }
+
+            .product-price-original {
+                font-size: 14px;
+                font-weight: 400;
+                color: #1d1d1f;
+                text-decoration: none;
+            }
+            
+            .product-price-discount {
+                font-size: 14px;
+                font-weight: 400;
+                color: #1d1d1f;
+            }
+
+            /* Action Buttons */
+            .product-actions {
+                display: flex;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .btn-link {
+                color: #007aff;
+                font-size: 14px;
+                font-weight: 400;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                transition: color 0.3s ease;
+            }
+
+            .btn-link:hover {
+                color: #0051d5;
+                text-decoration: underline;
+            }
+
+            .btn-link i {
+                font-size: 12px;
+            }
+
+            .btn-primary {
+                background: #007aff;
+                color: white;
+                padding: 8px 20px;
+                border-radius: 20px;
+                font-size: 14px;
+                font-weight: 500;
+                text-decoration: none;
+                display: inline-block;
+                transition: all 0.3s ease;
+                border: none;
+                cursor: pointer;
+            }
+
+            .btn-primary:hover {
+                background: #0051d5;
+                transform: scale(1.02);
+            }
+
+            /* Right Image */
             .product-image-container {
+                width: 200px;
+                height: 200px;
+                flex-shrink: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: transparent;
                 position: relative;
-                padding-top: 100%;
-                background: #fbfbfd;
-                overflow: hidden;
             }
 
             .product-image {
-                position: absolute;
-                top: 0;
-                left: 0;
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
-                padding: 20px;
-                transition: transform 0.5s ease;
+                transition: transform 0.3s ease;
             }
 
             .product-card:hover .product-image {
                 transform: scale(1.05);
             }
-            
-            .product-content {
-                padding: 20px;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-            }
-            
-            .product-category {
-                font-size: 12px;
+
+            /* Badges */
+            .product-badge {
+                position: absolute;
+                top: 40px;
+                left: 0;
+                background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+                color: white;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 10px;
                 font-weight: 600;
-                color: #86868b;
                 text-transform: uppercase;
-                margin-bottom: 8px;
-            }
-            
-            .product-title {
-                font-size: 18px;
-                font-weight: 600;
-                color: #1d1d1f;
-                margin-bottom: 8px;
-                text-decoration: none;
-                display: block;
-            }
-            
-            .product-price {
-                font-size: 16px;
-                color: #1d1d1f;
-                margin-top: auto;
-                font-weight: 500;
-            }
-            
-            .original-price {
-                font-size: 13px;
-                color: #86868b;
-                text-decoration: line-through;
-                margin-right: 8px;
-            }
-            
-            .discount-price {
-                color: #e30000;
-                font-weight: 600;
+                letter-spacing: 0.5px;
+                box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+                z-index: 2;
             }
 
+            .discount-badge {
+                position: absolute;
+                top: 40px;
+                right: 220px;
+                background: linear-gradient(135deg, #ff3b30 0%, #ff6b60 100%);
+                color: white;
+                padding: 6px 12px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 600;
+                box-shadow: 0 2px 8px rgba(255, 59, 48, 0.3);
+                z-index: 2;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .discount-badge i {
+                font-size: 10px;
+            }
+
+            /* Empty State - Modern Design */
             .empty-state {
                 text-align: center;
-                padding: 50px;
+                padding: 80px 20px;
                 color: #86868b;
                 grid-column: 1 / -1;
+                animation: fadeIn 0.8s ease-out;
+            }
+
+            .empty-state i {
+                font-size: 64px;
+                display: block;
+                margin-bottom: 24px;
+                color: #d1d1d6;
+                animation: float 3s ease-in-out infinite;
+            }
+
+            @keyframes float {
+                0%, 100% {
+                    transform: translateY(0);
+                }
+                50% {
+                    transform: translateY(-10px);
+                }
+            }
+
+            .empty-state p {
+                font-size: 18px;
+                font-weight: 500;
+                color: #86868b;
+                margin: 0;
+            }
+
+            /* Responsive Design */
+            @media (max-width: 1400px) {
+                .products-grid {
+                    grid-template-columns: repeat(4, 1fr);
+                }
+            }
+
+            @media (max-width: 1100px) {
+                .products-grid {
+                    grid-template-columns: repeat(3, 1fr);
+                }
+            }
+
+            @media (max-width: 768px) {
+                .products-header {
+                    padding: 40px 20px;
+                    border-radius: 20px;
+                }
+
+                .products-title {
+                    font-size: 32px;
+                }
+
+                .products-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                }
+
+                .product-card {
+                    border-radius: 12px;
+                    min-height: 260px;
+                }
+
+                .product-content {
+                    padding: 10px;
+                }
+
+                .product-title {
+                    font-size: 12px;
+                }
+
+                .product-price {
+                    font-size: 13px;
+                }
+
+                .product-price-discount {
+                    font-size: 15px;
+                }
+            }
+
+            @media (max-width: 480px) {
+                .products-container {
+                    padding: 30px 4%;
+                }
+
+                .products-title {
+                    font-size: 28px;
+                }
+
+                .products-grid {
+                    grid-template-columns: 1fr;
+                    gap: 12px;
+                }
+
+                .product-card {
+                    min-height: 240px;
+                }
             }
         </style>
 
         <div class="products-header">
             <h1 class="products-title"><?php echo htmlspecialchars($category ?: 'Semua Produk'); ?></h1>
-            <div class="products-breadcrumb">
-                <a href="../index.php" style="color: inherit; text-decoration: none;">Home</a> 
-                <?php if ($type): ?>
-                    / <span style="text-transform: capitalize;"><?php echo htmlspecialchars($type); ?></span>
-                <?php endif; ?>
-                <?php if ($category): ?>
-                    / <?php echo htmlspecialchars($category); ?>
-                <?php endif; ?>
-            </div>
+            <p class="products-subtitle">Temukan produk <?php echo htmlspecialchars($category ?: 'Apple'); ?> terbaik untuk kebutuhan Anda</p>
         </div>
 
         <div class="products-grid">
@@ -2543,23 +2725,51 @@ if ($is_logged_in) {
                     <?php 
                         // Determine image path
                         $display_img = '../../admin/uploads/' . $product['image'];
+                        // Calculate discount percentage
+                        $discount_percent = 0;
+                        if ($product['has_discount'] && $product['original_price'] > 0) {
+                            $discount_percent = round((($product['original_price'] - $product['price']) / $product['original_price']) * 100);
+                        }
+                        // Checkout URL
+                        $checkout_url = '../checkout/checkout.php?id=' . $product['id'] . '&tipe=' . urlencode($product['type']);
                     ?>
                     <div class="product-card">
-                         <div class="product-image-container">
-                            <img src="<?php echo htmlspecialchars($display_img); ?>" alt="<?php echo htmlspecialchars($product['name']); ?>" class="product-image" onerror="this.src='../../assets/img/logo/logo.png'">
-                        </div>
+                        <?php if ($product['has_discount'] && $discount_percent > 0): ?>
+                            <div class="discount-badge">
+                                <i class="fas fa-tag"></i> -<?php echo $discount_percent; ?>%
+                            </div>
+                        <?php endif; ?>
+                        
                         <div class="product-content">
-                            <div class="product-category"><?php echo htmlspecialchars($product['type']); ?></div>
                             <h3 class="product-title"><?php echo htmlspecialchars($product['name']); ?></h3>
                             
-                            <div class="product-price">
-                                <?php if ($product['has_discount']): ?>
-                                    <span class="original-price">Rp <?php echo number_format($product['original_price'], 0, ',', '.'); ?></span>
-                                    <span class="discount-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></span>
-                                <?php else: ?>
-                                    Rp <?php echo number_format($product['price'], 0, ',', '.'); ?>
-                                <?php endif; ?>
+                            <div class="product-footer">
+                                <div>
+                                    <span class="product-price-label">Pro luar dalam. Mulai dari </span>
+                                    <?php if ($product['has_discount']): ?>
+                                        <span class="product-price-original">Rp <?php echo number_format($product['original_price'], 0, ',', '.'); ?></span>
+                                        <span class="product-price-discount">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></span>
+                                    <?php else: ?>
+                                        <span class="product-price">Rp <?php echo number_format($product['price'], 0, ',', '.'); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="product-actions">
+                                    <a href="<?php echo htmlspecialchars($checkout_url); ?>" class="btn-link">
+                                        Lebih lanjut <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                    <a href="<?php echo htmlspecialchars($checkout_url); ?>" class="btn-primary">
+                                        Beli sekarang
+                                    </a>
+                                </div>
                             </div>
+                        </div>
+                        
+                        <div class="product-image-container">
+                            <img src="<?php echo htmlspecialchars($display_img); ?>" 
+                                 alt="<?php echo htmlspecialchars($product['name']); ?>" 
+                                 class="product-image" 
+                                 onerror="this.src='../../assets/img/logo/logo.png'">
                         </div>
                     </div>
                 <?php endforeach; ?>

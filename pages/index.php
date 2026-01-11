@@ -1169,7 +1169,7 @@ if ($is_logged_in) {
                         <?php endif; ?>
                         <!-- Cart Icon with Dropdown Wrapper -->
                         <div class="position-relative cart-dropdown-wrapper">
-                            <a href="cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
+                            <a href="cart/cart.php" class="bag-icon position-relative text-dark text-decoration-none" id="cartDropdownTrigger">
                                 <i class="bi bi-bag"></i>
                                 <?php if (isset($cart_count) && $cart_count > 0): ?>
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white" id="cartBadge" style="font-size: 10px; padding: 3px 6px;">
@@ -1184,7 +1184,7 @@ if ($is_logged_in) {
                                     <div class="cart-dropdown-title">
                                         Keranjang (<span id="cartDropdownCount">0</span>)
                                     </div>
-                                    <a href="cart.php" class="cart-dropdown-link">Lihat</a>
+                                    <a href="cart/cart.php" class="cart-dropdown-link">Lihat</a>
                                 </div>
                                 <ul class="cart-items-list" id="cartItemsList">
                                     <!-- Items will be populated via JS -->
