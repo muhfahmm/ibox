@@ -56,6 +56,12 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="../../assets/css/darkmode.css">
+    
+    <!-- Dark Mode JS (load early to prevent flash) -->
+    <script src="../../assets/js/darkmode.js"></script>
     <style>
         * {
             margin: 0;
@@ -65,8 +71,8 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
         }
 
         body {
-            background-color: #f5f5f7;
-            color: #1d1d1f;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         /* Navbar CSS from cart.php */
@@ -427,6 +433,54 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                 font-size: 24px;
             }
         }
+
+        /* Theme Toggle Button */
+        .theme-toggle-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #007aff 0%, #0051d5 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .theme-toggle-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+        }
+
+        .theme-toggle-btn:active {
+            transform: translateY(0);
+        }
+
+        .theme-toggle-btn.active {
+            background: linear-gradient(135deg, #ff9500 0%, #ff6b00 100%);
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.3);
+        }
+
+        .theme-toggle-btn.active:hover {
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.4);
+        }
+
+        .theme-toggle-btn i {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle-btn:hover i {
+            transform: rotate(20deg);
+        }
+
+        .toggle-text {
+            font-size: 14px;
+        }
             /* Cart Dropdown Styles - White Liquid Glass / Glassmorphism */
             .cart-dropdown-wrapper {
                 position: relative;
@@ -722,6 +776,22 @@ if($q_cart && $row_cart = $q_cart->fetch_assoc()) {
                     <button type="submit" class="btn btn-primary" style="background-color: #007aff; border: none; padding: 10px 20px; border-radius: 8px;">Simpan Perubahan</button>
                 </div>
             </form>
+        </div>
+
+        <!-- Display Settings Section -->
+        <div class="profile-card">
+            <h2 class="profile-section-title">Pengaturan Tampilan</h2>
+            
+            <div class="profile-info-row">
+                <div>
+                    <div class="profile-info-label">Tema Aplikasi</div>
+                    <div style="font-size: 13px; color: #86868b; margin-top: 4px;">Pilih tema terang atau gelap</div>
+                </div>
+                <button id="darkModeToggle" class="theme-toggle-btn" onclick="window.darkMode.toggle()">
+                    <i class="fas fa-moon"></i>
+                    <span class="toggle-text">Mode Gelap</span>
+                </button>
+            </div>
         </div>
 
         <!-- Address List Section -->

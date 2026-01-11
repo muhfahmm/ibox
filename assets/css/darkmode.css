@@ -1,0 +1,412 @@
+/* Dark Mode Styles */
+:root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f5f5f7;
+    --bg-tertiary: #f9f9fa;
+    --text-primary: #1d1d1f;
+    --text-secondary: #86868b;
+    --text-tertiary: #6e6e73;
+    --border-color: #d2d2d7;
+    --border-light: #e0e0e0;
+    --card-bg: #ffffff;
+    --input-bg: #ffffff;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+    --bg-primary: #000000;
+    --bg-secondary: #1c1c1e;
+    --bg-tertiary: #2c2c2e;
+    --text-primary: #f5f5f7;
+    --text-secondary: #98989d;
+    --text-tertiary: #aeaeb2;
+    --border-color: #38383a;
+    --border-light: #48484a;
+    --card-bg: rgba(28, 28, 30, 0.7);
+    --input-bg: rgba(44, 44, 46, 0.6);
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Apply dark mode colors */
+body {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism for dark mode cards */
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .product-card,
+[data-theme="dark"] .cart-content-wrapper,
+[data-theme="dark"] .checkout-wrapper {
+    background: rgba(28, 28, 30, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Navbar */
+.navbar-container {
+    background-color: var(--bg-primary);
+    box-shadow: 0 2px 10px var(--shadow);
+}
+
+.nav-top-container {
+    background-color: var(--bg-secondary);
+}
+
+.navbar-top {
+    border-bottom-color: var(--border-light);
+}
+
+.hamburger-menu,
+.nav-other-menu i,
+.user-icon {
+    color: var(--text-primary);
+}
+
+.search-bar-menu input[type="text"] {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+/* Cards */
+.profile-card,
+.product-card,
+.cart-content-wrapper,
+.checkout-wrapper,
+.address-item {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* Breadcrumb */
+.breadcrumb-container {
+    background-color: var(--bg-secondary);
+    border-bottom-color: var(--border-light);
+}
+
+.breadcrumb-current {
+    color: var(--text-primary);
+}
+
+/* Profile specific */
+.profile-info-label {
+    color: var(--text-secondary);
+}
+
+.profile-info-value {
+    color: var(--text-primary);
+}
+
+.profile-email {
+    color: var(--text-secondary);
+}
+
+.address-item {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+.address-details {
+    color: var(--text-tertiary);
+}
+
+.address-contact {
+    color: var(--text-secondary);
+}
+
+.empty-address {
+    background-color: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+/* Form inputs */
+.form-control {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.form-control:focus {
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+}
+
+/* Glassmorphism for dark mode inputs */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .search-bar-menu input[type="text"] {
+    background: rgba(44, 44, 46, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .search-bar-menu input[type="text"]:focus {
+    background: rgba(44, 44, 46, 0.8);
+    border-color: rgba(0, 122, 255, 0.5);
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+/* Glassmorphism for address items */
+[data-theme="dark"] .address-item {
+    background: rgba(44, 44, 46, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .address-item:hover {
+    background: rgba(44, 44, 46, 0.7);
+    border-color: rgba(0, 122, 255, 0.5);
+}
+
+/* Glassmorphism for navbar */
+[data-theme="dark"] .navbar-container {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .nav-top-container {
+    background: rgba(28, 28, 30, 0.6);
+}
+
+/* Product cards */
+.product-image-container {
+    background-color: var(--bg-tertiary);
+}
+
+.product-info {
+    background-color: var(--card-bg);
+}
+
+.product-name,
+.product-title {
+    color: var(--text-primary);
+}
+
+.product-category {
+    color: #007aff;
+}
+
+/* Cart dropdown */
+.cart-dropdown {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .cart-dropdown {
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+.cart-dropdown-title {
+    color: var(--text-primary);
+}
+
+.cart-item-name {
+    color: var(--text-primary);
+}
+
+.cart-item-price {
+    color: var(--text-primary);
+}
+
+.cart-item-qty {
+    color: var(--text-secondary);
+}
+
+.cart-empty-state {
+    color: var(--text-secondary);
+}
+
+/* Headers and titles */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--text-primary);
+}
+
+.products-title {
+    background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.products-subtitle {
+    color: var(--text-tertiary);
+}
+
+/* Links */
+a {
+    color: var(--text-primary);
+}
+
+.user-name-link {
+    color: var(--text-primary);
+}
+
+/* Borders */
+.profile-info-row {
+    border-bottom-color: var(--border-light);
+}
+
+/* Empty states */
+.empty-state {
+    background-color: var(--card-bg);
+    color: var(--text-secondary);
+}
+
+/* Modals */
+.glass-modal-content {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* Dropdown menus */
+.dropdown {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dropdown {
+    background: rgba(28, 28, 30, 0.95);
+    backdrop-filter: blur(20px);
+}
+
+.dropdown a {
+    color: var(--text-secondary);
+}
+
+.dropdown a:hover {
+    background: rgba(0, 122, 255, 0.1);
+    color: #007aff;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--bg-primary);
+}
+
+.sidebar-menu>ul>li>a {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.sidebar-menu>ul>li>a:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.sidebar-dropdown {
+    background-color: var(--bg-tertiary);
+}
+
+.sidebar-dropdown a {
+    color: var(--text-secondary);
+}
+
+.sidebar-dropdown a:hover {
+    background-color: rgba(0, 122, 255, 0.1);
+    color: #007aff;
+}
+
+/* Additional Dark Mode Text Fixes */
+[data-theme="dark"] {
+
+    /* Ensure all labels are visible */
+    label,
+    .profile-info-label,
+    .address-label-badge,
+    .profile-section-title {
+        color: var(--text-primary) !important;
+    }
+
+    /* Input placeholders */
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--text-secondary);
+        opacity: 0.7;
+    }
+
+    /* All paragraph text */
+    p,
+    span,
+    div {
+        color: var(--text-primary);
+    }
+
+    /* Specific profile elements */
+    .profile-name,
+    .profile-email,
+    .address-recipient,
+    .address-details,
+    .address-contact {
+        color: var(--text-primary) !important;
+    }
+
+    /* Make secondary text more visible */
+    .profile-email {
+        color: var(--text-secondary) !important;
+    }
+
+    .address-details {
+        color: var(--text-tertiary) !important;
+    }
+
+    .address-contact {
+        color: var(--text-secondary) !important;
+    }
+
+    /* Button text */
+    .btn,
+    button {
+        color: inherit;
+    }
+
+    /* Link text */
+    a:not(.btn):not(.button) {
+        color: #0a84ff;
+    }
+
+    a:not(.btn):not(.button):hover {
+        color: #409cff;
+    }
+
+    /* Form labels and values */
+    .form-label,
+    .form-control-label {
+        color: var(--text-primary) !important;
+    }
+
+    /* Ensure readability for all text elements */
+    .text-muted,
+    .text-secondary {
+        color: var(--text-secondary) !important;
+    }
+
+    /* Profile avatar text */
+    .profile-avatar {
+        color: white !important;
+    }
+
+    /* Address badge */
+    .address-label-badge {
+        background: rgba(0, 122, 255, 0.2);
+        color: #0a84ff !important;
+        border: 1px solid rgba(0, 122, 255, 0.3);
+    }
+
+    /* Empty state text */
+    .empty-address {
+        color: var(--text-secondary) !important;
+    }
+}
