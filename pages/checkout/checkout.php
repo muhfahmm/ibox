@@ -145,39 +145,35 @@ while ($row = $res->fetch_assoc()) {
             background-color: #f7f7f7;
         }
         
-        /* Breadcrumb CSS */
+        
         /* Breadcrumb CSS */
         .breadcrumb-container {
-            padding: 15px 0;
-            background-color: #fff;
+            padding: 15px 5%;
+            background-color: #f7f7f7;
             font-size: 14px;
-            color: #86868b;
-            border-bottom: 1px solid #e5e5e7;
+            color: #888;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .breadcrumb-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 5%;
-            display: flex;
-            align-items: center;
+
+        .breadcrumb-container a {
+            color: #007aff;
+            text-decoration: none;
         }
-        .breadcrumb-container a { 
-            color: #1d1d1f; 
-            text-decoration: none; 
-            transition: color 0.2s;
+
+        .breadcrumb-container a:hover {
+            text-decoration: underline;
         }
-        .breadcrumb-container a:hover { 
-            color: #007aff; 
+
+        .breadcrumb-separator {
+            margin: 0 8px;
+            color: #ccc;
         }
-        .breadcrumb-separator { 
-            margin: 0 10px; 
-            color: #d2d2d7; 
-            font-size: 12px;
+
+        .breadcrumb-current {
+            color: #333;
+            font-weight: 500;
         }
-        .breadcrumb-current { 
-            color: #86868b; 
-            font-weight: 400; 
-        }
+
         /* Lightbox Modal CSS - Glassmorphism */
         .image-preview-modal {
             position: fixed;
