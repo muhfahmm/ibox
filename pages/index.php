@@ -69,13 +69,13 @@ if ($is_logged_in) {
                 position: sticky;
                 top: 0;
                 z-index: 100;
-                background-color: white;
+                background-color: var(--bg-primary);
                 box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
             }
 
             .nav-top-container {
                 padding: 0 5%;
-                background-color: whitesmoke;
+                background-color: var(--bg-secondary);
             }
 
             .navbar-top {
@@ -167,7 +167,7 @@ if ($is_logged_in) {
             }
 
             .header-top-container {
-                background-color: white;
+                background-color: var(--bg-primary);
             }
 
             .header-top {
@@ -509,7 +509,7 @@ if ($is_logged_in) {
                 left: -320px;
                 width: 300px;
                 height: 100%;
-                background-color: white;
+                background-color: var(--bg-primary);
                 z-index: 1000;
                 box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
                 overflow-y: auto;
@@ -528,7 +528,7 @@ if ($is_logged_in) {
                 align-items: center;
                 padding: 20px 25px;
                 border-bottom: 2px solid #f0f0f0;
-                background-color: white;
+                background-color: var(--bg-primary);
                 min-height: 80px;
                 gap: 20px;
             }
@@ -623,7 +623,7 @@ if ($is_logged_in) {
                 align-items: center;
                 transition: all 0.3s ease;
                 position: relative;
-                background-color: white;
+                background-color: var(--bg-primary);
             }
 
             .sidebar-menu>ul>li>a .menu-arrow {

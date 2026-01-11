@@ -30,6 +30,12 @@ if ($is_logged_in) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="../../assets/css/darkmode.css">
+    
+    <!-- Dark Mode JS -->
+    <script src="../../assets/js/darkmode.js"></script>
     <style>
         * {
             padding: 0;
@@ -39,7 +45,8 @@ if ($is_logged_in) {
         }
 
         body {
-            background-color: #f7f7f7;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         /* Breadcrumb CSS */
@@ -80,8 +87,8 @@ if ($is_logged_in) {
         <style>
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: #f9f9f9;
-                color: #333;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
                 overflow-x: hidden;
             }
 

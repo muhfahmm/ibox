@@ -133,6 +133,12 @@ while ($row = $res->fetch_assoc()) {
     <!-- Leaflet JS for Maps -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     
+    <!-- Dark Mode CSS -->
+    <link rel="stylesheet" href="../../assets/css/darkmode.css">
+    
+    <!-- Dark Mode JS -->
+    <script src="../../assets/js/darkmode.js"></script>
+    
     <style>
         * {
             padding: 0;
@@ -142,7 +148,8 @@ while ($row = $res->fetch_assoc()) {
         }
         
         body {
-            background-color: #f7f7f7;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
         
         
