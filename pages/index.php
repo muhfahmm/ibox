@@ -5603,7 +5603,7 @@ if ($is_logged_in) {
                             <p class="price-text">
                                 <?php if (isset($p['has_discount']) && $p['has_discount']): ?>
                                     <span class="price-start" style="text-decoration: line-through; color: #86868b; margin-right: 5px; font-size: 0.9em;">Rp <?php echo number_format($p['original_price'], 0, ',', '.'); ?></span>
-                                    <span style="color: #1d1d1f; font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
+                                    <span style="font-weight: 600;">Mulai <?php echo $p['price']; ?></span>
                                 <?php else: ?>
                                     <span class="price-start">Mulai </span><?php echo $p['price']; ?>
                                 <?php endif; ?>

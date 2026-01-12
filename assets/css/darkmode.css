@@ -655,4 +655,16 @@ a {
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
     }
+
+    /* FORCE PRICE TEXT WHITE IN DARK MODE - OVERRIDE INLINE STYLES */
+    .container-grid-products .price-text span[style],
+    .container-grid-products .price-start[style] {
+        color: #ffffff !important;
+    }
+
+    /* Khusus untuk harga coret, beri sedikit opacity tapi tetap base-nya putih */
+    .container-grid-products .price-start[style*="line-through"] {
+        color: #ffffff !important;
+        opacity: 0.7;
+    }
 }
