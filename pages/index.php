@@ -6338,7 +6338,7 @@ if ($is_logged_in) {
 
             function createTradeinViewAllCard() {
                 return `
-                <div class="tradein-product header-card-products" onclick="location.href='products/products.php'" style="cursor: pointer; background: var(--bg-secondary); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px;">
+                <div class="tradein-product header-card-products" onclick="location.href='products/products.php'" style="cursor: pointer; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px;">
                     <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
                         <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
                     </div>
@@ -7197,8 +7197,8 @@ if ($is_logged_in) {
         ?>
         <style>
             body {
-                background-color: #f8f9fa;
-                color: #1d1d1f;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
                 line-height: 1.6;
                 overflow-x: hidden;
             }
@@ -7222,7 +7222,7 @@ if ($is_logged_in) {
             .section-heading .section-main-title {
                 font-size: 1.5rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 display: inline-block;
                 position: relative;
                 margin-bottom: 15px;
@@ -7242,7 +7242,7 @@ if ($is_logged_in) {
 
             .section-heading p {
                 font-size: 1.1rem;
-                color: #86868b;
+                color: var(--text-secondary);
                 max-width: 600px;
                 margin: 25px auto 0;
                 font-weight: 400;
@@ -7255,8 +7255,8 @@ if ($is_logged_in) {
                 border-radius: 24px;
                 padding: 30px 0 50px;
                 margin: 0;
-                background: #ffffff;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+                background: var(--card-bg);
+                box-shadow: 0 10px 30px var(--shadow);
             }
 
             /* SLIDER TRACK */
@@ -7269,12 +7269,12 @@ if ($is_logged_in) {
 
             /* CONTENT CARD - SEMUA CARD SAMA TINGGI */
             .content-aksesori {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 20px;
                 overflow: hidden;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 8px 30px var(--shadow);
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 height: 100%;
@@ -7293,7 +7293,7 @@ if ($is_logged_in) {
                 width: 100%;
                 height: 220px;
                 overflow: hidden;
-                background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+                background: var(--bg-tertiary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -7308,7 +7308,7 @@ if ($is_logged_in) {
                 left: 0;
                 width: 100%;
                 height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+                background: linear-gradient(90deg, transparent, var(--border-light), transparent);
             }
 
             .header-card-aksesori img {
@@ -7316,13 +7316,13 @@ if ($is_logged_in) {
                 height: 160px;
                 max-width: 100%;
                 object-fit: contain;
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+                filter: drop-shadow(0 4px 8px var(--shadow));
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .content-aksesori:hover .header-card-aksesori img {
                 transform: scale(1.08) translateY(-3px);
-                filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+                filter: drop-shadow(0 6px 12px var(--shadow));
             }
 
             /* FOOTER CARD - KONTEN YANG FLEKSIBEL */
@@ -7349,7 +7349,7 @@ if ($is_logged_in) {
             .nama-aksesori {
                 font-size: 1.4rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 12px;
                 line-height: 1.3;
                 letter-spacing: -0.2px;
@@ -7358,7 +7358,7 @@ if ($is_logged_in) {
 
             .deskripsi-aksesori {
                 font-size: 0.95rem;
-                color: #515154;
+                color: var(--text-secondary);
                 margin-bottom: 20px;
                 line-height: 1.6;
                 flex-grow: 1;
@@ -7388,7 +7388,7 @@ if ($is_logged_in) {
             .harga-asli-coret {
                 font-size: 0.95rem;
                 font-weight: 500;
-                color: #86868b;
+                color: var(--text-secondary);
                 text-decoration: line-through;
                 text-align: center;
                 display: block;
@@ -7459,7 +7459,7 @@ if ($is_logged_in) {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
-                background: white;
+                background: var(--card-bg);
                 border: none;
                 width: 56px;
                 height: 56px;
@@ -7470,11 +7470,11 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 1.5rem;
-                color: #1d1d1f;
-                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+                color: var(--text-primary);
+                box-shadow: 0 6px 20px var(--shadow);
                 z-index: 20;
                 backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.8);
+                border: 1px solid var(--border-light);
             }
 
             .aksesori-nav-btn:hover:not(:disabled) {
@@ -7487,16 +7487,16 @@ if ($is_logged_in) {
             .aksesori-nav-btn:disabled {
                 opacity: 0.4;
                 cursor: not-allowed;
-                background: #f5f5f7;
-                color: #86868b;
+                background: var(--bg-tertiary);
+                color: var(--text-secondary);
                 transform: translateY(-50%);
             }
 
             .aksesori-nav-btn:disabled:hover {
-                background: #f5f5f7;
-                color: #86868b;
+                background: var(--bg-tertiary);
+                color: var(--text-secondary);
                 transform: translateY(-50%);
-                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 6px 20px var(--shadow);
             }
 
             .aksesori-prev {
@@ -7931,13 +7931,13 @@ if ($is_logged_in) {
                 <?php endif; ?>
 
                 <!-- Card Lihat Semua -->
-                <div class="content-aksesori" onclick="location.href='products/products.php'" style="cursor: pointer; background: #f5f5f7;">
+                <div class="content-aksesori" onclick="location.href='products/products.php'" style="cursor: pointer;">
                     <div class="header-card-aksesori" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;">
                         <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
                             <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
                         </div>
-                        <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 5px;">Lihat Semua</h3>
-                        <p style="color: #86868b; text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan aksesori lainnya</p>
+                        <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px;">Lihat Semua</h3>
+                        <p style="color: var(--text-secondary); text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan aksesori lainnya</p>
                     </div>
                 </div>
             </div>
@@ -8956,8 +8956,8 @@ if ($is_logged_in) {
     <div class="layanan-lengkap-untuk-anda-container">
         <style>
             body {
-                background-color: #f8f9fa;
-                color: #333;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
                 line-height: 1.6;
             }
 
@@ -8980,12 +8980,12 @@ if ($is_logged_in) {
 
             /* SERVICE CARD */
             .layanan-lengkap-untuk-anda-card {
-                background-color: white;
+                background-color: var(--card-bg);
                 border-radius: 16px;
                 padding: 40px 35px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+                box-shadow: 0 10px 30px var(--shadow);
                 transition: all 0.3s ease;
-                border: 1px solid #eaeaea;
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 height: 100%;
@@ -9002,7 +9002,7 @@ if ($is_logged_in) {
             .layanan-lengkap-untuk-anda-card h2 {
                 font-size: 28px;
                 font-weight: 700;
-                color: #1a1a1a;
+                color: var(--text-primary);
                 margin-bottom: 20px;
                 line-height: 1.3;
                 min-height: 68px;
@@ -9014,7 +9014,7 @@ if ($is_logged_in) {
             /* Content Styles */
             .layanan-lengkap-untuk-anda-card p {
                 font-size: 16.5px;
-                color: #555;
+                color: var(--text-secondary);
                 margin-bottom: 30px;
                 line-height: 1.7;
                 flex-grow: 1;
@@ -9031,7 +9031,7 @@ if ($is_logged_in) {
                 font-size: 16.5px;
                 transition: all 0.2s ease;
                 padding: 10px 0;
-                border-top: 1px solid #eee;
+                border-top: 1px solid var(--border-light);
                 margin-top: auto;
                 /* Dorong link ke bawah */
                 padding-top: 20px;
@@ -10007,8 +10007,8 @@ if ($is_logged_in) {
         ?>
         <style>
             body {
-                background-color: #f8f9fa;
-                color: #1d1d1f;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
                 line-height: 1.6;
                 overflow-x: hidden;
             }
@@ -10032,7 +10032,7 @@ if ($is_logged_in) {
             .section-heading-checkout h1 {
                 font-size: 2.5rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 display: inline-block;
                 position: relative;
                 margin-bottom: 15px;
@@ -10053,7 +10053,7 @@ if ($is_logged_in) {
 
             .section-heading-checkout p {
                 font-size: 1.1rem;
-                color: #86868b;
+                color: var(--text-secondary);
                 max-width: 600px;
                 margin: 0 auto;
                 font-weight: 400;
@@ -10066,10 +10066,9 @@ if ($is_logged_in) {
                 border-radius: 24px;
                 padding: 30px 0;
                 margin: 0 20px;
-                background: #ffffff;
-                box-shadow:
-                    0 10px 30px rgba(0, 0, 0, 0.05);
-                border: 1px solid rgba(0, 122, 255, 0.08);
+                background: var(--card-bg);
+                box-shadow: 0 10px 30px var(--shadow);
+                border: 1px solid var(--border-light);
             }
 
             /* SLIDER TRACK CHECKOUT */
@@ -10087,11 +10086,9 @@ if ($is_logged_in) {
                 background: var(--card-bg);
                 border-radius: 20px;
                 overflow: hidden;
-                box-shadow:
-                    0 8px 30px rgba(0, 0, 0, 0.08),
-                    0 2px 8px rgba(0, 0, 0, 0.03);
+                box-shadow: 0 8px 30px var(--shadow);
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 min-height: 100%;
@@ -10128,7 +10125,7 @@ if ($is_logged_in) {
                 left: 0;
                 width: 100%;
                 height: 1px;
-                background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.05), transparent);
+                background: linear-gradient(90deg, transparent, var(--border-light), transparent);
             }
 
             .header-card-checkout img {
@@ -10136,13 +10133,13 @@ if ($is_logged_in) {
                 height: 140px;
                 max-width: 100%;
                 object-fit: contain;
-                filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+                filter: drop-shadow(0 4px 8px var(--shadow));
                 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             }
 
             .content-checkout:hover .header-card-checkout img {
                 transform: scale(1.08) translateY(-3px);
-                filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+                filter: drop-shadow(0 6px 12px var(--shadow));
             }
 
             /* FOOTER CARD CHECKOUT */

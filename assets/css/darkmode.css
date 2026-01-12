@@ -409,4 +409,186 @@ a {
     .empty-address {
         color: var(--text-secondary) !important;
     }
+
+    /* Trade-in product cards glassmorphism */
+    .tradein-product {
+        background: rgba(28, 28, 30, 0.7) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .tradein-product:hover {
+        background: rgba(28, 28, 30, 0.85) !important;
+        box-shadow: 0 15px 30px rgba(0, 122, 255, 0.2) !important;
+    }
+
+    /* Aksesori Unggulan Apple - Dark Mode */
+    .aksesori-slider-wrapper {
+        background: rgba(28, 28, 30, 0.6) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .content-aksesori {
+        background: rgba(28, 28, 30, 0.7) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .content-aksesori:hover {
+        background: rgba(28, 28, 30, 0.85) !important;
+        box-shadow: 0 15px 35px rgba(0, 122, 255, 0.2) !important;
+        border-color: rgba(0, 122, 255, 0.3) !important;
+    }
+
+    .header-card-aksesori {
+        background: linear-gradient(135deg, rgba(44, 44, 46, 0.5) 0%, rgba(28, 28, 30, 0.5) 100%) !important;
+    }
+
+    .nama-aksesori {
+        color: var(--text-primary) !important;
+    }
+
+    .deskripsi-aksesori {
+        color: var(--text-secondary) !important;
+    }
+
+    .badge-category {
+        background: rgba(0, 122, 255, 0.2) !important;
+        color: #0a84ff !important;
+        border: 1px solid rgba(0, 122, 255, 0.3);
+    }
+
+    .harga-aksesori {
+        background: rgba(0, 122, 255, 0.15) !important;
+        color: #0a84ff !important;
+    }
+
+    .harga-diskon {
+        background: rgba(255, 59, 48, 0.15) !important;
+        color: #ff453a !important;
+    }
+
+    .section-heading .section-main-title {
+        color: var(--text-primary) !important;
+    }
+
+    .section-heading p {
+        color: var(--text-secondary) !important;
+    }
+
+    /* Navigation buttons for aksesori */
+    .aksesori-nav-btn {
+        background: rgba(44, 44, 46, 0.8) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--text-primary) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .aksesori-nav-btn:hover:not(:disabled) {
+        background: #007aff !important;
+        color: white !important;
+        box-shadow: 0 10px 25px rgba(0, 122, 255, 0.4) !important;
+    }
+
+    .aksesori-nav-btn:disabled {
+        background: rgba(44, 44, 46, 0.5) !important;
+        color: var(--text-tertiary) !important;
+    }
+
+    /* Dots for aksesori */
+    .aksesori-dot {
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    .aksesori-dot:hover {
+        background: rgba(0, 122, 255, 0.6) !important;
+    }
+
+    .aksesori-dot.active {
+        background: #007aff !important;
+    }
+
+    /* Layanan Lengkap Untuk Anda - Dark Mode */
+    .layanan-lengkap-untuk-anda-card {
+        background: rgba(28, 28, 30, 0.7) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .layanan-lengkap-untuk-anda-card:hover {
+        background: rgba(28, 28, 30, 0.85) !important;
+        box-shadow: 0 15px 40px rgba(0, 122, 255, 0.2) !important;
+        border-color: rgba(0, 122, 255, 0.3) !important;
+    }
+
+    .layanan-lengkap-untuk-anda-card h2 {
+        color: var(--text-primary) !important;
+    }
+
+    .layanan-lengkap-untuk-anda-card p {
+        color: var(--text-secondary) !important;
+    }
+
+    .layanan-lengkap-untuk-anda-link {
+        color: #0a84ff !important;
+        border-top-color: rgba(255, 255, 255, 0.1) !important;
+    }
+
+    .layanan-lengkap-untuk-anda-link:hover {
+        color: #409cff !important;
+    }
+
+    /* Checkout Sekarang - Dark Mode */
+    .checkout-slider-wrapper {
+        background: rgba(28, 28, 30, 0.6) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    .content-checkout {
+        background: rgba(28, 28, 30, 0.7) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .content-checkout:hover {
+        background: rgba(28, 28, 30, 0.85) !important;
+        box-shadow: 0 15px 35px rgba(0, 122, 255, 0.2) !important;
+        border-color: rgba(0, 122, 255, 0.3) !important;
+    }
+
+    .header-card-checkout {
+        background: linear-gradient(135deg, rgba(44, 44, 46, 0.5) 0%, rgba(28, 28, 30, 0.5) 100%) !important;
+    }
+
+    .nama-checkout {
+        color: var(--text-primary) !important;
+    }
+
+    .deskripsi-checkout {
+        color: var(--text-secondary) !important;
+    }
+
+    .section-heading-checkout h1 {
+        color: var(--text-primary) !important;
+    }
+
+    .section-heading-checkout p {
+        color: var(--text-secondary) !important;
+    }
 }
