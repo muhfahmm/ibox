@@ -1000,7 +1000,7 @@ if ($is_logged_in) {
             .cart-dropdown-title {
                 font-size: 16px;
                 font-weight: 600;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 text-shadow: none;
             }
 
@@ -1040,12 +1040,12 @@ if ($is_logged_in) {
             }
 
             .cart-item {
-                border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
+                border-bottom: 1px solid var(--border-light); 
                 transition: background 0.2s;
             }
 
             .cart-item:hover {
-                background-color: rgba(0, 122, 255, 0.05); 
+                background-color: var(--bg-tertiary); 
             }
 
             .cart-item-link {
@@ -1067,14 +1067,14 @@ if ($is_logged_in) {
                 width: 60px;
                 height: 60px;
                 border-radius: 10px;
-                background-color: #fff;
+                background-color: var(--bg-primary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 overflow: hidden;
                 flex-shrink: 0;
                 box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-                border: 1px solid rgba(0,0,0,0.05); /* Slight border for image */
+                border: 1px solid var(--border-light); /* Slight border for image */
             }
 
             .cart-item-img img {
@@ -1094,7 +1094,7 @@ if ($is_logged_in) {
             .cart-item-name {
                 font-size: 14px;
                 font-weight: 500;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 4px;
                 display: -webkit-box;
                 -webkit-line-clamp: 2;
@@ -1111,20 +1111,20 @@ if ($is_logged_in) {
 
             .cart-item-qty {
                 font-size: 13px;
-                color: #86868b;
+                color: var(--text-secondary);
             }
             
             .cart-item-price {
                 font-size: 14px;
                 font-weight: 600;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 text-shadow: none;
             }
 
             .cart-empty-state {
                 padding: 40px 20px;
                 text-align: center;
-                color: #86868b;
+                color: var(--text-secondary);
                 font-size: 14px;
             }
 
@@ -1165,7 +1165,7 @@ if ($is_logged_in) {
                     </div>
                     <div class="nav-other-menu">
                         <?php if ($is_logged_in): ?>
-                            <a href="auth/profile.php" class="user-name-link" style="text-decoration: none; color: #333; font-weight: 500; display: flex; align-items: center; gap: 8px;">
+                            <a href="auth/profile.php" class="user-name-link" style="text-decoration: none; color: var(--text-primary); font-weight: 500; display: flex; align-items: center; gap: 8px;">
                                 <i class="bi bi-person-circle" style="font-size: 20px;"></i>
                                 <span><?php echo htmlspecialchars($user_initials); ?></span>
                             </a>
@@ -2299,7 +2299,7 @@ if ($is_logged_in) {
         <style>
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: #f5f5f7;
+                /* background-color: #f5f5f7; - REMOVED */
             }
 
             .image-slider-container {
@@ -2338,17 +2338,20 @@ if ($is_logged_in) {
                 position: absolute;
                 bottom: 60px;
                 left: 60px;
-                background: rgba(255, 255, 255, 0.95);
+                bottom: 60px;
+                left: 60px;
+                background: rgba(30, 30, 30, 0.65);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
                 padding: 30px;
                 border-radius: 12px;
                 max-width: 500px;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             .slide-content h3 {
-                color: #1d1d1f;
+                color: var(--text-primary);
                 font-size: 32px;
                 margin-bottom: 12px;
                 font-weight: 700;
@@ -2356,7 +2359,7 @@ if ($is_logged_in) {
             }
 
             .slide-content p {
-                color: #515154;
+                color: var(--text-secondary);
                 font-size: 17px;
                 margin-bottom: 25px;
                 line-height: 1.5;
@@ -2364,7 +2367,7 @@ if ($is_logged_in) {
 
             .slide-btn {
                 background-color: #007aff;
-                color: white;
+                color: #ffffff !important;
                 border: none;
                 padding: 14px 30px;
                 border-radius: 28px;
@@ -2403,7 +2406,10 @@ if ($is_logged_in) {
             }
 
             .nav-btn {
-                background-color: rgba(255, 255, 255, 0.95);
+                background-color: rgba(30, 30, 30, 0.6);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 border: none;
                 width: 56px;
                 height: 56px;
@@ -2414,14 +2420,14 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 22px;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
                 opacity: 1;
                 pointer-events: auto;
             }
 
             .nav-btn:hover {
-                background-color: #ffffff;
+                background-color: rgba(60, 60, 60, 0.8);
                 transform: scale(1.15);
                 color: #007aff;
                 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
@@ -2579,7 +2585,7 @@ if ($is_logged_in) {
 
                 .slide-content {
                     position: relative;
-                    background: white;
+                    background: var(--card-bg);
                     max-width: 100%;
                     left: 0;
                     bottom: 0;
@@ -2969,8 +2975,8 @@ if ($is_logged_in) {
     <div class="category-products-container">
         <style>
             body {
-                background-color: #f7f7f7;
-                color: #333;
+                /* background-color: #f7f7f7; - REMOVED */
+                /* color: #333; - REMOVED */
             }
 
             .category-products-container {
@@ -2986,7 +2992,7 @@ if ($is_logged_in) {
             h3 {
                 font-size: 28px;
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 30px;
                 text-align: center;
                 position: relative;
@@ -3040,18 +3046,22 @@ if ($is_logged_in) {
                 transition: all 0.3s ease;
                 cursor: pointer;
                 flex-shrink: 0;
-                background-color: white;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                flex-shrink: 0;
+                background-color: rgba(30, 30, 30, 0.6);
+                backdrop-filter: blur(15px);
+                -webkit-backdrop-filter: blur(15px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             }
 
             .product-items:hover {
-                background-color: #f5f5f7;
+                background-color: rgba(60, 60, 60, 0.7);
                 transform: translateY(-5px);
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             }
 
             .product-items.active {
-                background-color: #f0f7ff;
+                background-color: rgba(0, 122, 255, 0.15);
                 border: 2px solid #007aff;
                 box-shadow: 0 5px 15px rgba(0, 122, 255, 0.15);
             }
@@ -3070,13 +3080,13 @@ if ($is_logged_in) {
                 font-weight: 700;
                 font-size: 16px;
                 margin-bottom: 5px;
-                color: #1d1d1f;
+                color: var(--text-primary);
             }
 
             .product-items-price {
                 font-weight: 600;
                 font-size: 13px;
-                color: #86868b;
+                color: var(--text-secondary);
             }
 
             /* SWIPE INDICATOR FOR MOBILE */
@@ -3491,6 +3501,24 @@ if ($is_logged_in) {
     </div>
 
     <!-- all-products -->
+    <style>
+        .all-products-container {
+            background: transparent;
+            padding: 0;
+            margin: 0 auto;
+            max-width: 1400px;
+            border: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            .all-products-container {
+                padding: 20px;
+                margin: 20px 10px;
+                border-radius: 16px;
+            }
+        }
+    </style>
     <div class="all-products-container">
         <?php
         // Fungsi untuk mengambil produk populer dari tabel home_produk_populer
@@ -3723,8 +3751,8 @@ if ($is_logged_in) {
         ?>
         <style>
             body {
-                background-color: #f7f7f7;
-                color: #333;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
             }
 
             .all-products-container {
@@ -3736,7 +3764,7 @@ if ($is_logged_in) {
             .products-section-title {
                 font-size: 28px;
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 30px;
                 text-align: center;
                 position: relative;
@@ -3783,13 +3811,13 @@ if ($is_logged_in) {
 
             .category-tab {
                 padding: 12px 25px;
-                background-color: white;
-                border: 2px solid #e0e0e0;
+                background-color: var(--card-bg);
+                border: 2px solid var(--border-light);
                 border-radius: 30px;
                 font-weight: 500;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                color: #666;
+                color: var(--text-secondary);
                 flex-shrink: 0;
                 white-space: nowrap;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -3907,10 +3935,13 @@ if ($is_logged_in) {
             .all-products-image-slider-container {
                 position: relative;
                 overflow: hidden;
-                border-radius: 12px;
-                background: white;
+                border-radius: 24px;
+                background: rgba(30, 30, 30, 0.6);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 padding: 30px 20px 60px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 margin-bottom: 40px;
             }
 
@@ -3943,13 +3974,13 @@ if ($is_logged_in) {
 
             /* PRODUCT CARD STYLES UNTUK SEMUA */
             .product-card {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 12px;
                 padding: 20px;
                 height: 100%;
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
                 transition: all 0.3s ease;
-                border: 1px solid #f0f0f0;
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -3971,7 +4002,7 @@ if ($is_logged_in) {
                 object-fit: contain;
                 margin-bottom: 15px;
                 border-radius: 8px;
-                background-color: #f8f9fa;
+                background-color: var(--bg-tertiary);
                 padding: 15px;
             }
 
@@ -3997,7 +4028,7 @@ if ($is_logged_in) {
             .product-name {
                 font-size: 16px;
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 8px;
                 height: 40px;
                 display: flex;
@@ -4139,7 +4170,8 @@ if ($is_logged_in) {
             }
 
             .all-products-nav-btn {
-                background-color: white;
+                background-color: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(4px);
                 border: none;
                 width: 45px;
                 height: 45px;
@@ -4150,11 +4182,15 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 20px;
-                color: #333;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                color: #007aff;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 pointer-events: auto;
                 opacity: 1;
                 visibility: visible;
+            }
+            
+            .all-products-nav-btn i {
+                color: #007aff !important;
             }
 
             .all-products-nav-btn.hidden {
@@ -4165,7 +4201,11 @@ if ($is_logged_in) {
                 background-color: #007aff;
                 color: white;
                 transform: scale(1.1);
-                box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
+                box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+            }
+            
+            .all-products-nav-btn:hover:not(:disabled) i {
+                color: white !important;
             }
 
             .all-products-nav-btn:disabled {
@@ -4807,13 +4847,13 @@ if ($is_logged_in) {
 
                 function createViewAllCard(link) {
                     return `
-                    <div class="product-card content-products" onclick="location.href='${link}'" style="cursor: pointer; background: #f5f5f7; height: 100%;">
+                    <div class="product-card content-products" onclick="location.href='${link}'" style="cursor: pointer; background: var(--bg-secondary); height: 100%;">
                         <div class="header-card-products" style="height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px;">
                             <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
                                 <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
                             </div>
-                            <h3 style="font-size: 1.5rem; font-weight: 700; color: #1d1d1f; margin-bottom: 5px;">Lihat Semua</h3>
-                            <p style="color: #86868b; text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan produk lainnya</p>
+                            <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 5px;">Lihat Semua</h3>
+                            <p style="color: var(--text-secondary); text-align: center; font-size: 0.95rem;">Jelajahi berbagai pilihan produk lainnya</p>
                         </div>
                     </div>
                     `;
@@ -5201,14 +5241,14 @@ if ($is_logged_in) {
             :root {
                 --apple-blue: #0071e3;
                 --apple-blue-hover: #0077ed;
-                --apple-gray-bg: #f5f5f7;
-                --apple-gray-light: #f5f5f7;
-                --apple-gray-text: #86868b;
-                --apple-dark-text: #1d1d1f;
+                --apple-gray-bg: var(--bg-secondary);
+                --apple-gray-light: var(--bg-secondary);
+                --apple-gray-text: var(--text-secondary);
+                --apple-dark-text: var(--text-primary);
                 --apple-new-badge: #bf4800;
                 --apple-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
                 --apple-card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
-                --apple-border-color: rgba(0, 0, 0, 0.1);
+                --apple-border-color: var(--border-color);
             }
 
             body {
@@ -5239,7 +5279,7 @@ if ($is_logged_in) {
 
             /* Styling Kartu */
             .card {
-                background-color: #ffffff;
+                background-color: var(--card-bg);
                 border-radius: 18px;
                 padding: 24px;
                 transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
@@ -5411,7 +5451,7 @@ if ($is_logged_in) {
                 width: 100px; /* Perkecil lagi agar muat */
                 height: 100px;
                 object-fit: contain; /* Ganti cover ke contain agar gambar produk utuh */
-                background: #fff;
+                background: var(--bg-primary);
                 border-radius: 10px;
                 transition: transform 0.5s ease;
                 flex-shrink: 0;
@@ -5684,9 +5724,7 @@ if ($is_logged_in) {
     <!-- trade in -->
     <div class="tradein-container">
         <style>
-            body {
-                background-color: #f7f7f7;
-            }
+
 
             .tradein-container {
                 padding: 40px 20px;
@@ -5703,32 +5741,21 @@ if ($is_logged_in) {
             .tradein-header h1 {
                 font-size: 28px;
                 font-weight: 600;
-                color: #333;
-                margin-bottom: 15px;
-                text-align: center;
-                position: relative;
-                padding-bottom: 15px;
-            }
-
-            .tradein-header h1::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 80px;
-                height: 3px;
-                background-color: #007aff;
+                color: var(--text-primary);
+                margin: 0;
             }
 
             /* SLIDER WRAPPER */
             .tradein-slider-wrapper {
                 position: relative;
                 overflow: hidden;
-                border-radius: 12px;
-                background: white;
+                border-radius: 24px;
+                background: rgba(30, 30, 30, 0.6);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
                 padding: 30px 20px 60px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 margin-bottom: 40px;
             }
 
@@ -5764,13 +5791,13 @@ if ($is_logged_in) {
 
             /* PRODUCT CARD */
             .tradein-product {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 12px;
                 padding: 20px;
                 height: 100%;
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
                 transition: all 0.3s ease;
-                border: 1px solid #f0f0f0;
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -5790,7 +5817,7 @@ if ($is_logged_in) {
                 object-fit: contain;
                 margin-bottom: 15px;
                 border-radius: 8px;
-                background-color: #f8f9fa;
+                background-color: var(--bg-tertiary);
                 padding: 15px;
             }
 
@@ -5798,7 +5825,7 @@ if ($is_logged_in) {
             .tradein-name {
                 font-size: 16px;
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 20px;
                 height: 40px;
                 display: flex;
@@ -5827,7 +5854,7 @@ if ($is_logged_in) {
 
             .tradein-price-label {
                 font-size: 14px;
-                color: #666;
+                color: var(--text-secondary);
                 font-weight: 500;
             }
 
@@ -5914,7 +5941,8 @@ if ($is_logged_in) {
             }
 
             .tradein-nav-btn {
-                background-color: white;
+                background-color: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(4px);
                 border: none;
                 width: 45px;
                 height: 45px;
@@ -5925,11 +5953,15 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 20px;
-                color: #333;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+                color: #007aff;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 pointer-events: auto;
                 opacity: 1;
                 visibility: visible;
+            }
+            
+            .tradein-nav-btn i {
+                color: #007aff !important;
             }
 
             .tradein-nav-btn.hidden {
@@ -5940,7 +5972,11 @@ if ($is_logged_in) {
                 background-color: #007aff;
                 color: white;
                 transform: scale(1.1);
-                box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
+                box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+            }
+            
+            .tradein-nav-btn:hover:not(:disabled) i {
+                color: white !important;
             }
 
             .tradein-nav-btn:disabled {
@@ -6218,7 +6254,10 @@ if ($is_logged_in) {
 
                 // Periksa jika hanya ada 1 slide
                 const productsPerSlide = getProductsPerSlide();
-                const slideCount = Math.ceil(tradeinProducts.length / productsPerSlide);
+                
+                // Tambahkan 1 slot untuk card "Lihat Semua"
+                const totalItems = tradeinProducts.length + 1;
+                const slideCount = Math.ceil(totalItems / productsPerSlide);
                 const isSingleSlide = slideCount <= 1;
 
                 let html = '';
@@ -6229,7 +6268,11 @@ if ($is_logged_in) {
 
                     for (let j = 0; j < productsPerSlide; j++) {
                         const index = i * productsPerSlide + j;
-                        if (index < tradeinProducts.length) {
+                        
+                        // Jika ini adalah item terakhir, tambahkan card "Lihat Semua"
+                        if (index === tradeinProducts.length) {
+                            html += createTradeinViewAllCard();
+                        } else if (index < tradeinProducts.length) {
                             html += createTradeinCard(tradeinProducts[index]);
                         }
                     }
@@ -6291,6 +6334,18 @@ if ($is_logged_in) {
                     </button>
                 </div>
             `;
+            }
+
+            function createTradeinViewAllCard() {
+                return `
+                <div class="tradein-product header-card-products" onclick="location.href='products/products.php'" style="cursor: pointer; background: var(--bg-secondary); display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px 20px;">
+                    <div style="width: 80px; height: 80px; background: #007aff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0, 122, 255, 0.2);">
+                        <i class="bi bi-arrow-right" style="font-size: 2.5rem; color: white;"></i>
+                    </div>
+                    <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 10px; text-align: center;">Lihat Semua</h3>
+                    <p style="color: var(--text-secondary); text-align: center; font-size: 0.95rem; margin: 0;">Jelajahi berbagai pilihan produk lainnya</p>
+                </div>
+                `;
             }
 
             function initTradeinSlider(productsPerSlide, slideCount) {
@@ -6409,8 +6464,8 @@ if ($is_logged_in) {
             }
 
             body {
-                background-color: #f5f7fa;
-                color: #1d1d1f;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
             }
 
             .simple-services-container {
@@ -6428,7 +6483,7 @@ if ($is_logged_in) {
             .page-header h1 {
                 font-size: 2rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 10px;
             }
 
@@ -6436,11 +6491,13 @@ if ($is_logged_in) {
             .simple-services-wrapper {
                 position: relative;
                 overflow: hidden;
-                border-radius: 12px;
-                background: white;
-                box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+                border-radius: 24px;
+                background: rgba(30, 30, 30, 0.6);
+                backdrop-filter: blur(20px) saturate(180%);
+                -webkit-backdrop-filter: blur(20px) saturate(180%);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                 margin: 0 auto;
-                border: 1px solid #e0e0e0;
+                border: 1px solid rgba(255, 255, 255, 0.1);
             }
 
             .simple-slider {
@@ -6466,10 +6523,10 @@ if ($is_logged_in) {
             .simple-card {
                 flex: 1;
                 min-width: 0;
-                background: white;
+                background: var(--card-bg);
                 border-radius: 10px;
                 padding: 20px;
-                border: 1px solid #e0e0e0;
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 position: relative;
@@ -6559,7 +6616,7 @@ if ($is_logged_in) {
                 font-size: 1rem;
                 font-weight: 600;
                 line-height: 1.3;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 15px;
                 min-height: 40px;
             }
@@ -6567,7 +6624,7 @@ if ($is_logged_in) {
             .simple-footer {
                 margin-top: 15px;
                 padding-top: 15px;
-                border-top: 1px solid #f0f0f5;
+                border-top: 1px solid var(--border-light);
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
@@ -6575,18 +6632,19 @@ if ($is_logged_in) {
             }
 
             .simple-badge {
-                background-color: #f5f5f7;
-                color: #86868b;
-                padding: 4px 10px;
-                border-radius: 12px;
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+                padding: 6px 12px;
+                border-radius: 20px;
                 font-size: 0.75rem;
                 font-weight: 600;
+                border: 1px solid var(--border-light);
             }
 
             .simple-cta {
                 background-color: #0071bc;
-                color: white;
-                padding: 8px 15px;
+                color: #ffffff !important;
+                padding: 8px 16px;
                 border-radius: 8px;
                 text-decoration: none;
                 font-weight: 600;
@@ -6629,6 +6687,7 @@ if ($is_logged_in) {
             .simple-cta i {
                 margin-left: 5px;
                 font-size: 0.8rem;
+                color: #ffffff !important;
             }
 
             /* Navigation Buttons */
@@ -6644,24 +6703,35 @@ if ($is_logged_in) {
             }
 
             .simple-nav-btn {
-                background: white;
+                background: rgba(255, 255, 255, 0.9);
+                backdrop-filter: blur(4px);
                 border: none;
-                width: 40px;
-                height: 40px;
+                width: 45px;
+                height: 45px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                font-size: 18px;
-                color: #333;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                font-size: 20px;
+                color: #0071bc;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 transition: all 0.3s ease;
             }
 
             .simple-nav-btn:hover {
                 background: #0071bc;
                 color: white;
+                transform: scale(1.1);
+                box-shadow: 0 6px 20px rgba(0, 113, 188, 0.4);
+            }
+
+            .simple-nav-btn i {
+                color: #0071bc !important;
+            }
+            
+            .simple-nav-btn:hover i {
+                color: #ffffff !important;
             }
 
             .simple-nav-btn:disabled {
@@ -8109,7 +8179,8 @@ if ($is_logged_in) {
     <div class="kelas-layanan-container">
         <style>
             body {
-                background-color: #f7f7f7;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
             }
 
             .kelas-layanan-container {
@@ -8127,7 +8198,7 @@ if ($is_logged_in) {
             .kelas-layanan-header h1 {
                 font-size: 28px;
                 font-weight: 600;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 15px;
                 text-align: center;
                 position: relative;
@@ -8150,7 +8221,7 @@ if ($is_logged_in) {
                 position: relative;
                 overflow: hidden;
                 border-radius: 12px;
-                background: white;
+                background: var(--bg-primary);
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
                 margin-bottom: 40px;
             }
@@ -8186,13 +8257,13 @@ if ($is_logged_in) {
 
             /* CONTENT CARD */
             .kelas-layanan-content-card {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 12px;
                 padding: 20px;
                 height: 100%;
                 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
                 transition: all 0.3s ease;
-                border: 1px solid #f0f0f0;
+                border: 1px solid var(--border-light);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -8220,7 +8291,7 @@ if ($is_logged_in) {
                 height: 160px;
                 object-fit: contain;
                 border-radius: 8px;
-                background-color: #f8f9fa;
+                background-color: var(--bg-tertiary);
                 padding: 12px;
             }
 
@@ -8243,7 +8314,7 @@ if ($is_logged_in) {
             .kelas-layanan-text-heading {
                 font-size: 18px;
                 font-weight: 800;
-                color: #333;
+                color: var(--text-primary);
                 margin-bottom: 12px;
                 line-height: 1.3;
                 display: flex;
@@ -8256,7 +8327,7 @@ if ($is_logged_in) {
             .kelas-layanan-second-paragraph {
                 font-size: 13px;
                 font-weight: 600;
-                color: #666;
+                color: var(--text-secondary);
                 margin-bottom: 8px;
                 line-height: 1.4;
             }
@@ -8289,7 +8360,7 @@ if ($is_logged_in) {
             }
 
             .kelas-layanan-nav-btn {
-                background-color: white;
+                background-color: var(--card-bg);
                 border: none;
                 width: 45px;
                 height: 45px;
@@ -8300,7 +8371,7 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s ease;
                 font-size: 20px;
-                color: #333;
+                color: var(--text-primary);
                 box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
                 pointer-events: auto;
                 opacity: 1;
@@ -9307,8 +9378,8 @@ if ($is_logged_in) {
     <div class="container-about-apple-care">
         <style>
             body {
-                background: #f8f9fa;
-                color: #1d1d1f;
+                background: var(--bg-secondary);
+                color: var(--text-primary);
             }
 
             /* CONTAINER UTAMA */
@@ -9340,7 +9411,7 @@ if ($is_logged_in) {
             .apple-care-main-title {
                 font-size: 2.8rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 15px;
                 letter-spacing: -0.5px;
                 line-height: 1.2;
@@ -9348,7 +9419,7 @@ if ($is_logged_in) {
 
             .apple-care-subtitle {
                 font-size: 1.2rem;
-                color: #86868b;
+                color: var(--text-secondary);
                 max-width: 600px;
                 margin: 0 auto;
                 font-weight: 400;
@@ -9365,14 +9436,14 @@ if ($is_logged_in) {
 
             /* CARD STYLE */
             .card-apple-care {
-                background: white;
+                background: var(--card-bg);
                 border-radius: 16px;
                 padding: 25px;
                 box-shadow:
                     0 8px 30px rgba(0, 0, 0, 0.08),
                     0 2px 8px rgba(0, 0, 0, 0.03);
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                border: 1px solid rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--border-light);
                 position: relative;
                 overflow: hidden;
             }
@@ -9419,7 +9490,7 @@ if ($is_logged_in) {
 
             /* JUDUL CARD */
             .card-apple-care .apple-care-card-title {
-                color: #1d1d1f;
+                color: var(--text-primary);
                 font-size: 1.5rem;
                 font-weight: 700;
                 margin-bottom: 15px;
@@ -9428,7 +9499,7 @@ if ($is_logged_in) {
 
             /* FITUR CARD */
             .applecare-feature {
-                color: #515154;
+                color: var(--text-secondary);
                 font-size: 0.95rem;
                 margin: 12px 0;
                 padding-left: 28px;
@@ -9767,7 +9838,7 @@ if ($is_logged_in) {
 
                     const modalContent = document.createElement('div');
                     modalContent.style.cssText = `
-                    background: white;
+                    background: var(--card-bg);
                     padding: 30px;
                     border-radius: 16px;
                     max-width: 400px;
@@ -9778,8 +9849,8 @@ if ($is_logged_in) {
                 `;
 
                     modalContent.innerHTML = `
-                    <h3 style="color: #1d1d1f; margin-bottom: 15px;">AppleCare+ untuk ${productName}</h3>
-                    <p style="color: #515154; margin-bottom: 20px; line-height: 1.6;">
+                    <h3 style="color: var(--text-primary); margin-bottom: 15px;">AppleCare+ untuk ${productName}</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
                         ${price}<br>
                         Perlindungan komprehensif termasuk accidental damage, dukungan teknis 24/7, dan garansi hardware.
                     </p>
@@ -10013,7 +10084,7 @@ if ($is_logged_in) {
             /* CONTENT CARD CHECKOUT */
             .content-checkout {
                 flex: 0 0 calc(50% - 15px);
-                background: white;
+                background: var(--card-bg);
                 border-radius: 20px;
                 overflow: hidden;
                 box-shadow:
@@ -10041,7 +10112,7 @@ if ($is_logged_in) {
                 width: 100%;
                 height: 200px;
                 overflow: hidden;
-                background: linear-gradient(135deg, #f5f5f7 0%, #ffffff 100%);
+                background: var(--bg-tertiary);
                 display: flex;
                 align-items: center;
                 justify-content: center;
@@ -10121,7 +10192,7 @@ if ($is_logged_in) {
             .nama-checkout {
                 font-size: 1.4rem;
                 font-weight: 700;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 12px;
                 line-height: 1.3;
                 letter-spacing: -0.2px;
@@ -10132,7 +10203,7 @@ if ($is_logged_in) {
 
             .deskripsi-checkout {
                 font-size: 0.95rem;
-                color: #515154;
+                color: var(--text-secondary);
                 margin-bottom: 20px;
                 line-height: 1.6;
                 flex-grow: 1;
@@ -10228,7 +10299,7 @@ if ($is_logged_in) {
                 position: absolute;
                 top: 50%;
                 transform: translateY(-50%);
-                background: white;
+                background: var(--card-bg);
                 border: none;
                 width: 56px;
                 height: 56px;
@@ -10239,7 +10310,7 @@ if ($is_logged_in) {
                 cursor: pointer;
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 1.5rem;
-                color: #1d1d1f;
+                color: var(--text-secondary);
                 box-shadow:
                     0 6px 20px rgba(0, 0, 0, 0.1),
                     0 2px 4px rgba(0, 0, 0, 0.06);
@@ -10703,7 +10774,7 @@ if ($is_logged_in) {
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <div style="text-align: center; padding: 40px; color: #999; width: 100%;">
+                    <div style="text-align: center; padding: 40px; color: var(--text-secondary); width: 100%;">
                         <p>Belum ada produk checkout yang tersedia.</p>
                     </div>
                 <?php endif; ?>
@@ -10941,8 +11012,8 @@ if ($is_logged_in) {
         <style>
             body {
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                background-color: #f9f9f9;
-                color: #333;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
                 overflow-x: hidden;
             }
 
@@ -10955,23 +11026,22 @@ if ($is_logged_in) {
             }
 
             .ibox-footer h1 {
-                color: #1d1d1f;
+                color: var(--text-primary);
                 margin-bottom: 20px;
                 font-weight: 600;
                 font-size: 1.5rem;
             }
-
             .ibox-footer p {
-                color: #515154;
+                color: var(--text-secondary);
                 line-height: 1.5;
                 margin-bottom: 20px;
             }
 
             /* Footer Styles */
             .ibox-footer {
-                background-color: #f5f5f7;
-                color: #1d1d1f;
-                border-top: 1px solid #d2d2d7;
+                background-color: var(--bg-secondary);
+                color: var(--text-primary);
+                border-top: 1px solid var(--border-color);
                 padding: 40px 0 20px;
                 font-size: 12px;
                 line-height: 1.33337;
@@ -11000,7 +11070,7 @@ if ($is_logged_in) {
             .footer-column-title {
                 font-weight: 600;
                 margin-bottom: 10px;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 font-size: 12px;
             }
 
@@ -11013,18 +11083,18 @@ if ($is_logged_in) {
             }
 
             .footer-column a {
-                color: #515154;
+                color: var(--text-secondary);
                 text-decoration: none;
                 transition: color 0.2s;
             }
 
             .footer-column a:hover {
-                color: #1d1d1f;
+                color: var(--text-primary);
                 text-decoration: underline;
             }
 
             .footer-divider {
-                border-top: 1px solid #d2d2d7;
+                border-top: 1px solid var(--border-color);
                 margin: 20px 0;
             }
 
@@ -11049,7 +11119,7 @@ if ($is_logged_in) {
             .partners-title {
                 font-weight: 600;
                 margin-bottom: 15px;
-                color: #1d1d1f;
+                color: var(--text-primary);
             }
 
             .partners-grid {
@@ -11059,8 +11129,8 @@ if ($is_logged_in) {
             }
 
             .partner-item {
-                background-color: #fff;
-                border: 1px solid #d2d2d7;
+                background-color: var(--card-bg);
+                border: 1px solid var(--border-color);
                 border-radius: 8px;
                 padding: 12px;
                 display: flex;
@@ -11068,7 +11138,7 @@ if ($is_logged_in) {
                 justify-content: center;
                 height: 60px;
                 font-weight: 500;
-                color: #1d1d1f;
+                color: var(--text-primary);
                 text-align: center;
                 transition: all 0.2s;
             }
@@ -11100,8 +11170,8 @@ if ($is_logged_in) {
                 align-items: center;
                 margin-top: 20px;
                 padding-top: 20px;
-                border-top: 1px solid #d2d2d7;
-                color: #86868b;
+                border-top: 1px solid var(--border-color);
+                color: var(--text-secondary);
                 font-size: 11px;
             }
 
@@ -11115,13 +11185,13 @@ if ($is_logged_in) {
             }
 
             .footer-links a {
-                color: #515154;
+                color: var(--text-secondary);
                 text-decoration: none;
             }
 
             .footer-links a:hover {
                 text-decoration: underline;
-                color: #1d1d1f;
+                color: var(--text-primary);
             }
 
             .back-to-top {
@@ -11280,15 +11350,7 @@ if ($is_logged_in) {
             });
 
             // Highlight current section in footer on hover
-            document.querySelectorAll('.footer-column a').forEach(link => {
-                link.addEventListener('mouseenter', function() {
-                    this.style.color = '#0071e3';
-                });
-
-                link.addEventListener('mouseleave', function() {
-                    this.style.color = '#515154';
-                });
-            });
+            // Highlight current section in footer on hover logic removed to allow CSS hover to work properly with variables
 
             // Add animation to partner items on page load
             document.addEventListener('DOMContentLoaded', function() {
