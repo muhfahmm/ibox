@@ -2340,14 +2340,14 @@ if ($is_logged_in) {
                 left: 60px;
                 bottom: 60px;
                 left: 60px;
-                background: rgba(30, 30, 30, 0.65);
+                background: var(--card-bg);
                 backdrop-filter: blur(20px);
                 -webkit-backdrop-filter: blur(20px);
                 padding: 30px;
                 border-radius: 12px;
                 max-width: 500px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px var(--shadow);
+                border: 1px solid var(--border-light);
             }
 
             .slide-content h3 {
@@ -2406,10 +2406,10 @@ if ($is_logged_in) {
             }
 
             .nav-btn {
-                background-color: rgba(30, 30, 30, 0.6);
+                background-color: var(--card-bg);
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid var(--border-light);
                 border: none;
                 width: 56px;
                 height: 56px;
@@ -2421,16 +2421,16 @@ if ($is_logged_in) {
                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 font-size: 22px;
                 color: var(--text-primary);
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+                box-shadow: 0 4px 20px var(--shadow);
                 opacity: 1;
                 pointer-events: auto;
             }
 
             .nav-btn:hover {
-                background-color: rgba(60, 60, 60, 0.8);
+                background-color: var(--bg-tertiary);
                 transform: scale(1.15);
                 color: #007aff;
-                box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 6px 25px var(--shadow);
             }
 
             .nav-btn:active {
@@ -3047,17 +3047,17 @@ if ($is_logged_in) {
                 cursor: pointer;
                 flex-shrink: 0;
                 flex-shrink: 0;
-                background-color: rgba(30, 30, 30, 0.6);
+                background-color: var(--card-bg);
                 backdrop-filter: blur(15px);
                 -webkit-backdrop-filter: blur(15px);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+                border: 1px solid var(--border-light);
+                box-shadow: 0 4px 15px var(--shadow);
             }
 
             .product-items:hover {
-                background-color: rgba(60, 60, 60, 0.7);
+                background-color: var(--bg-tertiary);
                 transform: translateY(-5px);
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 5px 15px var(--shadow);
             }
 
             .product-items.active {
@@ -3936,12 +3936,12 @@ if ($is_logged_in) {
                 position: relative;
                 overflow: hidden;
                 border-radius: 24px;
-                background: rgba(30, 30, 30, 0.6);
+                background: var(--card-bg);
                 backdrop-filter: blur(20px) saturate(180%);
                 -webkit-backdrop-filter: blur(20px) saturate(180%);
                 padding: 30px 20px 60px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px var(--shadow);
+                border: 1px solid var(--border-light);
                 margin-bottom: 40px;
             }
 
@@ -5241,8 +5241,8 @@ if ($is_logged_in) {
             :root {
                 --apple-blue: #0071e3;
                 --apple-blue-hover: #0077ed;
-                --apple-gray-bg: var(--bg-secondary);
-                --apple-gray-light: var(--bg-secondary);
+                --apple-gray-bg: var(--bg-primary);
+                --apple-gray-light: var(--bg-primary);
                 --apple-gray-text: var(--text-secondary);
                 --apple-dark-text: var(--text-primary);
                 --apple-new-badge: #bf4800;
@@ -5750,12 +5750,12 @@ if ($is_logged_in) {
                 position: relative;
                 overflow: hidden;
                 border-radius: 24px;
-                background: rgba(30, 30, 30, 0.6);
+                background: var(--card-bg);
                 backdrop-filter: blur(20px) saturate(180%);
                 -webkit-backdrop-filter: blur(20px) saturate(180%);
                 padding: 30px 20px 60px;
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px var(--shadow);
+                border: 1px solid var(--border-light);
                 margin-bottom: 40px;
             }
 
@@ -6464,7 +6464,7 @@ if ($is_logged_in) {
             }
 
             body {
-                background-color: var(--bg-secondary);
+                background-color: var(--bg-primary);
                 color: var(--text-primary);
             }
 
@@ -6492,12 +6492,12 @@ if ($is_logged_in) {
                 position: relative;
                 overflow: hidden;
                 border-radius: 24px;
-                background: rgba(30, 30, 30, 0.6);
+                background: var(--card-bg);
                 backdrop-filter: blur(20px) saturate(180%);
                 -webkit-backdrop-filter: blur(20px) saturate(180%);
-                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                box-shadow: 0 8px 32px var(--shadow);
                 margin: 0 auto;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid var(--border-light);
             }
 
             .simple-slider {
@@ -7197,7 +7197,7 @@ if ($is_logged_in) {
         ?>
         <style>
             body {
-                background-color: var(--bg-secondary);
+                background-color: var(--bg-primary);
                 color: var(--text-primary);
                 line-height: 1.6;
                 overflow-x: hidden;
@@ -8179,7 +8179,7 @@ if ($is_logged_in) {
     <div class="kelas-layanan-container">
         <style>
             body {
-                background-color: var(--bg-secondary);
+                background-color: var(--bg-primary);
                 color: var(--text-primary);
             }
 
@@ -8956,7 +8956,7 @@ if ($is_logged_in) {
     <div class="layanan-lengkap-untuk-anda-container">
         <style>
             body {
-                background-color: var(--bg-secondary);
+                background-color: var(--bg-primary);
                 color: var(--text-primary);
                 line-height: 1.6;
             }
@@ -9378,7 +9378,7 @@ if ($is_logged_in) {
     <div class="container-about-apple-care">
         <style>
             body {
-                background: var(--bg-secondary);
+                background: var(--bg-primary);
                 color: var(--text-primary);
             }
 
@@ -10007,7 +10007,7 @@ if ($is_logged_in) {
         ?>
         <style>
             body {
-                background-color: var(--bg-secondary);
+                background-color: var(--bg-primary);
                 color: var(--text-primary);
                 line-height: 1.6;
                 overflow-x: hidden;
